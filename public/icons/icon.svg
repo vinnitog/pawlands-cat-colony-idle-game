@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>Pawlands icon</title>
+  <rect width="512" height="512" rx="96" fill="#2a9d8f"/>
+  <circle cx="256" cy="284" r="138" fill="#fff7d1"/>
+  <path d="M154 189 114 108l88 42zm204 0 40-81-88 42z" fill="#fff7d1"/>
+  <circle cx="207" cy="270" r="20" fill="#273238"/>
+  <circle cx="305" cy="270" r="20" fill="#273238"/>
+  <path d="M252 308c0-12 8-20 20-20s20 8 20 20c0 14-12 24-20 31-8-7-20-17-20-31z" fill="#ff8a65"/>
+  <path d="M186 340c28 27 112 27 140 0" fill="none" stroke="#273238" stroke-width="18" stroke-linecap="round"/>
+  <path d="M116 380c38-18 62-19 94-8M302 372c32-11 56-10 94 8" fill="none" stroke="#273238" stroke-width="16" stroke-linecap="round"/>
+</svg>

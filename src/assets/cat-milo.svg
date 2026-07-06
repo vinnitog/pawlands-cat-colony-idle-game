@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 360" role="img" aria-labelledby="title desc">
+  <title>Milo</title>
+  <desc>Gato inicial de Pawlands dentro de uma caixa de papelao.</desc>
+  <rect x="58" y="206" width="304" height="112" rx="18" fill="#d79a52"/>
+  <path d="M72 208h276l-34-66H106z" fill="#efb86d"/>
+  <path d="M112 206 84 155h102l20 51zm196 0 28-51H234l-20 51z" fill="#c8843f"/>
+  <circle cx="210" cy="145" r="86" fill="#fff7d1"/>
+  <path d="M143 94 113 32l71 36zm134 0 30-62-71 36z" fill="#fff7d1"/>
+  <path d="M152 83 130 44l45 27zm116 0 22-39-45 27z" fill="#ffd9c7"/>
+  <circle cx="178" cy="142" r="13" fill="#273238"/>
+  <circle cx="242" cy="142" r="13" fill="#273238"/>
+  <path d="M207 169c0-8 6-14 14-14s14 6 14 14c0 9-8 16-14 21-6-5-14-12-14-21z" fill="#ff8a65"/>
+  <path d="M176 199c18 17 70 17 88 0" fill="none" stroke="#273238" stroke-width="10" stroke-linecap="round"/>
+  <path d="M118 166c24-9 45-10 65-3m73 0c20-7 41-6 65 3" fill="none" stroke="#273238" stroke-width="8" stroke-linecap="round"/>
+</svg>

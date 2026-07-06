@@ -1,0 +1,19 @@
+{
+  "name": "Pawlands: Cat Colony Idle",
+  "short_name": "Pawlands",
+  "description": "Um jogo idle leve sobre uma colonia de gatos que cresce com o tempo.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef9f2",
+  "theme_color": "#2a9d8f",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
