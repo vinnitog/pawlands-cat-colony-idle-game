@@ -34,6 +34,7 @@ test('github pages workflow deploys the dist artifact from develop', () => {
   const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'deploy-pages.yml'), 'utf8');
 
   assert.match(workflow, /branches:\s*\n\s*-\s*develop/);
+  assert.match(workflow, /run:\s*npm install/);
   assert.match(workflow, /actions\/configure-pages@v6/);
   assert.match(workflow, /actions\/upload-pages-artifact@v5/);
   assert.match(workflow, /path:\s*dist/);
