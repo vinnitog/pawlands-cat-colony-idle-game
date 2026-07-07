@@ -1,5 +1,6 @@
 import { missionById } from '../../game/data/missions.ts';
 import type { MissionId, MissionState } from '../../game/models/missions.ts';
+import { GameIcon } from './GameIcon.tsx';
 
 type MissionItemProps = {
   missionId: MissionId;
@@ -12,7 +13,7 @@ export function MissionItem({ missionId, mission, onClaim }: MissionItemProps) {
   const progressPercent = Math.min(100, Math.floor((mission.progress / mission.target) * 100));
 
   return (
-    <article className="item-card mission-card">
+    <article className={`item-card mission-card ${mission.completed ? 'mission-card--complete' : ''}`}>
       <div className="item-card-header">
         <div>
           <h3>{definition.title}</h3>
@@ -26,6 +27,7 @@ export function MissionItem({ missionId, mission, onClaim }: MissionItemProps) {
       </div>
 
       <p className="cost-line">
+        <GameIcon name="reward" />
         +{definition.reward.coins} moedas, +{definition.reward.xp} XP
       </p>
 

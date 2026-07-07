@@ -78,3 +78,10 @@ git diff --check
 - Manter documentacao de contexto versionada neste arquivo.
 - Save local inicial usa `localStorage` com adaptador isolado para futura migracao para IndexedDB.
 - Estrutura preparada para PWA instalavel, Capacitor ou Trusted Web Activity depois do MVP.
+
+## Direcao Visual
+
+- O MVP deve parecer um jogo idle casual, nao um dashboard generico.
+- Priorizar cenario de colonia felina, cartas tematicas, icones SVG internos e feedback visual claro.
+- Manter arte simples e substituivel por assets finais no futuro.
+- Toda tela nova deve respeitar a linguagem visual de acampamento/quintal, recursos ilustrados e botoes com game feel.
