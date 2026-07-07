@@ -30,10 +30,10 @@ test('vite is configured for the GitHub Pages project path', () => {
   assert.match(viteConfig, /base:\s*['"]\/pawlands-cat-colony-idle-game\/['"]/);
 });
 
-test('github pages workflow deploys the dist artifact from develop', () => {
+test('github pages workflow deploys the dist artifact from main', () => {
   const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'deploy-pages.yml'), 'utf8');
 
-  assert.match(workflow, /branches:\s*\n\s*-\s*develop/);
+  assert.match(workflow, /branches:\s*\n\s*-\s*main/);
   assert.match(workflow, /run:\s*npm install/);
   assert.match(workflow, /actions\/configure-pages@v6/);
   assert.match(workflow, /actions\/upload-pages-artifact@v5/);
