@@ -1,6 +1,7 @@
 import type { Cat } from '../../game/models/cat.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import miloImageUrl from '../../assets/cat-milo.svg';
+import { GameIcon } from './GameIcon.tsx';
 
 export function CatStatus({ cat }: { cat: Cat }) {
   const nextLevelXp = xpForNextLevel(cat.level);
@@ -10,7 +11,14 @@ export function CatStatus({ cat }: { cat: Cat }) {
   return (
     <section className="cat-status">
       <div className="cat-portrait">
+        <div className="scene-sky" />
+        <div className="scene-sun" />
+        <div className="scene-cloud one" />
+        <div className="scene-cloud two" />
+        <div className="scene-hill back" />
+        <div className="scene-hill front" />
         <img src={miloImageUrl} alt="Milo, o primeiro gato da colônia" />
+        <div className="scene-sign">Caixa do Milo</div>
       </div>
 
       <div className="cat-panel">
@@ -24,7 +32,10 @@ export function CatStatus({ cat }: { cat: Cat }) {
 
         <div className="meter-group">
           <label>
-            <span>XP</span>
+            <span>
+              <GameIcon name="xp" />
+              XP
+            </span>
             <strong>
               {cat.xp}/{nextLevelXp}
             </strong>
@@ -36,7 +47,10 @@ export function CatStatus({ cat }: { cat: Cat }) {
 
         <div className="meter-group">
           <label>
-            <span>Energia</span>
+            <span>
+              <GameIcon name="energy" />
+              Energia
+            </span>
             <strong>
               {cat.energy}/{cat.maxEnergy}
             </strong>

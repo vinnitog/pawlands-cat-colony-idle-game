@@ -1,5 +1,6 @@
 import { resourceKeys, resourceLabels, specialItemKeys, specialItemLabels } from '../../game/models/resources.ts';
 import { useGame } from '../../app/gameProvider.tsx';
+import { GameIcon } from '../components/GameIcon.tsx';
 
 export function InventoryScreen() {
   const { state } = useGame();
@@ -18,7 +19,10 @@ export function InventoryScreen() {
         <dl className="inventory-list">
           {resourceKeys.map((key) => (
             <div key={key}>
-              <dt>{resourceLabels[key]}</dt>
+              <dt>
+                <GameIcon name={key} />
+                {resourceLabels[key]}
+              </dt>
               <dd>{state.resources[key]}</dd>
             </div>
           ))}
@@ -30,7 +34,10 @@ export function InventoryScreen() {
         <dl className="inventory-list">
           {specialItemKeys.map((key) => (
             <div key={key}>
-              <dt>{specialItemLabels[key]}</dt>
+              <dt>
+                <GameIcon name={key} />
+                {specialItemLabels[key]}
+              </dt>
               <dd>{state.inventory[key]}</dd>
             </div>
           ))}

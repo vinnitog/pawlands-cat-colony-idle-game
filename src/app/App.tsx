@@ -7,17 +7,18 @@ import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
 import { InventoryScreen } from '../ui/screens/InventoryScreen.tsx';
 import { SettingsScreen } from '../ui/screens/SettingsScreen.tsx';
 import { OfflineRewardsModal } from '../ui/components/OfflineRewardsModal.tsx';
+import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 
 type ScreenId = 'dashboard' | 'activities' | 'upgrades' | 'missions' | 'inventory' | 'settings';
 
-const tabs: Array<{ id: ScreenId; label: string }> = [
-  { id: 'dashboard', label: 'Início' },
-  { id: 'activities', label: 'Atividades' },
-  { id: 'upgrades', label: 'Melhorias' },
-  { id: 'missions', label: 'Missões' },
-  { id: 'inventory', label: 'Inventário' },
-  { id: 'settings', label: 'Ajustes' },
+const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
+  { id: 'dashboard', label: 'Início', icon: 'home' },
+  { id: 'activities', label: 'Atividades', icon: 'exploreYard' },
+  { id: 'upgrades', label: 'Melhorias', icon: 'upgrades' },
+  { id: 'missions', label: 'Missões', icon: 'missions' },
+  { id: 'inventory', label: 'Inventário', icon: 'inventory' },
+  { id: 'settings', label: 'Ajustes', icon: 'settings' },
 ];
 
 export function App() {
@@ -32,7 +33,10 @@ export function App() {
           <p className="eyebrow">Pawlands</p>
           <h1>Cat Colony Idle</h1>
         </div>
-        <div className="level-pill">Nv. {state.cat.level}</div>
+        <div className="level-pill">
+          <GameIcon name="level" />
+          <span>Nv. {state.cat.level}</span>
+        </div>
       </header>
 
       <main className="app-main">
@@ -52,6 +56,7 @@ export function App() {
             type="button"
             onClick={() => setScreen(tab.id)}
           >
+            <GameIcon name={tab.icon} />
             <span>{tab.label}</span>
             {tab.id === 'missions' && pendingMissions > 0 ? <strong>{pendingMissions}</strong> : null}
           </button>

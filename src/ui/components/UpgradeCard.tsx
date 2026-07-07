@@ -4,6 +4,7 @@ import type { UpgradeId } from '../../game/models/upgrades.ts';
 import { resourceLabels } from '../../game/models/resources.ts';
 import { getUpgradeCost } from '../../game/systems/upgradeSystem.ts';
 import { hasResources } from '../../game/systems/economySystem.ts';
+import { GameIcon } from './GameIcon.tsx';
 
 type UpgradeCardProps = {
   upgradeId: UpgradeId;
@@ -27,7 +28,10 @@ export function UpgradeCard({ upgradeId, state, onBuy }: UpgradeCardProps) {
   const canBuy = Boolean(cost && hasResources(state.resources, cost));
 
   return (
-    <article className="item-card">
+    <article className="item-card upgrade-card">
+      <div className="upgrade-art">
+        <GameIcon name="upgrades" />
+      </div>
       <div className="item-card-header">
         <div>
           <h3>{definition.name}</h3>

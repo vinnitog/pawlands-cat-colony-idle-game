@@ -3,6 +3,7 @@ import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatStatus } from '../components/CatStatus.tsx';
 import { ResourceBar } from '../components/ResourceBar.tsx';
+import { GameIcon } from '../components/GameIcon.tsx';
 import { formatDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 
@@ -21,7 +22,7 @@ export function DashboardScreen({ goTo }: DashboardScreenProps) {
       <CatStatus cat={state.cat} />
       <ResourceBar resources={state.resources} />
 
-      <section className="panel">
+      <section className="panel activity-current-panel">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Atividade atual</p>
@@ -38,16 +39,20 @@ export function DashboardScreen({ goTo }: DashboardScreenProps) {
 
       <section className="quick-grid" aria-label="Ações rápidas">
         <button type="button" onClick={() => goTo('activities')}>
-          Atividades
+          <GameIcon name="exploreYard" />
+          <span>Atividades</span>
         </button>
         <button type="button" onClick={() => goTo('upgrades')}>
-          Melhorias
+          <GameIcon name="upgrades" />
+          <span>Melhorias</span>
         </button>
         <button type="button" onClick={() => goTo('missions')}>
-          Missões
+          <GameIcon name="missions" />
+          <span>Missões</span>
         </button>
         <button type="button" onClick={() => goTo('inventory')}>
-          Inventário
+          <GameIcon name="inventory" />
+          <span>Inventário</span>
         </button>
       </section>
     </div>
