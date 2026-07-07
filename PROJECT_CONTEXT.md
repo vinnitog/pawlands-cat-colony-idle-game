@@ -78,6 +78,7 @@ git diff --check
 - Manter documentacao de contexto versionada neste arquivo.
 - Save local inicial usa `localStorage` com adaptador isolado para futura migracao para IndexedDB.
 - Estrutura preparada para PWA instalavel, Capacitor ou Trusted Web Activity depois do MVP.
+- Deploy estatico via GitHub Pages usa GitHub Actions em `main`, build `dist` e Vite `base` em `/pawlands-cat-colony-idle-game/`.
 
 ## Direcao Visual
 
