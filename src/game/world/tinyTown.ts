@@ -101,8 +101,9 @@ export function createGrimalkin(): WorldMap {
   for (const [bx, by] of [
     [4, 4],
     [19, 5],
-    [5, 12],
     [18, 11],
+    [7, 13],
+    [2, 13],
   ] as const) {
     objects[idx(bx, by)] = TILES.bush;
   }
@@ -137,6 +138,18 @@ export function createGrimalkin(): WorldMap {
   for (const [sx, sy, t] of [...house, ...gatehouse, ...props]) {
     objects[idx(sx, sy)] = t;
     solid[idx(sx, sy)] = true;
+  }
+
+  // a pond (recolored Tiny Town autotile, indices 132-140) on the ground layer
+  const pond: Array<[number, number, number]> = [
+    [3, 11, 132], [4, 11, 133], [5, 11, 133], [6, 11, 134],
+    [3, 12, 135], [4, 12, 136], [5, 12, 136], [6, 12, 137],
+    [3, 13, 135], [4, 13, 136], [5, 13, 136], [6, 13, 137],
+    [3, 14, 138], [4, 14, 139], [5, 14, 139], [6, 14, 140],
+  ];
+  for (const [px, py, t] of pond) {
+    ground[idx(px, py)] = t;
+    solid[idx(px, py)] = true;
   }
 
   const npcs: Npc[] = [
