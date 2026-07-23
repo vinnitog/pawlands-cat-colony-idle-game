@@ -741,7 +741,7 @@ dd {
   left: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 8px;
@@ -907,6 +907,121 @@ dd {
 
   to {
     background-position-x: calc(-1 * var(--frame-w) * var(--frames) * var(--sprite-scale));
+  }
+}
+
+/* ---- World (Grimalkin, top-down) --------------------------------------- */
+.world-screen {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 62vh, 620px);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: #171410;
+  box-shadow: var(--shadow);
+}
+
+.world-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+.world-prompt {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #6d4c18, #4a3110);
+  color: #ffe6a6;
+  font-family: var(--heading-font);
+  font-size: 0.86rem;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: var(--soft-shadow);
+}
+
+.world-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 240, 210, 0.72);
+  font-size: 0.72rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.world-dpad {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 42px);
+  grid-template-rows: repeat(3, 42px);
+  gap: 4px;
+}
+
+.world-dpad .dp-up {
+  grid-area: 1 / 2;
+}
+
+.world-dpad .dp-left {
+  grid-area: 2 / 1;
+}
+
+.world-dpad .dp-right {
+  grid-area: 2 / 3;
+}
+
+.world-dpad .dp-down {
+  grid-area: 3 / 2;
+}
+
+.dp,
+.world-action {
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--border);
+  color: #ffe6a6;
+  background: linear-gradient(180deg, rgba(109, 76, 24, 0.92), rgba(30, 22, 12, 0.92));
+  touch-action: none;
+  user-select: none;
+}
+
+.dp {
+  min-height: 0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.world-action {
+  position: absolute;
+  right: 20px;
+  bottom: 28px;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  font-family: var(--heading-font);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .world-dpad,
+  .world-action {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .world-hint {
+    display: none;
   }
 }
 
