@@ -30,8 +30,10 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 export function WorldScreen({ goTo }: WorldScreenProps) {
-  const { state } = useGame();
+  const { state, setWorldPosition } = useGame();
   const catClass = state.cat.catClass as CatClass;
+  const persistRef = useRef(setWorldPosition);
+  persistRef.current = setWorldPosition;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const keysRef = useRef<Set<string>>(new Set());
   const goToRef = useRef(goTo);
@@ -60,7 +62,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     const runMeta = anims.run;
     const keys = keysRef.current;
 
-    const player = { x: map.spawn.x, y: map.spawn.y, facing: 1, anim: 0, moving: false };
+    const start = state.world;
+    const player = { x: start.x, y: start.y, facing: 1, anim: 0, moving: false };
+    let dirty = false;
     let tileImg: HTMLImageElement | null = null;
     let idleImg: HTMLImageElement | null = null;
     let runImg: HTMLImageElement | null = null;
@@ -99,6 +103,13 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     window.addEventListener('resize', resize);
+
+    const saveTimer = window.setInterval(() => {
+      if (dirty) {
+        dirty = false;
+        persistRef.current(Math.round(player.x), Math.round(player.y));
+      }
+    }, 3000);
 
     const render = () => {
       if (!tileImg || !idleImg || !runImg) return;
@@ -217,6 +228,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         if (dx !== 0) player.facing = dx < 0 ? -1 : 1;
       }
       player.moving = moving;
+      if (moving) dirty = true;
       player.anim += dt;
 
       const ftx = Math.floor(player.x / TILE);
@@ -275,9 +287,11 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     return () => {
       running = false;
       cancelAnimationFrame(raf);
+      window.clearInterval(saveTimer);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('resize', resize);
+      persistRef.current(Math.round(player.x), Math.round(player.y));
     };
   }, [catClass]);
 

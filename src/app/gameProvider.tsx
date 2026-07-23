@@ -32,6 +32,7 @@ type GameContextValue = {
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
+  setWorldPosition(x: number, y: number): void;
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
   dismissRewardNotice(): void;
@@ -176,6 +177,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setWorldPosition = useCallback((x: number, y: number) => {
+    setState((current) => {
+      if (current.world.x === x && current.world.y === y) return current;
+      const next = { ...current, world: { x, y } };
+      saveGame(next);
+      return next;
+    });
+  }, []);
+
   const completeOnboarding = useCallback((choice: { name: string; catClass: CatClass }) => {
     setState((current) => {
       const next = applyStarterChoice(current, choice);
@@ -202,6 +212,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyUpgrade,
       claimMission,
       buyShopItem,
+      setWorldPosition,
       completeOnboarding,
       resetGame,
       dismissRewardNotice: () => setRewardNotice(null),
@@ -214,6 +225,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       rewardNotice,
       resetGame,
+      setWorldPosition,
       startActivity,
       state,
       toast,
