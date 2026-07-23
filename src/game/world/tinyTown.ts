@@ -86,6 +86,13 @@ export function createGrimalkin(): WorldMap {
     }
   }
 
+  // dirt roads tying the plaza to the gate and the house
+  const paths: Array<[number, number]> = [
+    [11, 11], [11, 12], [11, 13], [12, 11], [12, 12], [12, 13],
+    [5, 4], [5, 5], [5, 6], [6, 6], [7, 6], [8, 6],
+  ];
+  for (const [px, py] of paths) ground[idx(px, py)] = TILES.dirt;
+
   // a few decorative bushes (non-solid)
   for (const [bx, by] of [
     [4, 4],
