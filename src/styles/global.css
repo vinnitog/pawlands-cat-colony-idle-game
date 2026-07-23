@@ -34,6 +34,7 @@
 
   --shadow: 0 12px 30px rgba(10, 6, 2, 0.42);
   --soft-shadow: 0 6px 16px rgba(10, 6, 2, 0.32);
+  --header-h: 66px;
 }
 
 * {
@@ -138,23 +139,30 @@ dd {
   width: min(100%, 1120px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 16px 16px 112px;
+  padding: calc(var(--header-h) + 14px) 16px 104px;
 }
 
 .app-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 30;
+  border: 0;
+  border-bottom: 2px solid var(--gold);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 235, 0.6), transparent 62%), var(--surface);
+  box-shadow: 0 6px 20px rgba(10, 6, 2, 0.42);
+}
+
+.app-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
-  padding: 14px 18px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(255, 250, 235, 0.6), transparent 60%), var(--surface);
-  box-shadow:
-    inset 0 0 0 2px rgba(200, 150, 44, 0.28),
-    var(--soft-shadow);
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 9px 16px;
 }
 
 .eyebrow {
@@ -744,14 +752,17 @@ dd {
   bottom: 0;
   left: 0;
   z-index: 20;
+  border-top: 2px solid var(--gold);
+  background: linear-gradient(180deg, #2a2620, #17140f);
+  box-shadow: 0 -12px 30px rgba(10, 6, 2, 0.5);
+}
+
+.nav-inner {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 8px;
-  border-top: 2px solid var(--gold);
-  background: linear-gradient(180deg, #2a2620, #17140f);
-  box-shadow: 0 -12px 30px rgba(10, 6, 2, 0.5);
   gap: 6px;
 }
 
@@ -1000,7 +1011,8 @@ dd {
 .world-screen {
   position: relative;
   width: 100%;
-  height: clamp(360px, 62vh, 620px);
+  height: calc(100dvh - var(--header-h) - 118px);
+  min-height: 360px;
   overflow: hidden;
   border: 2px solid var(--border);
   border-radius: 8px;
@@ -1471,7 +1483,7 @@ dd {
 
 @media (min-width: 720px) {
   .app-shell {
-    padding: 24px 22px 116px;
+    padding: calc(var(--header-h) + 20px) 22px 108px;
   }
 
   .cat-status {
@@ -1505,12 +1517,22 @@ dd {
   }
 }
 
+@media (max-width: 640px) {
+  .nav-inner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .app-shell {
+    padding-bottom: 150px;
+  }
+}
+
 @media (max-width: 420px) {
   .app-shell {
     padding-inline: 12px;
   }
 
-  .app-header {
+  .app-bar {
     align-items: flex-start;
   }
 
@@ -1518,11 +1540,7 @@ dd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .bottom-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .toast {
-    bottom: 148px;
+    bottom: 172px;
   }
 }
