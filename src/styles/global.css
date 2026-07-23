@@ -1052,6 +1052,12 @@ dd {
   letter-spacing: 0.04em;
 }
 
+/* keep the balloon centered on hover/active (override the generic button lift) */
+.world-dialog:hover:not(:disabled),
+.world-dialog:active:not(:disabled) {
+  transform: translateX(-50%);
+}
+
 .world-screen.has-dialog .world-dpad,
 .world-screen.has-dialog .world-action {
   display: none;
