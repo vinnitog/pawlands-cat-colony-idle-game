@@ -526,6 +526,10 @@ dd {
   color: var(--box);
 }
 
+.resource-tile:nth-child(7) .game-icon {
+  color: #9a5fd0;
+}
+
 .resource-tile span {
   display: block;
   color: var(--muted);
@@ -1360,7 +1364,7 @@ dd {
   }
 
   .resource-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .resource-tile {

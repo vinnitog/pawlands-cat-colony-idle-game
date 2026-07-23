@@ -71,6 +71,7 @@ export const activities: ActivityDefinition[] = [
         { item: 'goldenSardine', chance: 0.04 },
         { item: 'glowingYarn', chance: 0.06 },
       ],
+      gemDrop: { chance: 0.15, amount: [1, 1] },
     },
   },
 ];

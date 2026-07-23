@@ -152,7 +152,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }
 
       saveGame(result.state);
-      setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP.`);
+      const gemText = result.gems > 0 ? `, +${result.gems} gemas` : '';
+      setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP${gemText}.`);
       return result.state;
     });
   }, []);

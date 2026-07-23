@@ -77,6 +77,13 @@ function renderIcon(name: GameIconName) {
           <path d="M31 52V20" fill="none" stroke="#1f2f36" strokeWidth="4" strokeLinecap="round" opacity="0.28" />
         </>
       );
+    case 'gems':
+      return (
+        <>
+          <path d="M20 10h24l12 16-24 28L8 26Z" fill="currentColor" />
+          <path d="M20 10 14 26h36l-6-16M8 26h48M32 54 20 26m12 28 12-28" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinejoin="round" />
+        </>
+      );
     case 'coins':
       return (
         <>

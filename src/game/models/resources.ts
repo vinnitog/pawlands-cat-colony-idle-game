@@ -4,7 +4,8 @@ export type ResourceKey =
   | 'yarn'
   | 'catnip'
   | 'coins'
-  | 'cardboardBoxes';
+  | 'cardboardBoxes'
+  | 'gems';
 
 export type Resources = Record<ResourceKey, number>;
 
@@ -26,6 +27,7 @@ export const resourceKeys: ResourceKey[] = [
   'catnip',
   'coins',
   'cardboardBoxes',
+  'gems',
 ];
 
 export const specialItemKeys: SpecialItemKey[] = [
@@ -41,6 +43,7 @@ export const resourceLabels: Record<ResourceKey, string> = {
   catnip: 'Catnip',
   coins: 'Moedas',
   cardboardBoxes: 'Caixas',
+  gems: 'Gemas',
 };
 
 export const specialItemLabels: Record<SpecialItemKey, string> = {
@@ -57,6 +60,7 @@ export function createEmptyResources(): Resources {
     catnip: 0,
     coins: 0,
     cardboardBoxes: 0,
+    gems: 0,
   };
 }
 

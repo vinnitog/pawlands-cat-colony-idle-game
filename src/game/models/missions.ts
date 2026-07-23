@@ -29,5 +29,6 @@ export type MissionDefinition = {
   reward: {
     coins: number;
     xp: number;
+    gems?: number;
   };
 };
