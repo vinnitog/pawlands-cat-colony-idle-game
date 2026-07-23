@@ -1,26 +1,29 @@
 import { useGame } from '../../app/gameProvider.tsx';
-import { shopItems } from '../../game/data/shop.ts';
+import { shopsById } from '../../game/data/shop.ts';
+import type { ShopId } from '../../game/models/shop.ts';
 import { GameIcon } from './GameIcon.tsx';
 
-type JewelerShopProps = {
+type ShopProps = {
   sellerName: string;
+  shopId: ShopId;
   onClose(): void;
 };
 
-export function JewelerShop({ sellerName, onClose }: JewelerShopProps) {
+export function Shop({ sellerName, shopId, onClose }: ShopProps) {
   const { state, buyShopItem } = useGame();
   const gems = state.resources.gems;
+  const shop = shopsById[shopId];
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
         className="reward-modal shop-modal"
         role="dialog"
-        aria-label={`Loja de ${sellerName}`}
+        aria-label={shop.title}
         onClick={(event) => event.stopPropagation()}
       >
         <p className="eyebrow">{sellerName}</p>
-        <h2>Balcão de Gemas</h2>
+        <h2>{shop.title}</h2>
         <div className="shop-balance">
           <GameIcon name="gems" />
           <strong>{gems}</strong>
@@ -28,7 +31,7 @@ export function JewelerShop({ sellerName, onClose }: JewelerShopProps) {
         </div>
 
         <ul className="shop-list">
-          {shopItems.map((item) => {
+          {shop.items.map((item) => {
             const affordable = gems >= item.gemCost;
             return (
               <li className="shop-item" key={item.id}>

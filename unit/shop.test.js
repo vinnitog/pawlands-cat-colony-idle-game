@@ -41,3 +41,13 @@ test('blessing permanently raises luck', () => {
   assert.equal(result.state.cat.stats.luck, baseLuck + 1);
   assert.equal(result.state.resources.gems, 0);
 });
+
+test("blacksmith's steel claw raises attack", () => {
+  const state = withGems(5);
+  const baseAttack = state.cat.stats.attack;
+  const result = buyShopItem(state, 'steelClaw');
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.state.cat.stats.attack, baseAttack + 1);
+  assert.equal(result.state.resources.gems, 0);
+});

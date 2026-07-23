@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { useGame } from '../../app/gameProvider.tsx';
 import type { CatClass } from '../../game/models/catClass.ts';
-import { JewelerShop } from '../components/JewelerShop.tsx';
+import type { ShopId } from '../../game/models/shop.ts';
+import { Shop } from '../components/Shop.tsx';
 import {
   createGrimalkin,
   TILE,
@@ -38,7 +39,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
   const dialogRef = useRef(false);
   dialogRef.current = dialog !== null;
-  const [shopSeller, setShopSeller] = useState<string | null>(null);
+  const [shopSeller, setShopSeller] = useState<{ name: string; shopId: ShopId } | null>(null);
   const shopRef = useRef(false);
   shopRef.current = shopSeller !== null;
   const advanceRef = useRef<() => void>(() => {});
@@ -241,7 +242,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       }
       if (interactEdge) {
         if (nearNpc) {
-          if (nearNpc.shop) setShopSeller(nearNpc.name);
+          if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
           else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
         } else if (nearSign) {
           goToRef.current(nearSign.kind);
@@ -305,7 +306,11 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         </button>
       ) : null}
       {shopSeller ? (
-        <JewelerShop sellerName={shopSeller} onClose={() => setShopSeller(null)} />
+        <Shop
+          sellerName={shopSeller.name}
+          shopId={shopSeller.shopId}
+          onClose={() => setShopSeller(null)}
+        />
       ) : null}
       <div className="world-dpad">
         <button type="button" className="dp dp-up" aria-label="Cima" {...hold('w')}>

@@ -1,4 +1,5 @@
 import type { CatClass } from '../models/catClass.ts';
+import type { ShopId } from '../models/shop.ts';
 
 // World tiles come from Kenney's "Tiny Town" pack (CC0) — public/tiles/tiny_town.png,
 // a 12-column sheet of 16x16 tiles. See public/tiles/tiny_town.license.txt.
@@ -34,8 +35,8 @@ export type Npc = {
   sprite: CatClass;
   name: string;
   lines: string[];
-  /** When true, interacting opens the Jeweler's gem shop instead of dialog. */
-  shop?: boolean;
+  /** When set, interacting opens this shop instead of showing dialog. */
+  shop?: ShopId;
 };
 
 export type WorldMap = {
@@ -144,21 +145,16 @@ export function createGrimalkin(): WorldMap {
       ty: 7,
       sprite: 'mage',
       name: 'Vittorio, o Joalheiro',
-      shop: true,
-      lines: [
-        'Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.',
-      ],
+      shop: 'jeweler',
+      lines: ['Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.'],
     },
     {
       tx: 17,
       ty: 8,
       sprite: 'knight',
       name: 'Aldric, o Ferreiro',
-      lines: [
-        'Ferro é honesto. Gente, nem tanto. *martela*',
-        'Trago aço pra quem merece. Você... ainda estou decidindo.',
-        'Quer lâmina afiada? Traga metal — e pare de me encarar.',
-      ],
+      shop: 'blacksmith',
+      lines: ['Ferro é honesto. Gente, nem tanto. *martela*'],
     },
   ];
 
