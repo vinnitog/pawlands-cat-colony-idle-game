@@ -15,6 +15,8 @@ export const TILES = {
   tree: 4,
   bush: 5,
   sign: 92,
+  barrel: 106,
+  crate: 130,
 } as const;
 
 export type InteractionKind = 'missions' | 'upgrades' | 'activities';
@@ -105,6 +107,25 @@ export function createGrimalkin(): WorldMap {
     solid[idx(post.tx, post.ty)] = true;
   }
 
+  // Assembled structures (tile indices from the Tiny Town sheet).
+  const house: Array<[number, number, number]> = [
+    [3, 2, 48], [4, 2, 49], [5, 2, 50], // blue roof
+    [3, 3, 84], [4, 3, 85], [5, 3, 86], // timbered wall: window, plain, door
+  ];
+  // stone gatehouse over the bottom gap — the way out toward the Além
+  const gatehouse: Array<[number, number, number]> = [
+    [10, 14, 108], [11, 14, 111], [12, 14, 114], [13, 14, 110],
+    [10, 15, 120], [11, 15, 123], [12, 15, 125], [13, 15, 122],
+  ];
+  const props: Array<[number, number, number]> = [
+    [17, 7, TILES.barrel],
+    [7, 9, TILES.crate],
+  ];
+  for (const [sx, sy, t] of [...house, ...gatehouse, ...props]) {
+    objects[idx(sx, sy)] = t;
+    solid[idx(sx, sy)] = true;
+  }
+
   const npcs: Npc[] = [
     {
       tx: 11,
@@ -115,6 +136,17 @@ export function createGrimalkin(): WorldMap {
         'Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.',
         'Em Grimalkin, confiança é como gema falsa: brilha, mas racha na primeira batida.',
         'Volte quando trouxer algo digno do meu tempo — ou uma safira.',
+      ],
+    },
+    {
+      tx: 17,
+      ty: 8,
+      sprite: 'knight',
+      name: 'Aldric, o Ferreiro',
+      lines: [
+        'Ferro é honesto. Gente, nem tanto. *martela*',
+        'Trago aço pra quem merece. Você... ainda estou decidindo.',
+        'Quer lâmina afiada? Traga metal — e pare de me encarar.',
       ],
     },
   ];
