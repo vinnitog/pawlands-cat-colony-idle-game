@@ -26,6 +26,8 @@ export type ActivityDefinition = {
       item: SpecialItemKey;
       chance: number;
     }>;
+    /** Rare chance-based Gem drop (the Cat-Sìth's coveted currency). */
+    gemDrop?: { chance: number; amount: RewardRange };
   };
 };
 

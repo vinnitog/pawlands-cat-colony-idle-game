@@ -526,6 +526,10 @@ dd {
   color: var(--box);
 }
 
+.resource-tile:nth-child(7) .game-icon {
+  color: #9a5fd0;
+}
+
 .resource-tile span {
   display: block;
   color: var(--muted);
@@ -741,7 +745,7 @@ dd {
   left: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 8px;
@@ -886,6 +890,88 @@ dd {
   background: rgba(255, 252, 240, 0.6);
 }
 
+/* ---- Jeweler shop ------------------------------------------------------- */
+.shop-modal {
+  text-align: left;
+}
+
+.shop-modal h2,
+.shop-modal .eyebrow {
+  text-align: center;
+}
+
+.shop-balance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  color: var(--primary-dark);
+  font-family: var(--heading-font);
+}
+
+.shop-balance .game-icon {
+  width: 22px;
+  height: 22px;
+  color: #9a5fd0;
+}
+
+.shop-balance strong {
+  font-size: 1.2rem;
+}
+
+.shop-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0 0 16px;
+  list-style: none;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ink-border);
+  border-radius: 8px;
+  background: rgba(255, 252, 240, 0.6);
+}
+
+.shop-item strong {
+  font-family: var(--heading-font);
+}
+
+.shop-item p {
+  margin-top: 4px;
+  font-size: 0.82rem;
+}
+
+.shop-buy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-height: 44px;
+  padding: 0 14px;
+}
+
+.shop-buy .game-icon {
+  width: 18px;
+  height: 18px;
+  color: #ffe6a6;
+}
+
+.shop-close {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--primary-dark);
+}
+
 /* Animated pixel-art cats (Cute Legends), driven by src/ui/sprites/manifest.json */
 .cat-sprite {
   width: calc(var(--frame-w) * var(--sprite-scale));
@@ -907,6 +993,172 @@ dd {
 
   to {
     background-position-x: calc(-1 * var(--frame-w) * var(--frames) * var(--sprite-scale));
+  }
+}
+
+/* ---- World (Grimalkin, top-down) --------------------------------------- */
+.world-screen {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 62vh, 620px);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: #171410;
+  box-shadow: var(--shadow);
+}
+
+.world-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+.world-prompt {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #6d4c18, #4a3110);
+  color: #ffe6a6;
+  font-family: var(--heading-font);
+  font-size: 0.86rem;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: var(--soft-shadow);
+}
+
+.world-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 240, 210, 0.72);
+  font-size: 0.72rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.world-dpad {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 42px);
+  grid-template-rows: repeat(3, 42px);
+  gap: 4px;
+}
+
+.world-dpad .dp-up {
+  grid-area: 1 / 2;
+}
+
+.world-dpad .dp-left {
+  grid-area: 2 / 1;
+}
+
+.world-dpad .dp-right {
+  grid-area: 2 / 3;
+}
+
+.world-dpad .dp-down {
+  grid-area: 3 / 2;
+}
+
+.dp,
+.world-action {
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--border);
+  color: #ffe6a6;
+  background: linear-gradient(180deg, rgba(109, 76, 24, 0.92), rgba(30, 22, 12, 0.92));
+  touch-action: none;
+  user-select: none;
+}
+
+.dp {
+  min-height: 0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.world-action {
+  position: absolute;
+  right: 20px;
+  bottom: 28px;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  font-family: var(--heading-font);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.world-dialog {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: grid;
+  gap: 6px;
+  width: min(calc(100% - 32px), 560px);
+  min-height: 0;
+  padding: 14px 16px;
+  text-align: left;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f3e8c8, var(--surface));
+  color: var(--text);
+  box-shadow:
+    inset 0 0 0 2px rgba(200, 150, 44, 0.28),
+    var(--shadow);
+}
+
+.world-dialog strong {
+  font-family: var(--heading-font);
+  color: var(--primary-dark);
+  font-size: 0.95rem;
+}
+
+.world-dialog span {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.world-dialog em {
+  justify-self: end;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* keep the balloon centered on hover/active (override the generic button lift) */
+.world-dialog:hover:not(:disabled),
+.world-dialog:active:not(:disabled) {
+  transform: translateX(-50%);
+}
+
+.world-screen.has-dialog .world-dpad,
+.world-screen.has-dialog .world-action {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .world-dpad,
+  .world-action {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .world-hint {
+    display: none;
   }
 }
 
@@ -971,7 +1223,7 @@ dd {
 
 .starter-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   width: 100%;
 }
@@ -1035,6 +1287,14 @@ dd {
 
 .starter-card--mage .starter-aura {
   background: radial-gradient(circle, rgba(74, 127, 208, 0.55), transparent 68%);
+}
+
+.starter-card--ninja .starter-aura {
+  background: radial-gradient(circle, rgba(120, 110, 170, 0.55), transparent 68%);
+}
+
+.starter-card--king .starter-aura {
+  background: radial-gradient(circle, rgba(224, 178, 67, 0.6), transparent 68%);
 }
 
 .starter-card-stage .cat-sprite {
@@ -1186,7 +1446,7 @@ dd {
   }
 
   .resource-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .resource-tile {

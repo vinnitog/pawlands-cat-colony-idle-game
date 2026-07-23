@@ -27,7 +27,7 @@ export const missions: MissionDefinition[] = [
     title: 'Tesouro da colônia',
     description: 'Junte 100 moedas.',
     condition: { kind: 'resourceCurrent', resource: 'coins', target: 100 },
-    reward: { coins: 50, xp: 25 },
+    reward: { coins: 50, xp: 25, gems: 1 },
   },
   {
     id: 'upgradeCardboard2',
@@ -41,7 +41,7 @@ export const missions: MissionDefinition[] = [
     title: 'Milo veterano',
     description: 'Alcance o nível 3 com o gato.',
     condition: { kind: 'catLevel', target: 3 },
-    reward: { coins: 75, xp: 40 },
+    reward: { coins: 75, xp: 40, gems: 2 },
   },
 ];
 

@@ -5,7 +5,7 @@ import { addResourcesToState } from './economySystem.ts';
 import { addXpToState } from './levelSystem.ts';
 
 export type MissionClaimResult =
-  | { ok: true; state: GameState; coins: number; xp: number }
+  | { ok: true; state: GameState; coins: number; xp: number; gems: number }
   | { ok: false; state: GameState; reason: string };
 
 function getMissionProgress(state: GameState, condition: MissionCondition): number {
@@ -67,7 +67,8 @@ export function claimMission(state: GameState, missionId: MissionId): MissionCla
     },
   };
 
-  nextState = addResourcesToState(nextState, { coins: definition.reward.coins });
+  const gems = definition.reward.gems ?? 0;
+  nextState = addResourcesToState(nextState, { coins: definition.reward.coins, gems });
   nextState = addXpToState(nextState, definition.reward.xp).state;
 
   return {
@@ -75,6 +76,7 @@ export function claimMission(state: GameState, missionId: MissionId): MissionCla
     state: refreshMissionProgress(nextState),
     coins: definition.reward.coins,
     xp: definition.reward.xp,
+    gems,
   };
 }
 

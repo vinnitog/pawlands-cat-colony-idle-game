@@ -62,6 +62,14 @@ function createActivityReward(state: GameState, activityId: ActivityId, random: 
     }
   }
 
+  const gemDrop = activity.rewards.gemDrop;
+  if (gemDrop) {
+    const luckBonus = state.cat.stats.luck * 0.005;
+    if (random() <= gemDrop.chance + luckBonus) {
+      reward.resources.gems = (reward.resources.gems ?? 0) + rollRange(gemDrop.amount, random);
+    }
+  }
+
   return reward;
 }
 

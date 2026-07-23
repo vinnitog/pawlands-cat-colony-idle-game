@@ -6,6 +6,7 @@ export type GameIconName =
   | SpecialItemKey
   | ActivityId
   | 'home'
+  | 'world'
   | 'upgrades'
   | 'missions'
   | 'inventory'
@@ -76,6 +77,13 @@ function renderIcon(name: GameIconName) {
           <path d="M31 52V20" fill="none" stroke="#1f2f36" strokeWidth="4" strokeLinecap="round" opacity="0.28" />
         </>
       );
+    case 'gems':
+      return (
+        <>
+          <path d="M20 10h24l12 16-24 28L8 26Z" fill="currentColor" />
+          <path d="M20 10 14 26h36l-6-16M8 26h48M32 54 20 26m12 28 12-28" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinejoin="round" />
+        </>
+      );
     case 'coins':
       return (
         <>
@@ -112,6 +120,14 @@ function renderIcon(name: GameIconName) {
         <>
           <path d="M10 33 32 14l22 19v20H16V33Z" fill="currentColor" />
           <path d="M26 53V39h12v14" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'world':
+      return (
+        <>
+          <path d="M10 24h44v28H10Z" fill="currentColor" />
+          <path d="M10 24V12h8v6h8v-6h12v6h8v-6h8v12" fill="currentColor" />
+          <path d="M24 52V40h16v12" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
         </>
       );
     case 'upgrades':

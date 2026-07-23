@@ -5,8 +5,11 @@ import type { MissionId } from '../game/models/missions.ts';
 import type { RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
+import type { ShopItemId } from '../game/models/shop.ts';
 import { createInitialGameState } from '../game/data/initialGameState.ts';
+import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
+import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
 import { completeCurrentActivity, startActivity as startActivityInState } from '../game/systems/activitySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
@@ -28,6 +31,7 @@ type GameContextValue = {
   startActivity(activityId: ActivityId): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
+  buyShopItem(itemId: ShopItemId): void;
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
   dismissRewardNotice(): void;
@@ -152,7 +156,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }
 
       saveGame(result.state);
-      setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP.`);
+      const gemText = result.gems > 0 ? `, +${result.gems} gemas` : '';
+      setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP${gemText}.`);
+      return result.state;
+    });
+  }, []);
+
+  const buyShopItem = useCallback((itemId: ShopItemId) => {
+    setState((current) => {
+      const result = buyShopItemInState(current, itemId);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${shopItemById[itemId].name} adquirido.`);
       return result.state;
     });
   }, []);
@@ -182,12 +201,23 @@ export function GameProvider({ children }: { children: ReactNode }) {
       startActivity,
       buyUpgrade,
       claimMission,
+      buyShopItem,
       completeOnboarding,
       resetGame,
       dismissRewardNotice: () => setRewardNotice(null),
       dismissToast: () => setToast(null),
     }),
-    [buyUpgrade, claimMission, completeOnboarding, rewardNotice, resetGame, startActivity, state, toast],
+    [
+      buyShopItem,
+      buyUpgrade,
+      claimMission,
+      completeOnboarding,
+      rewardNotice,
+      resetGame,
+      startActivity,
+      state,
+      toast,
+    ],
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

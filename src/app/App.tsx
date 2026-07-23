@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from './gameProvider.tsx';
 import { DashboardScreen } from '../ui/screens/DashboardScreen.tsx';
+import { WorldScreen } from '../ui/screens/WorldScreen.tsx';
 import { ActivitiesScreen } from '../ui/screens/ActivitiesScreen.tsx';
 import { UpgradesScreen } from '../ui/screens/UpgradesScreen.tsx';
 import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
@@ -11,10 +12,18 @@ import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 
-type ScreenId = 'dashboard' | 'activities' | 'upgrades' | 'missions' | 'inventory' | 'settings';
+type ScreenId =
+  | 'dashboard'
+  | 'world'
+  | 'activities'
+  | 'upgrades'
+  | 'missions'
+  | 'inventory'
+  | 'settings';
 
 const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
   { id: 'dashboard', label: 'Início', icon: 'home' },
+  { id: 'world', label: 'Grimalkin', icon: 'world' },
   { id: 'activities', label: 'Atividades', icon: 'exploreYard' },
   { id: 'upgrades', label: 'Melhorias', icon: 'upgrades' },
   { id: 'missions', label: 'Missões', icon: 'missions' },
@@ -47,6 +56,7 @@ export function App() {
 
       <main className="app-main">
         {screen === 'dashboard' && <DashboardScreen goTo={setScreen} />}
+        {screen === 'world' && <WorldScreen goTo={setScreen} />}
         {screen === 'activities' && <ActivitiesScreen />}
         {screen === 'upgrades' && <UpgradesScreen />}
         {screen === 'missions' && <MissionsScreen />}
