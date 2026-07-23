@@ -29,6 +29,7 @@ export function MissionItem({ missionId, mission, onClaim }: MissionItemProps) {
       <p className="cost-line">
         <GameIcon name="reward" />
         +{definition.reward.coins} moedas, +{definition.reward.xp} XP
+        {definition.reward.gems ? `, +${definition.reward.gems} gemas` : ''}
       </p>
 
       <button className="primary-action" type="button" disabled={!mission.completed || mission.claimed} onClick={onClaim}>
