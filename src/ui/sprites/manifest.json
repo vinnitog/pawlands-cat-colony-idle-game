@@ -35,6 +35,15 @@
         "fps": 7,
         "src": "sprites/king_idle.png"
       }
+    },
+    "ninja": {
+      "idle": {
+        "frameWidth": 17,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/ninja_idle.png"
+      }
     }
   }
 }

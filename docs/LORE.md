@@ -42,7 +42,7 @@ epíteto e o perfil de atributos iniciais.
 | **Guarda da Garra de Ferro** | `knight` | Espadachim de linha de frente | Os mestres espadachins do reino |
 | **Batedores do Espinhal** | `archer` | Caçador à distância | Olheiros que patrulham a fronteira do Além |
 | **Bruxos do Além** | `mage` | Magia fae, sorte e fogo arcano | A origem celta/fae dos Cat-Sìth |
-| **Gatunos das Sombras** | `ninja` *(a criar)* | Furtivo, furto, sorte | A fama de joalheiro que embolsa gemas virou uma Ordem inteira |
+| **Gatunos das Sombras** | `ninja` | Furtivo, furto, sorte | A fama de joalheiro que embolsa gemas virou uma Ordem inteira |
 | **Mosqueteiros de Botas** | `gunslinger` *(a criar)* | Pólvora e bota, pistoleiro fanfarrão | Os mosqueteiros felinos, bravata e pontaria |
 
 Acima das Ordens está o **Rei-Gato** (`king`), o **Coroado de Grimalkin** —

@@ -51,6 +51,23 @@ GRID_FRAME_HEIGHT = {
 }
 
 
+def shadow_ramp(lum):
+    """Map luminance [0,1] onto a dark slate ramp (the shadow-cat / ninja look)."""
+    dark, mid, light = (18, 20, 28), (70, 84, 110), (150, 168, 200)
+    if lum < 0.5:
+        k, lo, hi = lum / 0.5, dark, mid
+    else:
+        k, lo, hi = (lum - 0.5) / 0.5, mid, light
+    return tuple(round(lo[i] + (hi[i] - lo[i]) * k) for i in range(3))
+
+
+# Derived classes built by recoloring another hero's normalized sheets, keeping
+# the exact same animation (same style, no mismatched art). name -> (base, ramp).
+RECOLORS = {
+    "ninja": ("archer", shadow_ramp),
+}
+
+
 def frames_by_blank_rows(im):
     """Yield full-width row slices split on fully-transparent separator rows."""
     w, h = im.size
@@ -78,6 +95,21 @@ def tight(frame):
     """Crop a frame to its opaque content (alpha bounding box)."""
     bbox = frame.getchannel("A").getbbox()
     return frame.crop(bbox) if bbox else None
+
+
+def recolor(base_path, out_path, ramp):
+    im = Image.open(base_path).convert("RGBA")
+    px = im.load()
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    op = out.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+            op[x, y] = (*ramp(lum), a)
+    out.save(out_path)
 
 
 def normalize(src_path, out_path, grid_h=None):
@@ -111,6 +143,14 @@ def main():
             manifest["heroes"][hero][anim] = meta
             print(f"{hero:7s} {anim:5s} -> {meta['frames']} frames "
                   f"cell {meta['frameWidth']}x{meta['frameHeight']}")
+
+    for name, (base, ramp) in RECOLORS.items():
+        manifest["heroes"][name] = {}
+        for anim, base_meta in manifest["heroes"][base].items():
+            out = os.path.join(OUT, f"{name}_{anim}.png")
+            recolor(os.path.join(OUT, f"{base}_{anim}.png"), out, ramp)
+            manifest["heroes"][name][anim] = {**base_meta, "src": f"sprites/{name}_{anim}.png"}
+            print(f"{name:7s} {anim:5s} -> recolor of {base}")
 
     os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
     with open(MANIFEST, "w", encoding="utf-8") as f:

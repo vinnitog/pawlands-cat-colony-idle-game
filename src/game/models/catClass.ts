@@ -1,7 +1,7 @@
 import type { CatStats } from './cat.ts';
 
 /** Playable starter archetypes. Keys must match sprite heroes in the manifest. */
-export type CatClass = 'knight' | 'archer' | 'mage' | 'king';
+export type CatClass = 'knight' | 'archer' | 'mage' | 'ninja' | 'king';
 
 export type CatClassDef = {
   id: CatClass;
@@ -36,6 +36,13 @@ export const catClasses: readonly CatClassDef[] = [
     role: 'Arcano Felino',
     blurb: 'Dobra a sorte e o fogo arcano a seu favor.',
     stats: { attack: 2, defense: 1, hunting: 2, fishing: 3, luck: 4 },
+  },
+  {
+    id: 'ninja',
+    name: 'Gatuno',
+    role: 'Sombra de Grimalkin',
+    blurb: 'Some na névoa e leva a gema. "Não roubei, adotei."',
+    stats: { attack: 3, defense: 1, hunting: 3, fishing: 1, luck: 4 },
   },
   {
     id: 'king',
