@@ -26,6 +26,20 @@ const jeweler: ShopDefinition = {
       effect: { kind: 'inventory', item: 'goldenSardine', amount: 1 },
     },
     {
+      id: 'rareFeather',
+      name: 'Pena Rara',
+      description: 'Leve como um segredo. +1 Pena rara.',
+      gemCost: 2,
+      effect: { kind: 'inventory', item: 'rareFeather', amount: 1 },
+    },
+    {
+      id: 'glowingYarn',
+      name: 'Novelo Brilhante',
+      description: 'Brilha no escuro do Além. +1 Novelo brilhante.',
+      gemCost: 2,
+      effect: { kind: 'inventory', item: 'glowingYarn', amount: 1 },
+    },
+    {
       id: 'otherBlessing',
       name: 'Bênção do Além',
       description: 'Um sussurro do outro lado. +1 de Sorte, permanente.',
@@ -59,6 +73,20 @@ const blacksmith: ShopDefinition = {
       description: 'Fareja e fisga melhor. +1 de Caça, permanente.',
       gemCost: 4,
       effect: { kind: 'stat', stat: 'hunting', amount: 1 },
+    },
+    {
+      id: 'warFang',
+      name: 'Presa de Guerra',
+      description: 'Aço do Além, forjado com rancor. +2 de Ataque.',
+      gemCost: 9,
+      effect: { kind: 'stat', stat: 'attack', amount: 2 },
+    },
+    {
+      id: 'greatHelm',
+      name: 'Elmo de Guerra',
+      description: 'Uma couraça que não recua. +2 de Defesa.',
+      gemCost: 9,
+      effect: { kind: 'stat', stat: 'defense', amount: 2 },
     },
   ],
 };

@@ -6,13 +6,17 @@ export type ShopId = 'jeweler' | 'blacksmith';
 export type ShopItemId =
   // jeweler (Vittorio)
   | 'goldenSardine'
+  | 'rareFeather'
+  | 'glowingYarn'
   | 'royalMeal'
   | 'otherBlessing'
   | 'coinPurse'
   // blacksmith (Aldric)
   | 'steelClaw'
   | 'ironScale'
-  | 'sharpPoint';
+  | 'sharpPoint'
+  | 'warFang'
+  | 'greatHelm';
 
 /** What a purchase grants, reusing the existing economy/cat systems. */
 export type ShopEffect =
