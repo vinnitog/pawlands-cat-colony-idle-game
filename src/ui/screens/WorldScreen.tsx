@@ -34,6 +34,13 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const goToRef = useRef(goTo);
   goToRef.current = goTo;
   const [prompt, setPrompt] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
+  const dialogRef = useRef(false);
+  dialogRef.current = dialog !== null;
+  const advanceRef = useRef<() => void>(() => {});
+  advanceRef.current = () => {
+    setDialog((d) => (d && d.index < d.lines.length - 1 ? { ...d, index: d.index + 1 } : null));
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,6 +58,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     let tileImg: HTMLImageElement | null = null;
     let idleImg: HTMLImageElement | null = null;
     let runImg: HTMLImageElement | null = null;
+    const npcImgs = new Map<CatClass, HTMLImageElement>();
+    const npcClasses = Array.from(new Set(map.npcs.map((n) => n.sprite)));
     let raf = 0;
     let running = true;
     let last = performance.now();
@@ -122,6 +131,32 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         }
       }
 
+      const clock = performance.now() / 1000;
+      for (const npc of map.npcs) {
+        const img = npcImgs.get(npc.sprite);
+        if (!img) continue;
+        const nm = manifest.heroes[npc.sprite].idle;
+        const nframe = Math.floor(clock * nm.fps) % nm.frames;
+        const nx = npc.tx * TILE + TILE / 2;
+        const ny = npc.ty * TILE + TILE;
+        const face = player.x < nx ? -1 : 1;
+        ctx.save();
+        ctx.translate(nx, ny);
+        ctx.scale(face, 1);
+        ctx.drawImage(
+          img,
+          nframe * nm.frameWidth,
+          0,
+          nm.frameWidth,
+          nm.frameHeight,
+          -nm.frameWidth / 2,
+          -nm.frameHeight,
+          nm.frameWidth,
+          nm.frameHeight,
+        );
+        ctx.restore();
+      }
+
       const meta = player.moving ? runMeta : idleMeta;
       const sheet = player.moving ? runImg : idleImg;
       const fw = meta.frameWidth;
@@ -138,6 +173,18 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       if (!running) return;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+
+      const interacting = keys.has('e') || keys.has('enter') || keys.has(' ');
+      const interactEdge = interacting && !interactLatch;
+      interactLatch = interacting;
+
+      if (dialogRef.current) {
+        if (interactEdge) advanceRef.current();
+        player.moving = false;
+        render();
+        raf = requestAnimationFrame(step);
+        return;
+      }
 
       let dx = 0;
       let dy = 0;
@@ -161,24 +208,30 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
 
       const ftx = Math.floor(player.x / TILE);
       const fty = Math.floor(player.y / TILE);
-      let near: (typeof map.interactions)[number] | null = null;
-      for (const it of map.interactions) {
-        if (Math.max(Math.abs(it.tx - ftx), Math.abs(it.ty - fty)) <= 1) {
-          near = it;
+      const cheby = (ax: number, ay: number) => Math.max(Math.abs(ax - ftx), Math.abs(ay - fty));
+      let nearNpc: (typeof map.npcs)[number] | null = null;
+      for (const npc of map.npcs) {
+        if (cheby(npc.tx, npc.ty) <= 1) {
+          nearNpc = npc;
           break;
         }
       }
-      const label = near ? near.label : null;
+      let nearSign: (typeof map.interactions)[number] | null = null;
+      for (const it of map.interactions) {
+        if (cheby(it.tx, it.ty) <= 1) {
+          nearSign = it;
+          break;
+        }
+      }
+      const label = nearNpc ? nearNpc.name : nearSign ? nearSign.label : null;
       if (label !== shownPrompt) {
         shownPrompt = label;
         setPrompt(label);
       }
-      const interacting = keys.has('e') || keys.has('enter') || keys.has(' ');
-      if (interacting && !interactLatch && near) {
-        interactLatch = true;
-        goToRef.current(near.kind);
+      if (interactEdge) {
+        if (nearNpc) setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
+        else if (nearSign) goToRef.current(nearSign.kind);
       }
-      if (!interacting) interactLatch = false;
 
       render();
       raf = requestAnimationFrame(step);
@@ -188,12 +241,14 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       loadImage(base + tilesetSrc),
       loadImage(base + idleMeta.src),
       loadImage(base + runMeta.src),
+      ...npcClasses.map((c) => loadImage(base + manifest.heroes[c].idle.src)),
     ])
-      .then(([tiles, idle, run]) => {
+      .then((imgs) => {
         if (!running) return;
-        tileImg = tiles;
-        idleImg = idle;
-        runImg = run;
+        tileImg = imgs[0];
+        idleImg = imgs[1];
+        runImg = imgs[2];
+        npcClasses.forEach((c, i) => npcImgs.set(c, imgs[3 + i]));
         resize();
         last = performance.now();
         raf = requestAnimationFrame(step);
@@ -224,9 +279,16 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   };
 
   return (
-    <div className="world-screen">
+    <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
       <canvas ref={canvasRef} className="world-canvas" />
-      {prompt ? <div className="world-prompt">⚔ {prompt}</div> : null}
+      {prompt && !dialog ? <div className="world-prompt">⚔ {prompt}</div> : null}
+      {dialog ? (
+        <button type="button" className="world-dialog" onClick={() => advanceRef.current()}>
+          <strong>{dialog.name}</strong>
+          <span>{dialog.lines[dialog.index]}</span>
+          <em>{dialog.index < dialog.lines.length - 1 ? 'toque / E — continuar' : 'toque / E — fechar'}</em>
+        </button>
+      ) : null}
       <div className="world-dpad">
         <button type="button" className="dp dp-up" aria-label="Cima" {...hold('w')}>
           ▲

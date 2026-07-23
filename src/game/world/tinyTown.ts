@@ -1,3 +1,5 @@
+import type { CatClass } from '../models/catClass.ts';
+
 // World tiles come from Kenney's "Tiny Town" pack (CC0) — public/tiles/tiny_town.png,
 // a 12-column sheet of 16x16 tiles. See public/tiles/tiny_town.license.txt.
 
@@ -24,6 +26,14 @@ export type Interaction = {
   label: string;
 };
 
+export type Npc = {
+  tx: number;
+  ty: number;
+  sprite: CatClass;
+  name: string;
+  lines: string[];
+};
+
 export type WorldMap = {
   width: number;
   height: number;
@@ -31,6 +41,7 @@ export type WorldMap = {
   objects: (number | null)[];
   solid: boolean[];
   interactions: Interaction[];
+  npcs: Npc[];
   spawn: { x: number; y: number };
 };
 
@@ -94,6 +105,24 @@ export function createGrimalkin(): WorldMap {
     solid[idx(post.tx, post.ty)] = true;
   }
 
+  const npcs: Npc[] = [
+    {
+      tx: 11,
+      ty: 7,
+      sprite: 'mage',
+      name: 'Vittorio, o Joalheiro',
+      lines: [
+        'Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.',
+        'Em Grimalkin, confiança é como gema falsa: brilha, mas racha na primeira batida.',
+        'Volte quando trouxer algo digno do meu tempo — ou uma safira.',
+      ],
+    },
+  ];
+
+  for (const npc of npcs) {
+    solid[idx(npc.tx, npc.ty)] = true;
+  }
+
   return {
     width,
     height,
@@ -101,6 +130,7 @@ export function createGrimalkin(): WorldMap {
     objects,
     solid,
     interactions,
+    npcs,
     spawn: { x: 12 * TILE, y: 9 * TILE },
   };
 }
