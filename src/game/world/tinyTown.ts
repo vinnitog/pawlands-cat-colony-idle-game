@@ -34,6 +34,8 @@ export type Npc = {
   sprite: CatClass;
   name: string;
   lines: string[];
+  /** When true, interacting opens the Jeweler's gem shop instead of dialog. */
+  shop?: boolean;
 };
 
 export type WorldMap = {
@@ -142,10 +144,9 @@ export function createGrimalkin(): WorldMap {
       ty: 7,
       sprite: 'mage',
       name: 'Vittorio, o Joalheiro',
+      shop: true,
       lines: [
         'Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.',
-        'Em Grimalkin, confiança é como gema falsa: brilha, mas racha na primeira batida.',
-        'Volte quando trouxer algo digno do meu tempo — ou uma safira.',
       ],
     },
     {

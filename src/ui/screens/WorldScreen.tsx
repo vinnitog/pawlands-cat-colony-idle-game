@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { useGame } from '../../app/gameProvider.tsx';
 import type { CatClass } from '../../game/models/catClass.ts';
+import { JewelerShop } from '../components/JewelerShop.tsx';
 import {
   createGrimalkin,
   TILE,
@@ -37,6 +38,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
   const dialogRef = useRef(false);
   dialogRef.current = dialog !== null;
+  const [shopSeller, setShopSeller] = useState<string | null>(null);
+  const shopRef = useRef(false);
+  shopRef.current = shopSeller !== null;
   const advanceRef = useRef<() => void>(() => {});
   advanceRef.current = () => {
     setDialog((d) => (d && d.index < d.lines.length - 1 ? { ...d, index: d.index + 1 } : null));
@@ -186,6 +190,13 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         return;
       }
 
+      if (shopRef.current) {
+        player.moving = false;
+        render();
+        raf = requestAnimationFrame(step);
+        return;
+      }
+
       let dx = 0;
       let dy = 0;
       if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
@@ -229,8 +240,12 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         setPrompt(label);
       }
       if (interactEdge) {
-        if (nearNpc) setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
-        else if (nearSign) goToRef.current(nearSign.kind);
+        if (nearNpc) {
+          if (nearNpc.shop) setShopSeller(nearNpc.name);
+          else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
+        } else if (nearSign) {
+          goToRef.current(nearSign.kind);
+        }
       }
 
       render();
@@ -288,6 +303,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           <span>{dialog.lines[dialog.index]}</span>
           <em>{dialog.index < dialog.lines.length - 1 ? 'toque / E — continuar' : 'toque / E — fechar'}</em>
         </button>
+      ) : null}
+      {shopSeller ? (
+        <JewelerShop sellerName={shopSeller} onClose={() => setShopSeller(null)} />
       ) : null}
       <div className="world-dpad">
         <button type="button" className="dp dp-up" aria-label="Cima" {...hold('w')}>
