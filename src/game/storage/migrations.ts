@@ -39,6 +39,7 @@ export function migrateGameSave(value: unknown): GameState {
         resourcesEarned: mergeResources(candidate.totals?.resourcesEarned, fallback.totals.resourcesEarned),
       },
       activeActivity: mergeActiveActivity(candidate.activeActivity),
+      world: mergeWorld(candidate.world, fallback.world),
       lastSavedAt: toSafeNumber(candidate.lastSavedAt, fallback.lastSavedAt),
     });
   } catch {
@@ -132,6 +133,14 @@ function mergeMissions(value: unknown, fallback: GameState['missions']): GameSta
   }
 
   return result;
+}
+
+function mergeWorld(value: unknown, fallback: GameState['world']): GameState['world'] {
+  if (!isObject(value)) return { ...fallback };
+  return {
+    x: typeof value.x === 'number' && Number.isFinite(value.x) ? value.x : fallback.x,
+    y: typeof value.y === 'number' && Number.isFinite(value.y) ? value.y : fallback.y,
+  };
 }
 
 function mergeActiveActivity(value: unknown): ActiveActivity | null {

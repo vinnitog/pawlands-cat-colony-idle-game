@@ -13,13 +13,18 @@ type ActivityCardProps = {
 export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
   const isBusy = Boolean(state.activeActivity);
   const hasEnergy = state.cat.energy >= activity.energyCost;
-  const rewardText = activity.rewards.resources
+  const resourceEntries = activity.rewards.resources
     ? Object.entries(activity.rewards.resources)
-        .map(([key, range]) => `${range?.[0]}-${range?.[1]} ${resourceLabels[key as ResourceKey]}`)
-        .join(', ')
-    : activity.rewards.energy
-      ? 'Energia'
-      : 'Recompensa';
+    : [];
+  const rewardText =
+    resourceEntries.length > 0
+      ? resourceEntries
+          .slice(0, 3)
+          .map(([key, range]) => `${range?.[0]}-${range?.[1]} ${resourceLabels[key as ResourceKey]}`)
+          .join(', ') + (resourceEntries.length > 3 ? ` +${resourceEntries.length - 3}` : '')
+      : activity.rewards.energy
+        ? 'Energia'
+        : 'Recompensa';
 
   return (
     <article className={`item-card activity-card activity-card--${activity.id}`}>

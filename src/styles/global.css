@@ -34,6 +34,7 @@
 
   --shadow: 0 12px 30px rgba(10, 6, 2, 0.42);
   --soft-shadow: 0 6px 16px rgba(10, 6, 2, 0.32);
+  --header-h: 66px;
 }
 
 * {
@@ -138,23 +139,30 @@ dd {
   width: min(100%, 1120px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 16px 16px 112px;
+  padding: calc(var(--header-h) + 14px) 16px 104px;
 }
 
 .app-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 30;
+  border: 0;
+  border-bottom: 2px solid var(--gold);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 235, 0.6), transparent 62%), var(--surface);
+  box-shadow: 0 6px 20px rgba(10, 6, 2, 0.42);
+}
+
+.app-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
-  padding: 14px 18px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(255, 250, 235, 0.6), transparent 60%), var(--surface);
-  box-shadow:
-    inset 0 0 0 2px rgba(200, 150, 44, 0.28),
-    var(--soft-shadow);
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 9px 16px;
 }
 
 .eyebrow {
@@ -595,10 +603,16 @@ dd {
 
 .item-card {
   position: relative;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   overflow: hidden;
   animation: cardIn 220ms ease-out;
+}
+
+/* action button always sits flush at the card bottom, same size across cards */
+.item-card > button {
+  margin-top: auto;
 }
 
 .item-card::before {
@@ -617,6 +631,11 @@ dd {
 
 .item-card-header p {
   margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .activity-card,
@@ -744,14 +763,17 @@ dd {
   bottom: 0;
   left: 0;
   z-index: 20;
+  border-top: 2px solid var(--gold);
+  background: linear-gradient(180deg, #2a2620, #17140f);
+  box-shadow: 0 -12px 30px rgba(10, 6, 2, 0.5);
+}
+
+.nav-inner {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 8px;
-  border-top: 2px solid var(--gold);
-  background: linear-gradient(180deg, #2a2620, #17140f);
-  box-shadow: 0 -12px 30px rgba(10, 6, 2, 0.5);
   gap: 6px;
 }
 
@@ -1000,7 +1022,8 @@ dd {
 .world-screen {
   position: relative;
   width: 100%;
-  height: clamp(360px, 62vh, 620px);
+  height: calc(100dvh - var(--header-h) - 118px);
+  min-height: 360px;
   overflow: hidden;
   border: 2px solid var(--border);
   border-radius: 8px;
@@ -1041,6 +1064,40 @@ dd {
   color: rgba(255, 240, 210, 0.72);
   font-size: 0.72rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.world-hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+}
+
+.hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(46, 42, 34, 0.92), rgba(20, 16, 10, 0.92));
+  color: #ffe6a6;
+  font-family: var(--heading-font);
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.hud-pill .game-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.hud-pill.hud-gems .game-icon {
+  color: #b98fe0;
 }
 
 .world-dpad {
@@ -1437,7 +1494,7 @@ dd {
 
 @media (min-width: 720px) {
   .app-shell {
-    padding: 24px 22px 116px;
+    padding: calc(var(--header-h) + 20px) 22px 108px;
   }
 
   .cat-status {
@@ -1471,12 +1528,22 @@ dd {
   }
 }
 
+@media (max-width: 640px) {
+  .nav-inner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .app-shell {
+    padding-bottom: 150px;
+  }
+}
+
 @media (max-width: 420px) {
   .app-shell {
     padding-inline: 12px;
   }
 
-  .app-header {
+  .app-bar {
     align-items: flex-start;
   }
 
@@ -1484,11 +1551,7 @@ dd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .bottom-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .toast {
-    bottom: 148px;
+    bottom: 172px;
   }
 }

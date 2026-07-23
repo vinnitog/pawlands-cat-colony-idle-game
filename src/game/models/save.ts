@@ -23,5 +23,7 @@ export type GameState = {
   missions: Record<MissionId, MissionState>;
   totals: GameTotals;
   activeActivity: ActiveActivity | null;
+  /** Last position of the player in the Grimalkin world, in world pixels. */
+  world: { x: number; y: number };
   lastSavedAt: number;
 };

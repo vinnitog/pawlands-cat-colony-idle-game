@@ -50,6 +50,7 @@ export function createInitialGameState(now = Date.now()): GameState {
       upgradesPurchased: 0,
     },
     activeActivity: null,
+    world: { x: 192, y: 144 }, // Grimalkin spawn (tile 12,9 × 16px)
     lastSavedAt: now,
   };
 }

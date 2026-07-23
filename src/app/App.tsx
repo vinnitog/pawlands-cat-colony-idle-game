@@ -42,41 +42,49 @@ export function App() {
   }
 
   return (
-    <div className="app-shell">
+    <>
       <header className="app-header">
-        <div>
-          <p className="eyebrow">Reino de Pawlands</p>
-          <h1>Cat Colony Idle</h1>
-        </div>
-        <div className="level-pill">
-          <GameIcon name="level" />
-          <span>Nv. {state.cat.level}</span>
+        <div className="app-bar">
+          <div>
+            <p className="eyebrow">Reino de Pawlands</p>
+            <h1>Cat Colony Idle</h1>
+          </div>
+          <div className="level-pill">
+            <GameIcon name="level" />
+            <span>Nv. {state.cat.level}</span>
+          </div>
         </div>
       </header>
 
-      <main className="app-main">
-        {screen === 'dashboard' && <DashboardScreen goTo={setScreen} />}
-        {screen === 'world' && <WorldScreen goTo={setScreen} />}
-        {screen === 'activities' && <ActivitiesScreen />}
-        {screen === 'upgrades' && <UpgradesScreen />}
-        {screen === 'missions' && <MissionsScreen />}
-        {screen === 'inventory' && <InventoryScreen />}
-        {screen === 'settings' && <SettingsScreen />}
-      </main>
+      <div className="app-shell">
+        <main className="app-main">
+          {screen === 'dashboard' && <DashboardScreen goTo={setScreen} />}
+          {screen === 'world' && <WorldScreen goTo={setScreen} />}
+          {screen === 'activities' && <ActivitiesScreen />}
+          {screen === 'upgrades' && <UpgradesScreen />}
+          {screen === 'missions' && <MissionsScreen />}
+          {screen === 'inventory' && <InventoryScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+        </main>
+      </div>
 
       <nav className="bottom-nav" aria-label="Navegação principal">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={screen === tab.id ? 'active' : ''}
-            type="button"
-            onClick={() => setScreen(tab.id)}
-          >
-            <GameIcon name={tab.icon} />
-            <span>{tab.label}</span>
-            {tab.id === 'missions' && pendingMissions > 0 ? <strong>{pendingMissions}</strong> : null}
-          </button>
-        ))}
+        <div className="nav-inner">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={screen === tab.id ? 'active' : ''}
+              type="button"
+              onClick={() => setScreen(tab.id)}
+            >
+              <GameIcon name={tab.icon} />
+              <span>{tab.label}</span>
+              {tab.id === 'missions' && pendingMissions > 0 ? (
+                <strong>{pendingMissions}</strong>
+              ) : null}
+            </button>
+          ))}
+        </div>
       </nav>
 
       {toast ? (
@@ -89,6 +97,6 @@ export function App() {
       ) : null}
 
       {rewardNotice ? <OfflineRewardsModal notice={rewardNotice} onClose={dismissRewardNotice} /> : null}
-    </div>
+    </>
   );
 }

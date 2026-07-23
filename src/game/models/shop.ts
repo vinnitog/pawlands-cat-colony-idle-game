@@ -1,7 +1,22 @@
 import type { CatStats } from './cat.ts';
 import type { ResourceKey, SpecialItemKey } from './resources.ts';
 
-export type ShopItemId = 'goldenSardine' | 'royalMeal' | 'otherBlessing' | 'coinPurse';
+export type ShopId = 'jeweler' | 'blacksmith';
+
+export type ShopItemId =
+  // jeweler (Vittorio)
+  | 'goldenSardine'
+  | 'rareFeather'
+  | 'glowingYarn'
+  | 'royalMeal'
+  | 'otherBlessing'
+  | 'coinPurse'
+  // blacksmith (Aldric)
+  | 'steelClaw'
+  | 'ironScale'
+  | 'sharpPoint'
+  | 'warFang'
+  | 'greatHelm';
 
 /** What a purchase grants, reusing the existing economy/cat systems. */
 export type ShopEffect =
@@ -16,4 +31,10 @@ export type ShopItemDefinition = {
   description: string;
   gemCost: number;
   effect: ShopEffect;
+};
+
+export type ShopDefinition = {
+  id: ShopId;
+  title: string;
+  items: ShopItemDefinition[];
 };
