@@ -7,6 +7,7 @@ import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
 import { InventoryScreen } from '../ui/screens/InventoryScreen.tsx';
 import { SettingsScreen } from '../ui/screens/SettingsScreen.tsx';
 import { OfflineRewardsModal } from '../ui/components/OfflineRewardsModal.tsx';
+import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 
@@ -23,14 +24,19 @@ const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
 
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('dashboard');
-  const { state, rewardNotice, toast, dismissRewardNotice, dismissToast } = useGame();
+  const { state, rewardNotice, toast, completeOnboarding, dismissRewardNotice, dismissToast } =
+    useGame();
   const pendingMissions = getPendingMissionCount(state);
+
+  if (!state.onboarded) {
+    return <StarterScreen onConfirm={completeOnboarding} />;
+  }
 
   return (
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <p className="eyebrow">Pawlands</p>
+          <p className="eyebrow">Reino de Pawlands</p>
           <h1>Cat Colony Idle</h1>
         </div>
         <div className="level-pill">

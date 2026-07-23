@@ -10,9 +10,11 @@ export function createInitialGameState(now = Date.now()): GameState {
 
   return {
     schemaVersion: saveSchemaVersion,
+    onboarded: false,
     cat: {
       id: 'milo',
       name: 'Milo',
+      catClass: 'knight',
       level: 1,
       xp: 0,
       energy: 40,

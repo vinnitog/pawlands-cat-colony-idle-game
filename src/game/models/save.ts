@@ -14,6 +14,8 @@ export type GameTotals = {
 
 export type GameState = {
   schemaVersion: number;
+  /** False until the player has chosen a starter on the intro screen. */
+  onboarded: boolean;
   cat: Cat;
   resources: Resources;
   inventory: Inventory;
