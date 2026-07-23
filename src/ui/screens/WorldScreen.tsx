@@ -42,12 +42,15 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
 
     const base = import.meta.env.BASE_URL;
     const map = createGrimalkin();
-    const meta = manifest.heroes[catClass].idle;
+    const anims = manifest.heroes[catClass];
+    const idleMeta = anims.idle;
+    const runMeta = anims.run;
     const keys = keysRef.current;
 
-    const player = { x: map.spawn.x, y: map.spawn.y, facing: 1, anim: 0 };
+    const player = { x: map.spawn.x, y: map.spawn.y, facing: 1, anim: 0, moving: false };
     let tileImg: HTMLImageElement | null = null;
-    let heroImg: HTMLImageElement | null = null;
+    let idleImg: HTMLImageElement | null = null;
+    let runImg: HTMLImageElement | null = null;
     let raf = 0;
     let running = true;
     let last = performance.now();
@@ -83,7 +86,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     window.addEventListener('resize', resize);
 
     const render = () => {
-      if (!tileImg || !heroImg) return;
+      if (!tileImg || !idleImg || !runImg) return;
       const W = canvas.width;
       const H = canvas.height;
       ctx.imageSmoothingEnabled = false;
@@ -119,13 +122,15 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         }
       }
 
+      const meta = player.moving ? runMeta : idleMeta;
+      const sheet = player.moving ? runImg : idleImg;
       const fw = meta.frameWidth;
       const fh = meta.frameHeight;
       const frame = Math.floor(player.anim * meta.fps) % meta.frames;
       ctx.save();
       ctx.translate(player.x, player.y);
       ctx.scale(player.facing, 1);
-      ctx.drawImage(heroImg, frame * fw, 0, fw, fh, -fw / 2, -fh, fw, fh);
+      ctx.drawImage(sheet, frame * fw, 0, fw, fh, -fw / 2, -fh, fw, fh);
       ctx.restore();
     };
 
@@ -140,7 +145,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       if (keys.has('d') || keys.has('arrowright')) dx += 1;
       if (keys.has('w') || keys.has('arrowup')) dy -= 1;
       if (keys.has('s') || keys.has('arrowdown')) dy += 1;
-      if (dx !== 0 || dy !== 0) {
+      const moving = dx !== 0 || dy !== 0;
+      if (moving) {
         const len = Math.hypot(dx, dy);
         dx /= len;
         dy /= len;
@@ -150,6 +156,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         if (!blocked(player.x, ny)) player.y = ny;
         if (dx !== 0) player.facing = dx < 0 ? -1 : 1;
       }
+      player.moving = moving;
       player.anim += dt;
 
       const ftx = Math.floor(player.x / TILE);
@@ -177,11 +184,16 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       raf = requestAnimationFrame(step);
     };
 
-    Promise.all([loadImage(base + tilesetSrc), loadImage(base + meta.src)])
-      .then(([tiles, hero]) => {
+    Promise.all([
+      loadImage(base + tilesetSrc),
+      loadImage(base + idleMeta.src),
+      loadImage(base + runMeta.src),
+    ])
+      .then(([tiles, idle, run]) => {
         if (!running) return;
         tileImg = tiles;
-        heroImg = hero;
+        idleImg = idle;
+        runImg = run;
         resize();
         last = performance.now();
         raf = requestAnimationFrame(step);

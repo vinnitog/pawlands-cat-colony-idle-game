@@ -7,6 +7,13 @@
         "frames": 6,
         "fps": 7,
         "src": "sprites/knight_idle.png"
+      },
+      "run": {
+        "frameWidth": 13,
+        "frameHeight": 16,
+        "frames": 8,
+        "fps": 12,
+        "src": "sprites/knight_run.png"
       }
     },
     "archer": {
@@ -16,10 +23,24 @@
         "frames": 6,
         "fps": 7,
         "src": "sprites/archer_idle.png"
+      },
+      "run": {
+        "frameWidth": 16,
+        "frameHeight": 16,
+        "frames": 8,
+        "fps": 12,
+        "src": "sprites/archer_run.png"
       }
     },
     "mage": {
       "idle": {
+        "frameWidth": 21,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/mage_idle.png"
+      },
+      "run": {
         "frameWidth": 21,
         "frameHeight": 16,
         "frames": 6,
@@ -34,6 +55,13 @@
         "frames": 6,
         "fps": 7,
         "src": "sprites/king_idle.png"
+      },
+      "run": {
+        "frameWidth": 12,
+        "frameHeight": 16,
+        "frames": 8,
+        "fps": 12,
+        "src": "sprites/king_run.png"
       }
     },
     "ninja": {
@@ -43,6 +71,13 @@
         "frames": 6,
         "fps": 7,
         "src": "sprites/ninja_idle.png"
+      },
+      "run": {
+        "frameWidth": 16,
+        "frameHeight": 16,
+        "frames": 8,
+        "fps": 12,
+        "src": "sprites/ninja_run.png"
       }
     }
   }

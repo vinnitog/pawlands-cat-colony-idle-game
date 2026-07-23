@@ -42,12 +42,21 @@ HEROES = {
 # animation key -> (file suffix, frames-per-second for playback)
 ANIMS = {
     "idle": ("Idle", 7),
+    "run": ("Run", 12),
 }
 
 # (hero, anim) whose frames touch and must be sliced by a fixed cell height
 # instead of transparent-row segmentation.
 GRID_FRAME_HEIGHT = {
     ("king", "idle"): 16,
+}
+
+# (hero, anim) whose source neither segments by blank rows nor slices on a
+# uniform grid (e.g. mage run: a low horizontal staff detaches into phantom
+# frames, and the sheet height is prime). We alias these to the hero's idle so
+# the manifest stays uniform; the cat simply idles while moving.
+ALIAS_TO_IDLE = {
+    ("mage", "run"),
 }
 
 
@@ -135,6 +144,10 @@ def main():
     for hero, (folder, prefix) in HEROES.items():
         manifest["heroes"][hero] = {}
         for anim, (suffix, fps) in ANIMS.items():
+            if (hero, anim) in ALIAS_TO_IDLE:
+                manifest["heroes"][hero][anim] = dict(manifest["heroes"][hero]["idle"])
+                print(f"{hero:7s} {anim:5s} -> alias idle (source has no clean frames)")
+                continue
             src = os.path.join(SRC, folder, f"{prefix}_{suffix}.png")
             out = os.path.join(OUT, f"{hero}_{anim}.png")
             meta = normalize(src, out, GRID_FRAME_HEIGHT.get((hero, anim)))
