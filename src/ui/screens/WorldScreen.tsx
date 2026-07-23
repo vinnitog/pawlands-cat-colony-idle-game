@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { useGame } from '../../app/gameProvider.tsx';
 import type { CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
+import { GameIcon } from '../components/GameIcon.tsx';
 import { Shop } from '../components/Shop.tsx';
 import {
   createGrimalkin,
@@ -297,6 +298,24 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   return (
     <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
       <canvas ref={canvasRef} className="world-canvas" />
+      <div className="world-hud">
+        <span className="hud-pill">
+          <GameIcon name="level" />
+          {state.cat.level}
+        </span>
+        <span className="hud-pill">
+          <GameIcon name="energy" />
+          {state.cat.energy}/{state.cat.maxEnergy}
+        </span>
+        <span className="hud-pill">
+          <GameIcon name="coins" />
+          {state.resources.coins}
+        </span>
+        <span className="hud-pill hud-gems">
+          <GameIcon name="gems" />
+          {state.resources.gems}
+        </span>
+      </div>
       {prompt && !dialog ? <div className="world-prompt">⚔ {prompt}</div> : null}
       {dialog ? (
         <button type="button" className="world-dialog" onClick={() => advanceRef.current()}>
