@@ -88,8 +88,9 @@ export function createGrimalkin(): WorldMap {
 
   // dirt roads tying the plaza to the gate and the house
   const paths: Array<[number, number]> = [
-    [11, 11], [11, 12], [11, 13], [12, 11], [12, 12], [12, 13],
-    [5, 4], [5, 5], [5, 6], [6, 6], [7, 6], [8, 6],
+    [11, 11], [11, 12], [11, 13], [12, 11], [12, 12], [12, 13], // plaza -> gate
+    [5, 4], [5, 5], [5, 6], [6, 6], [7, 6], [8, 6], // blue house -> plaza
+    [17, 4], [17, 5], [16, 5], [15, 5], [14, 6], // red house -> plaza
   ];
   for (const [px, py] of paths) ground[idx(px, py)] = TILES.dirt;
 
@@ -118,6 +119,8 @@ export function createGrimalkin(): WorldMap {
   const house: Array<[number, number, number]> = [
     [3, 2, 48], [4, 2, 49], [5, 2, 50], // blue roof
     [3, 3, 84], [4, 3, 85], [5, 3, 86], // timbered wall: window, plain, door
+    [16, 2, 52], [17, 2, 53], [18, 2, 54], // red roof
+    [16, 3, 84], [17, 3, 85], [18, 3, 86],
   ];
   // stone gatehouse over the bottom gap — the way out toward the Além
   const gatehouse: Array<[number, number, number]> = [
