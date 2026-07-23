@@ -4,6 +4,7 @@ import { missions } from '../data/missions.ts';
 import { upgrades } from '../data/upgrades.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
+import { isCatClass } from '../models/catClass.ts';
 import type { MissionState } from '../models/missions.ts';
 import type { Inventory, Resources } from '../models/resources.ts';
 import { resourceKeys, specialItemKeys } from '../models/resources.ts';
@@ -26,6 +27,7 @@ export function migrateGameSave(value: unknown): GameState {
   try {
     return refreshMissionProgress({
       ...fallback,
+      onboarded: typeof candidate.onboarded === 'boolean' ? candidate.onboarded : false,
       cat: mergeCat(candidate.cat, fallback.cat),
       resources: mergeResources(candidate.resources, fallback.resources),
       inventory: mergeInventory(candidate.inventory, fallback.inventory),
@@ -83,6 +85,7 @@ function mergeCat(value: unknown, fallback: Cat): Cat {
     ...fallback,
     id: typeof value.id === 'string' ? value.id : fallback.id,
     name: typeof value.name === 'string' ? value.name : fallback.name,
+    catClass: isCatClass(value.catClass) ? value.catClass : fallback.catClass,
     level: Math.max(1, toSafeNumber(value.level, fallback.level)),
     xp: toSafeNumber(value.xp, fallback.xp),
     energy: Math.min(maxEnergy, toSafeNumber(value.energy, fallback.energy)),

@@ -1,3 +1,5 @@
+import type { CatClass } from './catClass.ts';
+
 export type CatStats = {
   attack: number;
   defense: number;
@@ -9,6 +11,7 @@ export type CatStats = {
 export type Cat = {
   id: string;
   name: string;
+  catClass: CatClass;
   level: number;
   xp: number;
   energy: number;

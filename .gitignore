@@ -38,3 +38,9 @@ Thumbs.db
 # Local agent state
 .codex/
 .claude/
+
+# Licensed art source (Cute Legends: Cat Heroes) — must stay local.
+# The pack license forbids redistribution, and this repo is published via
+# GitHub Pages. Keep the raw pack + .aseprite files here to run
+# scripts/build_sprites.py; only the derived sheets in public/sprites/ ship.
+assets/

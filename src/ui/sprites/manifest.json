@@ -1,0 +1,31 @@
+{
+  "heroes": {
+    "knight": {
+      "idle": {
+        "frameWidth": 13,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/knight_idle.png"
+      }
+    },
+    "archer": {
+      "idle": {
+        "frameWidth": 17,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/archer_idle.png"
+      }
+    },
+    "mage": {
+      "idle": {
+        "frameWidth": 21,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/mage_idle.png"
+      }
+    }
+  }
+}

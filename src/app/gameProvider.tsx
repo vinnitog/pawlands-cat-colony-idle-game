@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ActivityId } from '../game/models/activity.ts';
+import type { CatClass } from '../game/models/catClass.ts';
 import type { MissionId } from '../game/models/missions.ts';
 import type { RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
 import { createInitialGameState } from '../game/data/initialGameState.ts';
+import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { completeCurrentActivity, startActivity as startActivityInState } from '../game/systems/activitySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
@@ -26,6 +28,7 @@ type GameContextValue = {
   startActivity(activityId: ActivityId): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
+  completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
   dismissRewardNotice(): void;
   dismissToast(): void;
@@ -154,6 +157,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const completeOnboarding = useCallback((choice: { name: string; catClass: CatClass }) => {
+    setState((current) => {
+      const next = applyStarterChoice(current, choice);
+      saveGame(next);
+      return next;
+    });
+  }, []);
+
   const resetGame = useCallback(() => {
     clearGame();
     const nextState = createInitialGameState();
@@ -171,11 +182,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
       startActivity,
       buyUpgrade,
       claimMission,
+      completeOnboarding,
       resetGame,
       dismissRewardNotice: () => setRewardNotice(null),
       dismissToast: () => setToast(null),
     }),
-    [buyUpgrade, claimMission, rewardNotice, resetGame, startActivity, state, toast],
+    [buyUpgrade, claimMission, completeOnboarding, rewardNotice, resetGame, startActivity, state, toast],
   );
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
