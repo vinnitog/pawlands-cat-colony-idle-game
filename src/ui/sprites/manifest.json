@@ -26,6 +26,15 @@
         "fps": 7,
         "src": "sprites/mage_idle.png"
       }
+    },
+    "king": {
+      "idle": {
+        "frameWidth": 14,
+        "frameHeight": 16,
+        "frames": 6,
+        "fps": 7,
+        "src": "sprites/king_idle.png"
+      }
     }
   }
 }

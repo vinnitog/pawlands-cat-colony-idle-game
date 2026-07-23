@@ -971,7 +971,7 @@ dd {
 
 .starter-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   width: 100%;
 }
@@ -1035,6 +1035,10 @@ dd {
 
 .starter-card--mage .starter-aura {
   background: radial-gradient(circle, rgba(74, 127, 208, 0.55), transparent 68%);
+}
+
+.starter-card--king .starter-aura {
+  background: radial-gradient(circle, rgba(224, 178, 67, 0.6), transparent 68%);
 }
 
 .starter-card-stage .cat-sprite {
