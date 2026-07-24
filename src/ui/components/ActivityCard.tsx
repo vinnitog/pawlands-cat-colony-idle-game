@@ -13,6 +13,10 @@ type ActivityCardProps = {
 export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
   const isBusy = Boolean(state.activeActivity);
   const hasEnergy = state.cat.energy >= activity.energyCost;
+  const xpRange = activity.rewards.xp;
+  const xpPerMin = xpRange
+    ? Math.round((xpRange[0] + xpRange[1]) / 2 / (activity.durationMs / 60000))
+    : null;
   const resourceEntries = activity.rewards.resources
     ? Object.entries(activity.rewards.resources)
     : [];
@@ -52,6 +56,8 @@ export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
           <dd>{rewardText || 'XP'}</dd>
         </div>
       </dl>
+
+      {xpPerMin ? <p className="cost-line">≈ {xpPerMin} XP/min</p> : null}
 
       <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
         {isBusy ? `${state.cat.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
