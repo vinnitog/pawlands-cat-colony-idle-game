@@ -2,6 +2,7 @@ import { upgradeById } from '../data/upgrades.ts';
 import type { GameState } from '../models/save.ts';
 import type { Resources } from '../models/resources.ts';
 import type { UpgradeId } from '../models/upgrades.ts';
+import { updateLeader } from './colonySystem.ts';
 import { hasResources, subtractResourcesFromState } from './economySystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
 
@@ -75,13 +76,10 @@ export function buyUpgrade(state: GameState, upgradeId: UpgradeId): UpgradePurch
   };
 
   if (upgradeId === 'cardboardBox') {
-    nextState = {
-      ...nextState,
-      cat: {
-        ...nextState.cat,
-        maxEnergy: nextState.cat.maxEnergy + 10,
-      },
-    };
+    nextState = updateLeader(nextState, (cat) => ({
+      ...cat,
+      maxEnergy: cat.maxEnergy + 10,
+    }));
   }
 
   return {

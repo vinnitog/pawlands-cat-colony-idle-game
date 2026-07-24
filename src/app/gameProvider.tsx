@@ -15,6 +15,7 @@ import {
   startActivity as startActivityInState,
   type StartActivityOptions,
 } from '../game/systems/activitySystem.ts';
+import { getLeader } from '../game/systems/colonySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
@@ -90,15 +91,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', saveOnHide);
   }, [state]);
 
+  const leaderActivity = getLeader(state).activity;
+
   useEffect(() => {
-    if (!state.activeActivity) return undefined;
+    if (!leaderActivity) return undefined;
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       let notice: RewardNotice | null = null;
 
       setState((current) => {
-        if (!current.activeActivity || current.activeActivity.endsAt > now) {
+        const activity = getLeader(current).activity;
+        if (!activity || activity.endsAt > now) {
           return current;
         }
 
@@ -122,7 +126,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [state.activeActivity]);
+  }, [leaderActivity]);
 
   const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
     setState((current) => {

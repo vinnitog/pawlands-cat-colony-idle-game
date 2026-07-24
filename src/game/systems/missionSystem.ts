@@ -1,6 +1,7 @@
 import { missionById, missions } from '../data/missions.ts';
 import type { GameState } from '../models/save.ts';
 import type { MissionCondition, MissionId } from '../models/missions.ts';
+import { getLeader } from './colonySystem.ts';
 import { addResourcesToState } from './economySystem.ts';
 import { addXpToState } from './levelSystem.ts';
 
@@ -19,7 +20,8 @@ function getMissionProgress(state: GameState, condition: MissionCondition): numb
     case 'upgradeLevel':
       return state.upgrades[condition.upgradeId].level;
     case 'catLevel':
-      return state.cat.level;
+      // Highest level in the colony, so multi-cat rosters can still complete it.
+      return Math.max(...state.cats.map((cat) => cat.level));
   }
 }
 

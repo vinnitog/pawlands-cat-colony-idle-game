@@ -1,6 +1,7 @@
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
 import { completeCurrentActivity } from './activitySystem.ts';
+import { getLeader } from './colonySystem.ts';
 
 export type OfflineProgressResult = {
   state: GameState;
@@ -18,7 +19,8 @@ export function processOfflineProgress(
 ): OfflineProgressResult {
   const offlineDurationMs = Math.max(0, now - state.lastSavedAt);
 
-  if (!state.activeActivity || state.activeActivity.endsAt > now) {
+  const leaderActivity = getLeader(state).activity;
+  if (!leaderActivity || leaderActivity.endsAt > now) {
     return {
       state: {
         ...state,

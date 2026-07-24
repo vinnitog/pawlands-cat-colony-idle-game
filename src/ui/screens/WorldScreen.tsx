@@ -5,6 +5,7 @@ import type { ShopId } from '../../game/models/shop.ts';
 import { activityById } from '../../game/data/activities.ts';
 import type { MissionId } from '../../game/models/missions.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import { getLeader } from '../../game/systems/colonySystem.ts';
 import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
@@ -39,13 +40,14 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 export function WorldScreen({ goTo }: WorldScreenProps) {
   const { state, setWorldPosition, startActivity } = useGame();
-  const catClass = state.cat.catClass as CatClass;
+  const leader = getLeader(state);
+  const catClass = leader.catClass as CatClass;
   const now = useNow();
   const catDef = catClassById[catClass];
-  const activeActivity = state.activeActivity ? activityById[state.activeActivity.activityId] : null;
+  const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
   const remainingMs = getRemainingActivityMs(state, now);
-  const nextXp = xpForNextLevel(state.cat.level);
-  const xpPct = Math.min(100, Math.floor((state.cat.xp / nextXp) * 100));
+  const nextXp = xpForNextLevel(leader.level);
+  const xpPct = Math.min(100, Math.floor((leader.xp / nextXp) * 100));
   const persistRef = useRef(setWorldPosition);
   persistRef.current = setWorldPosition;
   const startActivityRef = useRef(startActivity);
@@ -346,12 +348,12 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       <div className="world-hud">
         <div className="world-cat-card">
           <div className="wcc-portrait">
-            <CatSprite hero={catClass} scale={3} label={`${state.cat.name}, ${catDef.role}`} />
+            <CatSprite hero={catClass} scale={3} label={`${leader.name}, ${catDef.role}`} />
           </div>
           <div className="wcc-info">
-            <strong>{state.cat.name}</strong>
+            <strong>{leader.name}</strong>
             <span className="wcc-sub">
-              {catDef.name} · Nv {state.cat.level}
+              {catDef.name} · Nv {leader.level}
             </span>
             <div className="wcc-xp">
               <span style={{ width: `${xpPct}%` }} />
@@ -361,7 +363,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         <div className="world-pills">
           <span className="hud-pill">
             <GameIcon name="energy" />
-            {state.cat.energy}/{state.cat.maxEnergy}
+            {leader.energy}/{leader.maxEnergy}
           </span>
           <span className="hud-pill">
             <GameIcon name="coins" />

@@ -35,5 +35,5 @@ test('a stocked colony can climb the cardboard box to level 3', () => {
   assert.equal(toL3.state.upgrades.cardboardBox.level, 3);
   // Two boxes in, one per level, none left over.
   assert.equal(toL3.state.resources.cardboardBoxes, 0);
-  assert.equal(toL3.state.cat.maxEnergy, 60); // 40 + 10 + 10
+  assert.equal(toL3.state.cats[0].maxEnergy, 60); // 40 + 10 + 10
 });

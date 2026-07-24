@@ -1,5 +1,6 @@
 import type { GameState } from '../models/save.ts';
 import { addResourcesToState } from './economySystem.ts';
+import { getLeader, updateLeader } from './colonySystem.ts';
 
 export type LevelResult = {
   state: GameState;
@@ -16,10 +17,11 @@ export function addXpToState(state: GameState, xp: number): LevelResult {
     return { state, levelsGained: 0, coinsAwarded: 0 };
   }
 
+  const leader = getLeader(state);
   let cat = {
-    ...state.cat,
-    xp: state.cat.xp + xp,
-    stats: { ...state.cat.stats },
+    ...leader,
+    xp: leader.xp + xp,
+    stats: { ...leader.stats },
   };
   let levelsGained = 0;
 
@@ -38,10 +40,7 @@ export function addXpToState(state: GameState, xp: number): LevelResult {
     levelsGained += 1;
   }
 
-  let nextState = {
-    ...state,
-    cat,
-  };
+  let nextState = updateLeader(state, () => cat);
 
   const coinsAwarded = levelsGained * 15;
   if (coinsAwarded > 0) {

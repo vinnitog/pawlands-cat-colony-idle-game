@@ -1,5 +1,6 @@
 import { activityById } from '../../game/data/activities.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import { getLeader } from '../../game/systems/colonySystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatStatus } from '../components/CatStatus.tsx';
 import { ResourceBar } from '../components/ResourceBar.tsx';
@@ -14,19 +15,20 @@ type DashboardScreenProps = {
 export function DashboardScreen({ goTo }: DashboardScreenProps) {
   const { state } = useGame();
   const now = useNow();
-  const activeActivity = state.activeActivity ? activityById[state.activeActivity.activityId] : null;
+  const leader = getLeader(state);
+  const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
   const remainingMs = getRemainingActivityMs(state, now);
 
   return (
     <div className="screen-stack">
-      <CatStatus cat={state.cat} />
+      <CatStatus cat={leader} />
       <ResourceBar resources={state.resources} />
 
       <section className="panel activity-current-panel">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Atividade atual</p>
-            <h2>{activeActivity ? activeActivity.name : `${state.cat.name} está disponível`}</h2>
+            <h2>{activeActivity ? activeActivity.name : `${leader.name} está disponível`}</h2>
           </div>
           <strong>{activeActivity ? formatDuration(remainingMs) : 'Livre'}</strong>
         </div>

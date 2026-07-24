@@ -1,14 +1,16 @@
 import { catClassById, type CatClass } from '../models/catClass.ts';
 import type { GameState } from '../models/save.ts';
+import { getLeader, updateLeader } from './colonySystem.ts';
 
 export const catNameMinLength = 2;
 export const catNameMaxLength = 16;
 
 /** A fresh colony (no progress yet) inherits the chosen class's starting stats. */
 function isFreshColony(state: GameState): boolean {
+  const leader = getLeader(state);
   return (
-    state.cat.level === 1 &&
-    state.cat.xp === 0 &&
+    leader.level === 1 &&
+    leader.xp === 0 &&
     state.totals.activitiesCompleted === 0 &&
     state.totals.upgradesPurchased === 0
   );
@@ -33,15 +35,15 @@ export function applyStarterChoice(
 ): GameState {
   const def = catClassById[choice.catClass];
   const name = normalizeCatName(choice.name) || def.name;
+  const fresh = isFreshColony(state);
 
   return {
-    ...state,
-    onboarded: true,
-    cat: {
-      ...state.cat,
+    ...updateLeader(state, (cat) => ({
+      ...cat,
       name,
       catClass: choice.catClass,
-      stats: isFreshColony(state) ? { ...def.stats } : state.cat.stats,
-    },
+      stats: fresh ? { ...def.stats } : cat.stats,
+    })),
+    onboarded: true,
   };
 }

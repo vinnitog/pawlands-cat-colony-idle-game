@@ -1,3 +1,4 @@
+import type { ActiveActivity } from './activity.ts';
 import type { CatClass } from './catClass.ts';
 
 export type CatStats = {
@@ -17,4 +18,6 @@ export type Cat = {
   energy: number;
   maxEnergy: number;
   stats: CatStats;
+  /** The activity this cat is currently busy with, or null when free. */
+  activity: ActiveActivity | null;
 };

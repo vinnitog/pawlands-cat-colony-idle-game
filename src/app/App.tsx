@@ -10,6 +10,7 @@ import { SettingsScreen } from '../ui/screens/SettingsScreen.tsx';
 import { OfflineRewardsModal } from '../ui/components/OfflineRewardsModal.tsx';
 import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
+import { getLeader } from '../game/systems/colonySystem.ts';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 
 type ScreenId =
@@ -51,7 +52,7 @@ export function App() {
           </div>
           <div className="level-pill">
             <GameIcon name="level" />
-            <span>Nv. {state.cat.level}</span>
+            <span>Nv. {getLeader(state).level}</span>
           </div>
         </div>
       </header>

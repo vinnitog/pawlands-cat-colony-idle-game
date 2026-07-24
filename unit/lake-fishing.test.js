@@ -22,12 +22,12 @@ test('startActivity flags fishing at the lake', () => {
   const menu = startActivity(state, 'fishPond', DAY0);
   assert.equal(menu.ok, true);
   if (!menu.ok) return;
-  assert.equal(menu.state.activeActivity.atLake, undefined);
+  assert.equal(menu.state.cats[0].activity.atLake, undefined);
 
   const lake = startActivity(state, 'fishPond', DAY0, { atLake: true });
   assert.equal(lake.ok, true);
   if (!lake.ok) return;
-  assert.equal(lake.state.activeActivity.atLake, true);
+  assert.equal(lake.state.cats[0].activity.atLake, true);
 });
 
 test('fishing at the lake yields more fish and XP than the menu', () => {
@@ -50,5 +50,5 @@ test('the lake flag survives a save migration', () => {
   if (!started.ok) return;
 
   const migrated = migrateGameSave(started.state);
-  assert.equal(migrated.activeActivity?.atLake, true);
+  assert.equal(migrated.cats[0].activity?.atLake, true);
 });
