@@ -13,6 +13,16 @@ import { addXpToState } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
 import { getUpgradeBonuses } from './upgradeSystem.ts';
 
+/** Extra fish caught when fishing at the Grimalkin lake instead of the menu. */
+export const LAKE_FISH_MULTIPLIER = 1.5;
+/** Extra XP for fishing at the lake, rewarding the trip out to the world. */
+export const LAKE_XP_MULTIPLIER = 1.25;
+
+export type StartActivityOptions = {
+  /** Fishing started at the world lake earns a location bonus. */
+  atLake?: boolean;
+};
+
 export type ActivityStartResult =
   | { ok: true; state: GameState }
   | { ok: false; state: GameState; reason: string };
@@ -35,6 +45,7 @@ function createActivityReward(
   activityId: ActivityId,
   random: () => number,
   startedAt: number,
+  atLake: boolean,
 ): RewardBundle {
   const activity = activityById[activityId];
   const bonuses = getUpgradeBonuses(state);
@@ -55,6 +66,7 @@ function createActivityReward(
 
     if (key === 'fish') {
       amount = Math.floor(amount * bonuses.fishMultiplier);
+      if (atLake) amount = Math.floor(amount * LAKE_FISH_MULTIPLIER);
     }
 
     if (amount > 0) reward.resources[key] = amount;
@@ -63,6 +75,7 @@ function createActivityReward(
   if (activity.rewards.xp) {
     let xp = rollRange(activity.rewards.xp, random) * bonuses.xpMultiplier;
     if (featured) xp *= DAILY_BONUS_XP_MULTIPLIER;
+    if (atLake) xp *= LAKE_XP_MULTIPLIER;
     reward.xp = Math.floor(xp);
   }
 
@@ -95,7 +108,12 @@ function createActivityReward(
   return reward;
 }
 
-export function startActivity(state: GameState, activityId: ActivityId, now = Date.now()): ActivityStartResult {
+export function startActivity(
+  state: GameState,
+  activityId: ActivityId,
+  now = Date.now(),
+  options: StartActivityOptions = {},
+): ActivityStartResult {
   const activity = activityById[activityId];
 
   if (state.activeActivity) {
@@ -118,6 +136,7 @@ export function startActivity(state: GameState, activityId: ActivityId, now = Da
         activityId,
         startedAt: now,
         endsAt: now + activity.durationMs,
+        ...(options.atLake ? { atLake: true } : {}),
       },
     },
   };
@@ -143,6 +162,7 @@ export function completeCurrentActivity(
     state.activeActivity.activityId,
     random,
     state.activeActivity.startedAt,
+    state.activeActivity.atLake === true,
   );
   let nextState = addResourcesToState(state, reward.resources);
   nextState = addInventoryToState(nextState, reward.inventory);

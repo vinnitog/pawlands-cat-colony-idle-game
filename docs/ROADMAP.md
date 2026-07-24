@@ -18,7 +18,9 @@
   O bônus é decidido pelo dia de início (honrado mesmo concluindo offline).
 
 ## 🔜 Curto prazo (polish — dá pra fazer sozinho, ordem de simplicidade)
-- [ ] Pesca com **bônus no lago** (pescar no mundo rende mais que pela tela).
+- [x] Pesca com **bônus no lago** — pescar no Lago de Grimalkin (mundo) rende
+      **+50% peixe e +25% XP** vs. iniciar `Pescar` pela tela. Flag `atLake`
+      persiste no save.
 - [ ] Mais **missões/quests** e diálogos com gancho de missão.
 - [ ] **Sons/feedback** (SFX de clique, colheita, compra) — precisa de assets.
 - [ ] **Balanceamento** dos números do idle.

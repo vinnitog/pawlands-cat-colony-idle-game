@@ -274,7 +274,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
           else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
         } else if (nearSign) {
-          if (nearSign.kind === 'fish') startActivityRef.current('fishPond');
+          if (nearSign.kind === 'fish') startActivityRef.current('fishPond', { atLake: true });
           else goToRef.current(nearSign.kind);
         }
       }

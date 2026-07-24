@@ -10,7 +10,11 @@ import { createInitialGameState } from '../game/data/initialGameState.ts';
 import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
-import { completeCurrentActivity, startActivity as startActivityInState } from '../game/systems/activitySystem.ts';
+import {
+  completeCurrentActivity,
+  startActivity as startActivityInState,
+  type StartActivityOptions,
+} from '../game/systems/activitySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
@@ -28,7 +32,7 @@ type GameContextValue = {
   state: GameState;
   rewardNotice: RewardNotice | null;
   toast: string | null;
-  startActivity(activityId: ActivityId): void;
+  startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
@@ -120,16 +124,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(intervalId);
   }, [state.activeActivity]);
 
-  const startActivity = useCallback((activityId: ActivityId) => {
+  const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
     setState((current) => {
-      const result = startActivityInState(current, activityId, Date.now());
+      const result = startActivityInState(current, activityId, Date.now(), options);
       if (!result.ok) {
         setToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast('Atividade iniciada.');
+      setToast(options?.atLake ? 'Pescaria no lago — pesca reforçada!' : 'Atividade iniciada.');
       return result.state;
     });
   }, []);

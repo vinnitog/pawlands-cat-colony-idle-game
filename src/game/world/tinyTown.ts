@@ -114,7 +114,7 @@ export function createGrimalkin(): WorldMap {
     { tx: 8, ty: 8, kind: 'missions', label: 'Mural de Grimalkin' },
     { tx: 15, ty: 8, kind: 'upgrades', label: 'Forja da Garra' },
     { tx: 12, ty: 12, kind: 'activities', label: 'Portão do Além' },
-    { tx: 7, ty: 12, kind: 'fish', label: 'Lago de Grimalkin (pescar)' },
+    { tx: 7, ty: 12, kind: 'fish', label: 'Lago de Grimalkin (pesca reforçada)' },
   ];
 
   for (const post of interactions) {

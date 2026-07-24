@@ -151,9 +151,13 @@ function mergeActiveActivity(value: unknown): ActiveActivity | null {
     return null;
   }
 
-  return {
+  const active: ActiveActivity = {
     activityId: activityId as ActiveActivity['activityId'],
     startedAt: toSafeNumber(value.startedAt, 0),
     endsAt: toSafeNumber(value.endsAt, 0),
   };
+
+  if (value.atLake === true) active.atLake = true;
+
+  return active;
 }
