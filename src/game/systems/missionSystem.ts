@@ -1,7 +1,6 @@
 import { missionById, missions } from '../data/missions.ts';
 import type { GameState } from '../models/save.ts';
 import type { MissionCondition, MissionId } from '../models/missions.ts';
-import { getLeader } from './colonySystem.ts';
 import { addResourcesToState } from './economySystem.ts';
 import { addXpToState } from './levelSystem.ts';
 

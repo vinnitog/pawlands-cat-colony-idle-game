@@ -15,7 +15,11 @@ import {
   startActivity as startActivityInState,
   type StartActivityOptions,
 } from '../game/systems/activitySystem.ts';
-import { getLeader } from '../game/systems/colonySystem.ts';
+import {
+  getLeader,
+  recruitCat as recruitCatInState,
+  setLeader as setLeaderInState,
+} from '../game/systems/colonySystem.ts';
 import { applyEnergyRegen } from '../game/systems/energySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
@@ -35,6 +39,8 @@ type GameContextValue = {
   rewardNotice: RewardNotice | null;
   toast: string | null;
   startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
+  recruitCat(): void;
+  setLeader(catId: string): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
@@ -152,6 +158,34 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const recruitCat = useCallback(() => {
+    setState((current) => {
+      const result = recruitCatInState(current, Math.random, Date.now());
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${result.cat.name} juntou-se à colônia!`);
+      return result.state;
+    });
+  }, []);
+
+  const setLeader = useCallback((catId: string) => {
+    setState((current) => {
+      const result = setLeaderInState(current, catId);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${getLeader(result.state).name} agora lidera a colônia.`);
+      return result.state;
+    });
+  }, []);
+
   const buyUpgrade = useCallback((upgradeId: UpgradeId) => {
     setState((current) => {
       const result = buyUpgradeInState(current, upgradeId);
@@ -227,6 +261,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       rewardNotice,
       toast,
       startActivity,
+      recruitCat,
+      setLeader,
       buyUpgrade,
       claimMission,
       buyShopItem,
@@ -241,8 +277,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyUpgrade,
       claimMission,
       completeOnboarding,
+      recruitCat,
       rewardNotice,
       resetGame,
+      setLeader,
       setWorldPosition,
       startActivity,
       state,

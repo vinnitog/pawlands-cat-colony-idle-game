@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGame } from './gameProvider.tsx';
 import { DashboardScreen } from '../ui/screens/DashboardScreen.tsx';
 import { WorldScreen } from '../ui/screens/WorldScreen.tsx';
+import { ColonyScreen } from '../ui/screens/ColonyScreen.tsx';
 import { ActivitiesScreen } from '../ui/screens/ActivitiesScreen.tsx';
 import { UpgradesScreen } from '../ui/screens/UpgradesScreen.tsx';
 import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
@@ -16,6 +17,7 @@ import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 type ScreenId =
   | 'dashboard'
   | 'world'
+  | 'colony'
   | 'activities'
   | 'upgrades'
   | 'missions'
@@ -25,6 +27,7 @@ type ScreenId =
 const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
   { id: 'dashboard', label: 'Início', icon: 'home' },
   { id: 'world', label: 'Grimalkin', icon: 'world' },
+  { id: 'colony', label: 'Colônia', icon: 'colony' },
   { id: 'activities', label: 'Atividades', icon: 'exploreYard' },
   { id: 'upgrades', label: 'Melhorias', icon: 'upgrades' },
   { id: 'missions', label: 'Missões', icon: 'missions' },
@@ -61,6 +64,7 @@ export function App() {
         <main className="app-main">
           {screen === 'dashboard' && <DashboardScreen goTo={setScreen} />}
           {screen === 'world' && <WorldScreen goTo={setScreen} />}
+          {screen === 'colony' && <ColonyScreen />}
           {screen === 'activities' && <ActivitiesScreen />}
           {screen === 'upgrades' && <UpgradesScreen />}
           {screen === 'missions' && <MissionsScreen />}
