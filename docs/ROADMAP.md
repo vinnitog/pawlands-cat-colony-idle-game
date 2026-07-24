@@ -13,6 +13,9 @@
 - **Economia:** Gemas (ganho raro + missões), sinks nas lojas.
 - **Loop idle base:** atividades, melhorias, missões, inventário, save local +
   progresso offline.
+- **Bônus diário:** uma atividade em destaque por dia (rotação determinística
+  por dia UTC) rende **XP em dobro + chance extra de gema**, com selo no card.
+  O bônus é decidido pelo dia de início (honrado mesmo concluindo offline).
 
 ## 🔜 Curto prazo (polish — dá pra fazer sozinho, ordem de simplicidade)
 - [ ] Pesca com **bônus no lago** (pescar no mundo rende mais que pela tela).
@@ -33,8 +36,8 @@
 5. **Mais mundo** — novas zonas/mapas além do pátio.
 
 ## 💡 Ideias emprestadas do Baiak Idle (idle-RPG auto-hunt)
-- **Bônus diário** — atividade/zona turbinada do dia (retenção barata). *(simples)*
-- **Métricas de eficiência** (XP/min por atividade) pra o jogador otimizar. *(simples)*
+- ✅ **Bônus diário** — atividade turbinada do dia (retenção barata). *(feito)*
+- ✅ **Métricas de eficiência** (XP/min por atividade) pra o jogador otimizar. *(feito)*
 - **Bosses** e **prestígio/rebirth** — longo prazo, depois de ter combate.
 - **MMO** (mercado/guilda/PvP/ranking) — Fase 3 (tier caro).
 

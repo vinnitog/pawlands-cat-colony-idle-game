@@ -705,6 +705,61 @@ dd {
   color: var(--leaf);
 }
 
+/* Daily bonus: featured activity of the day */
+.section-heading {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.daily-bonus-headline {
+  align-self: center;
+  flex: 0 1 auto;
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.daily-bonus-headline strong {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-dark);
+  font-family: var(--heading-font);
+  font-size: 0.9rem;
+}
+
+.activity-card--daily-bonus {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 0 0 1px var(--gold),
+    var(--soft-shadow);
+}
+
+.daily-bonus-seal {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  padding: 4px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f6df9c, #e4b849);
+  color: #4a3110;
+  font-family: var(--heading-font);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  box-shadow: var(--soft-shadow);
+}
+
+.daily-bonus-note {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .upgrade-card {
   background: linear-gradient(180deg, #ecdcb6, var(--surface));
 }
