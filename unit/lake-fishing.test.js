@@ -8,7 +8,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // Day 0's featured activity is huntMice, so fishPond is NOT featured here —
 // this isolates the lake bonus from the daily bonus.
 const DAY0 = 60_000;
-const FISH_DURATION = 10 * 60_000;
+const FISH_DURATION = 8 * 60_000;
 
 function fishOnce(atLake) {
   const state = createInitialGameState(DAY0);

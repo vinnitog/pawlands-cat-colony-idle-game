@@ -25,7 +25,9 @@
       (13 no total), 3 encomendadas por NPCs (Vittorio/Aldric/Rei Grimalkin) com
       chip "Pedido de" no card e status vivo da quest na fala/loja do NPC.
 - [ ] **Sons/feedback** (SFX de clique, colheita, compra) — precisa de assets.
-- [ ] **Balanceamento** dos números do idle.
+- [x] **Balanceamento** dos números do idle — 1ª passada: Pescar 10→8 min
+      (era a pior atividade core por minuto) e Caixa de Papelão nv3 exige 1
+      caixa em vez de 2 (paredão de grind de um recurso raro do Explorar).
 - [ ] Verificar **PWA instalável** + deploy GitHub Pages (workflow já existe).
 
 ## 🎯 Médio prazo (features maiores, single-player)
