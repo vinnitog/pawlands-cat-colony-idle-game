@@ -55,6 +55,7 @@ export function createInitialGameState(now = Date.now()): GameState {
       upgradesPurchased: 0,
     },
     world: { x: 192, y: 144 }, // Grimalkin spawn (tile 12,9 × 16px)
+    lastEnergyRegenAt: now,
     lastSavedAt: now,
   };
 }

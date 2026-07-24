@@ -2,6 +2,7 @@ import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
 import { completeCurrentActivity } from './activitySystem.ts';
 import { getLeader } from './colonySystem.ts';
+import { applyEnergyRegen } from './energySystem.ts';
 
 export type OfflineProgressResult = {
   state: GameState;
@@ -23,7 +24,7 @@ export function processOfflineProgress(
   if (!leaderActivity || leaderActivity.endsAt > now) {
     return {
       state: {
-        ...state,
+        ...applyEnergyRegen(state, now),
         lastSavedAt: now,
       },
       reward: null,
@@ -38,7 +39,7 @@ export function processOfflineProgress(
 
   return {
     state: {
-      ...completion.state,
+      ...applyEnergyRegen(completion.state, now),
       lastSavedAt: now,
     },
     reward: completion.reward,

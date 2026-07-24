@@ -64,6 +64,10 @@ function buildState(
       resourcesEarned: mergeResources(totals.resourcesEarned, fallback.totals.resourcesEarned),
     },
     world: mergeWorld(candidate.world, fallback.world),
+    lastEnergyRegenAt: toSafeNumber(
+      candidate.lastEnergyRegenAt,
+      toSafeNumber(candidate.lastSavedAt, fallback.lastEnergyRegenAt),
+    ),
     lastSavedAt: toSafeNumber(candidate.lastSavedAt, fallback.lastSavedAt),
   });
 }

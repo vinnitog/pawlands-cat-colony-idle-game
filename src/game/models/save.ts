@@ -26,5 +26,7 @@ export type GameState = {
   totals: GameTotals;
   /** Last position of the player in the Grimalkin world, in world pixels. */
   world: { x: number; y: number };
+  /** Baseline for passive energy regen; advances only in whole-point steps. */
+  lastEnergyRegenAt: number;
   lastSavedAt: number;
 };

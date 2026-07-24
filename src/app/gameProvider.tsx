@@ -16,6 +16,7 @@ import {
   type StartActivityOptions,
 } from '../game/systems/activitySystem.ts';
 import { getLeader } from '../game/systems/colonySystem.ts';
+import { applyEnergyRegen } from '../game/systems/energySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
@@ -90,6 +91,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     document.addEventListener('visibilitychange', saveOnHide);
     return () => document.removeEventListener('visibilitychange', saveOnHide);
   }, [state]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      // Same-reference return means nothing regenerated — React skips the update.
+      setState((current) => applyEnergyRegen(current, Date.now()));
+    }, 30_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const leaderActivity = getLeader(state).activity;
 
