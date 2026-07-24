@@ -104,6 +104,8 @@ export function createGrimalkin(): WorldMap {
     [18, 11],
     [7, 13],
     [2, 13],
+    [22, 13],
+    [9, 13],
   ] as const) {
     objects[idx(bx, by)] = TILES.bush;
   }
@@ -150,6 +152,15 @@ export function createGrimalkin(): WorldMap {
   for (const [px, py, t] of pond) {
     ground[idx(px, py)] = t;
     solid[idx(px, py)] = true;
+  }
+
+  // a small grove for a leafier Grimalkin (trees are solid)
+  const grove: Array<[number, number]> = [
+    [2, 11], [8, 12], [19, 12], [21, 12], [20, 13], [20, 14],
+  ];
+  for (const [tx, ty] of grove) {
+    objects[idx(tx, ty)] = TILES.tree;
+    solid[idx(tx, ty)] = true;
   }
 
   const npcs: Npc[] = [
