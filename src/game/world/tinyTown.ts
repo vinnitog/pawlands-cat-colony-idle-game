@@ -1,4 +1,5 @@
 import type { CatClass } from '../models/catClass.ts';
+import type { MissionId } from '../models/missions.ts';
 import type { ShopId } from '../models/shop.ts';
 
 // World tiles come from Kenney's "Tiny Town" pack (CC0) — public/tiles/tiny_town.png,
@@ -37,6 +38,8 @@ export type Npc = {
   lines: string[];
   /** When set, interacting opens this shop instead of showing dialog. */
   shop?: ShopId;
+  /** When set, dialog appends a live status line for this quest. */
+  questId?: MissionId;
 };
 
 export type WorldMap = {
@@ -171,6 +174,7 @@ export function createGrimalkin(): WorldMap {
       sprite: 'mage',
       name: 'Vittorio, o Joalheiro',
       shop: 'jeweler',
+      questId: 'jewelerGems5',
       lines: ['Gemas? *te encara* ...nunca embolsei uma que já não fosse minha.'],
     },
     {
@@ -179,6 +183,7 @@ export function createGrimalkin(): WorldMap {
       sprite: 'knight',
       name: 'Aldric, o Ferreiro',
       shop: 'blacksmith',
+      questId: 'captureMice25',
       lines: ['Ferro é honesto. Gente, nem tanto. *martela*'],
     },
     {
@@ -186,10 +191,12 @@ export function createGrimalkin(): WorldMap {
       ty: 6,
       sprite: 'king',
       name: 'Rei Grimalkin, o Coroado',
+      questId: 'crownTribute250',
       lines: [
         'Ajoelhe... ou ao menos pare de pisar na minha sombra. *ajeita a coroa*',
         'Grimalkin foi minha muito antes de você farejar estas ruas.',
         'Gemas, aço, sardinhas — tudo passa pela coroa. Não esqueça.',
+        'Falando em passar pela coroa: onde está o meu tributo?',
       ],
     },
   ];

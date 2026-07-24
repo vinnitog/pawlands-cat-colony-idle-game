@@ -83,3 +83,14 @@ export function claimMission(state: GameState, missionId: MissionId): MissionCla
 export function getPendingMissionCount(state: GameState): number {
   return Object.values(state.missions).filter((mission) => mission.completed && !mission.claimed).length;
 }
+
+/** Flavored, state-aware line an NPC says about the quest they handed out. */
+export function describeQuestStatus(state: GameState, missionId: MissionId): string {
+  const mission = state.missions[missionId];
+  const definition = missionById[missionId];
+
+  if (mission.claimed) return 'Já acertamos as contas. Por ora. *vira as costas*';
+  if (mission.completed) return 'Você cumpriu! A recompensa espera no Mural de Grimalkin.';
+
+  return `Meu pedido segue de pé — ${definition.description} (${mission.progress}/${mission.target})`;
+}

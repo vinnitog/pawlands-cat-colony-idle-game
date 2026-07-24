@@ -21,7 +21,9 @@
 - [x] Pesca com **bônus no lago** — pescar no Lago de Grimalkin (mundo) rende
       **+50% peixe e +25% XP** vs. iniciar `Pescar` pela tela. Flag `atLake`
       persiste no save.
-- [ ] Mais **missões/quests** e diálogos com gancho de missão.
+- [x] Mais **missões/quests** e diálogos com gancho de missão — 5 novas missões
+      (13 no total), 3 encomendadas por NPCs (Vittorio/Aldric/Rei Grimalkin) com
+      chip "Pedido de" no card e status vivo da quest na fala/loja do NPC.
 - [ ] **Sons/feedback** (SFX de clique, colheita, compra) — precisa de assets.
 - [ ] **Balanceamento** dos números do idle.
 - [ ] Verificar **PWA instalável** + deploy GitHub Pages (workflow já existe).

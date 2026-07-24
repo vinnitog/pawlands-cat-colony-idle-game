@@ -3,7 +3,9 @@ import { useGame } from '../../app/gameProvider.tsx';
 import { catClassById, type CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
 import { activityById } from '../../game/data/activities.ts';
+import type { MissionId } from '../../game/models/missions.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
@@ -56,9 +58,14 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
   const dialogRef = useRef(false);
   dialogRef.current = dialog !== null;
-  const [shopSeller, setShopSeller] = useState<{ name: string; shopId: ShopId } | null>(null);
+  const [shopSeller, setShopSeller] = useState<{ name: string; shopId: ShopId; questId?: MissionId } | null>(
+    null,
+  );
   const shopRef = useRef(false);
   shopRef.current = shopSeller !== null;
+  // Read current mission state inside the render loop (effect closes over catClass only).
+  const gameStateRef = useRef(state);
+  gameStateRef.current = state;
   const advanceRef = useRef<() => void>(() => {});
   advanceRef.current = () => {
     setDialog((d) => (d && d.index < d.lines.length - 1 ? { ...d, index: d.index + 1 } : null));
@@ -271,8 +278,15 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       }
       if (interactEdge) {
         if (nearNpc) {
-          if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
-          else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
+          if (nearNpc.shop) {
+            setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop, questId: nearNpc.questId });
+          } else {
+            const lines = [...nearNpc.lines];
+            if (nearNpc.questId) {
+              lines.push(describeQuestStatus(gameStateRef.current, nearNpc.questId));
+            }
+            setDialog({ name: nearNpc.name, lines, index: 0 });
+          }
         } else if (nearSign) {
           if (nearSign.kind === 'fish') startActivityRef.current('fishPond', { atLake: true });
           else goToRef.current(nearSign.kind);
@@ -378,6 +392,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         <Shop
           sellerName={shopSeller.name}
           shopId={shopSeller.shopId}
+          questId={shopSeller.questId}
           onClose={() => setShopSeller(null)}
         />
       ) : null}
