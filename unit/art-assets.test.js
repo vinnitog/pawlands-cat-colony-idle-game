@@ -17,6 +17,12 @@ test('derived vecteezy art ships with the app', () => {
   }
 });
 
+test('derived UI kit pieces ship with the app (frame, divider, crest)', () => {
+  for (const file of ['ui_frame.png', 'ui_divider.png', 'ui_shield.png']) {
+    assert.ok(existsSync(join(root, 'src/ui/art', file)), `missing src/ui/art/${file}`);
+  }
+});
+
 test('settings screen credits Vecteezy (free license requires attribution)', () => {
   const settings = readFileSync(join(root, 'src/ui/screens/SettingsScreen.tsx'), 'utf8');
   assert.match(settings, /vecteezy\.com/i);

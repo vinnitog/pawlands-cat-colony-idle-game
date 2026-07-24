@@ -13,6 +13,7 @@ import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
 import { getLeader } from '../game/systems/colonySystem.ts';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
+import shieldCrest from '../ui/art/ui_shield.png';
 
 type ScreenId =
   | 'dashboard'
@@ -49,7 +50,7 @@ export function App() {
     <div className="app-frame">
       <aside className="side-nav">
         <div className="nav-crest" aria-hidden="true">
-          <GameIcon name="shield" />
+          <img src={shieldCrest} alt="" width={34} height={81} />
         </div>
         <div className="nav-divider" aria-hidden="true" />
         <nav className="nav-items" aria-label="Navegação principal">
