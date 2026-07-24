@@ -6,7 +6,7 @@ export const activities: ActivityDefinition[] = [
   {
     id: 'huntMice',
     name: 'Caçar Ratinhos',
-    description: 'Milo fareja cantinhos suspeitos e volta orgulhoso.',
+    description: 'Fareja cantinhos suspeitos e volta orgulhoso.',
     durationMs: 5 * minute,
     energyCost: 5,
     relatedStat: 'hunting',

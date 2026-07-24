@@ -4,6 +4,11 @@ import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
 import { createEmptyRewardBundle, resourceKeys } from '../models/resources.ts';
 import { addInventoryToState, addResourcesToState } from './economySystem.ts';
+import {
+  DAILY_BONUS_GEM_CHANCE,
+  DAILY_BONUS_XP_MULTIPLIER,
+  isDailyBonusActivity,
+} from './dailyBonusSystem.ts';
 import { addXpToState } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
 import { getUpgradeBonuses } from './upgradeSystem.ts';
@@ -25,9 +30,17 @@ function rollRange(range: RewardRange, random: () => number): number {
   return min + Math.floor(random() * (max - min + 1));
 }
 
-function createActivityReward(state: GameState, activityId: ActivityId, random: () => number): RewardBundle {
+function createActivityReward(
+  state: GameState,
+  activityId: ActivityId,
+  random: () => number,
+  startedAt: number,
+): RewardBundle {
   const activity = activityById[activityId];
   const bonuses = getUpgradeBonuses(state);
+  // Honor the day the activity was started, so the bonus the card promised holds
+  // even if it finishes after the UTC day rolls over (e.g. offline overnight).
+  const featured = isDailyBonusActivity(activityId, startedAt);
   const reward = createEmptyRewardBundle();
 
   for (const key of resourceKeys) {
@@ -48,7 +61,9 @@ function createActivityReward(state: GameState, activityId: ActivityId, random: 
   }
 
   if (activity.rewards.xp) {
-    reward.xp = Math.floor(rollRange(activity.rewards.xp, random) * bonuses.xpMultiplier);
+    let xp = rollRange(activity.rewards.xp, random) * bonuses.xpMultiplier;
+    if (featured) xp *= DAILY_BONUS_XP_MULTIPLIER;
+    reward.xp = Math.floor(xp);
   }
 
   if (activity.rewards.energy) {
@@ -70,6 +85,13 @@ function createActivityReward(state: GameState, activityId: ActivityId, random: 
     }
   }
 
+  if (featured) {
+    const luckBonus = state.cat.stats.luck * 0.005;
+    if (random() <= DAILY_BONUS_GEM_CHANCE + luckBonus) {
+      reward.resources.gems = (reward.resources.gems ?? 0) + 1;
+    }
+  }
+
   return reward;
 }
 
@@ -77,11 +99,11 @@ export function startActivity(state: GameState, activityId: ActivityId, now = Da
   const activity = activityById[activityId];
 
   if (state.activeActivity) {
-    return { ok: false, state, reason: 'Milo já está ocupado com outra atividade.' };
+    return { ok: false, state, reason: `${state.cat.name} já está ocupado com outra atividade.` };
   }
 
   if (state.cat.energy < activity.energyCost) {
-    return { ok: false, state, reason: 'Energia insuficiente. Coloque Milo para dormir.' };
+    return { ok: false, state, reason: `Energia insuficiente. Coloque ${state.cat.name} para dormir.` };
   }
 
   return {
@@ -116,7 +138,12 @@ export function completeCurrentActivity(
     };
   }
 
-  const reward = createActivityReward(state, state.activeActivity.activityId, random);
+  const reward = createActivityReward(
+    state,
+    state.activeActivity.activityId,
+    random,
+    state.activeActivity.startedAt,
+  );
   let nextState = addResourcesToState(state, reward.resources);
   nextState = addInventoryToState(nextState, reward.inventory);
 

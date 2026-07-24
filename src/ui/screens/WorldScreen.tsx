@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { useGame } from '../../app/gameProvider.tsx';
-import type { CatClass } from '../../game/models/catClass.ts';
+import { catClassById, type CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
+import { activityById } from '../../game/data/activities.ts';
+import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
+import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { Shop } from '../components/Shop.tsx';
+import { formatDuration } from '../formatters.ts';
+import { useNow } from '../useNow.ts';
 import {
   createGrimalkin,
   TILE,
@@ -32,6 +38,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 export function WorldScreen({ goTo }: WorldScreenProps) {
   const { state, setWorldPosition, startActivity } = useGame();
   const catClass = state.cat.catClass as CatClass;
+  const now = useNow();
+  const catDef = catClassById[catClass];
+  const activeActivity = state.activeActivity ? activityById[state.activeActivity.activityId] : null;
+  const remainingMs = getRemainingActivityMs(state, now);
+  const nextXp = xpForNextLevel(state.cat.level);
+  const xpPct = Math.min(100, Math.floor((state.cat.xp / nextXp) * 100));
   const persistRef = useRef(setWorldPosition);
   persistRef.current = setWorldPosition;
   const startActivityRef = useRef(startActivity);
@@ -318,23 +330,42 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
       <canvas ref={canvasRef} className="world-canvas" />
       <div className="world-hud">
-        <span className="hud-pill">
-          <GameIcon name="level" />
-          {state.cat.level}
-        </span>
-        <span className="hud-pill">
-          <GameIcon name="energy" />
-          {state.cat.energy}/{state.cat.maxEnergy}
-        </span>
-        <span className="hud-pill">
-          <GameIcon name="coins" />
-          {state.resources.coins}
-        </span>
-        <span className="hud-pill hud-gems">
-          <GameIcon name="gems" />
-          {state.resources.gems}
-        </span>
+        <div className="world-cat-card">
+          <div className="wcc-portrait">
+            <CatSprite hero={catClass} scale={3} label={`${state.cat.name}, ${catDef.role}`} />
+          </div>
+          <div className="wcc-info">
+            <strong>{state.cat.name}</strong>
+            <span className="wcc-sub">
+              {catDef.name} · Nv {state.cat.level}
+            </span>
+            <div className="wcc-xp">
+              <span style={{ width: `${xpPct}%` }} />
+            </div>
+          </div>
+        </div>
+        <div className="world-pills">
+          <span className="hud-pill">
+            <GameIcon name="energy" />
+            {state.cat.energy}/{state.cat.maxEnergy}
+          </span>
+          <span className="hud-pill">
+            <GameIcon name="coins" />
+            {state.resources.coins}
+          </span>
+          <span className="hud-pill hud-gems">
+            <GameIcon name="gems" />
+            {state.resources.gems}
+          </span>
+        </div>
       </div>
+      {activeActivity ? (
+        <div className="world-activity">
+          <GameIcon name={activeActivity.id} />
+          <span>{activeActivity.name}</span>
+          <strong>{formatDuration(remainingMs)}</strong>
+        </div>
+      ) : null}
       {prompt && !dialog ? <div className="world-prompt">⚔ {prompt}</div> : null}
       {dialog ? (
         <button type="button" className="world-dialog" onClick={() => advanceRef.current()}>

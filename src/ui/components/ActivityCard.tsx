@@ -7,12 +7,18 @@ import { GameIcon } from './GameIcon.tsx';
 type ActivityCardProps = {
   activity: ActivityDefinition;
   state: GameState;
+  isDailyBonus?: boolean;
   onStart(): void;
 };
 
-export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
+export function ActivityCard({ activity, state, isDailyBonus = false, onStart }: ActivityCardProps) {
   const isBusy = Boolean(state.activeActivity);
   const hasEnergy = state.cat.energy >= activity.energyCost;
+  const xpRange = activity.rewards.xp;
+  const xpMultiplier = isDailyBonus ? 2 : 1;
+  const xpPerMin = xpRange
+    ? Math.round(((xpRange[0] + xpRange[1]) / 2) * xpMultiplier / (activity.durationMs / 60000))
+    : null;
   const resourceEntries = activity.rewards.resources
     ? Object.entries(activity.rewards.resources)
     : [];
@@ -27,7 +33,12 @@ export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
         : 'Recompensa';
 
   return (
-    <article className={`item-card activity-card activity-card--${activity.id}`}>
+    <article
+      className={`item-card activity-card activity-card--${activity.id}${
+        isDailyBonus ? ' activity-card--daily-bonus' : ''
+      }`}
+    >
+      {isDailyBonus ? <span className="daily-bonus-seal">★ Bônus do dia</span> : null}
       <div className="activity-art">
         <GameIcon name={activity.id} />
       </div>
@@ -53,8 +64,14 @@ export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
         </div>
       </dl>
 
+      {xpPerMin ? <p className="cost-line">≈ {xpPerMin} XP/min</p> : null}
+
+      {isDailyBonus ? (
+        <p className="daily-bonus-note">Hoje: XP em dobro e chance extra de gema.</p>
+      ) : null}
+
       <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
-        {isBusy ? 'Milo está ocupado' : hasEnergy ? 'Iniciar' : 'Sem energia'}
+        {isBusy ? `${state.cat.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
       </button>
     </article>
   );

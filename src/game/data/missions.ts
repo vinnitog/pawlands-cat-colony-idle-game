@@ -38,10 +38,24 @@ export const missions: MissionDefinition[] = [
   },
   {
     id: 'reachCatLevel3',
-    title: 'Milo veterano',
+    title: 'Guardião veterano',
     description: 'Alcance o nível 3 com o gato.',
     condition: { kind: 'catLevel', target: 3 },
     reward: { coins: 75, xp: 40, gems: 2 },
+  },
+  {
+    id: 'collectGems3',
+    title: 'Caçador de gemas',
+    description: 'Encontre 3 Gemas.',
+    condition: { kind: 'resourceEarned', resource: 'gems', target: 3 },
+    reward: { coins: 80, xp: 40 },
+  },
+  {
+    id: 'reachActivities10',
+    title: 'Patrulheiro incansável',
+    description: 'Complete 10 atividades.',
+    condition: { kind: 'activitiesCompleted', target: 10 },
+    reward: { coins: 100, xp: 50, gems: 1 },
   },
 ];
 

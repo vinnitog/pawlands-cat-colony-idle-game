@@ -4,12 +4,14 @@ export type MissionId =
   | 'captureMice10'
   | 'saveCoins100'
   | 'upgradeCardboard2'
-  | 'reachCatLevel3';
+  | 'reachCatLevel3'
+  | 'collectGems3'
+  | 'reachActivities10';
 
 export type MissionCondition =
   | { kind: 'activitiesCompleted'; target: number }
-  | { kind: 'resourceEarned'; resource: 'fish' | 'mice'; target: number }
-  | { kind: 'resourceCurrent'; resource: 'coins'; target: number }
+  | { kind: 'resourceEarned'; resource: 'fish' | 'mice' | 'gems'; target: number }
+  | { kind: 'resourceCurrent'; resource: 'coins' | 'gems'; target: number }
   | { kind: 'upgradeLevel'; upgradeId: 'cardboardBox'; target: number }
   | { kind: 'catLevel'; target: number };
 

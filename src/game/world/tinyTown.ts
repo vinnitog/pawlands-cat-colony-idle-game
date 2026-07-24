@@ -181,6 +181,17 @@ export function createGrimalkin(): WorldMap {
       shop: 'blacksmith',
       lines: ['Ferro é honesto. Gente, nem tanto. *martela*'],
     },
+    {
+      tx: 12,
+      ty: 6,
+      sprite: 'king',
+      name: 'Rei Grimalkin, o Coroado',
+      lines: [
+        'Ajoelhe... ou ao menos pare de pisar na minha sombra. *ajeita a coroa*',
+        'Grimalkin foi minha muito antes de você farejar estas ruas.',
+        'Gemas, aço, sardinhas — tudo passa pela coroa. Não esqueça.',
+      ],
+    },
   ];
 
   for (const npc of npcs) {
