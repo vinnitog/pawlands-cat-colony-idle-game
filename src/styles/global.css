@@ -809,6 +809,28 @@ dd {
   height: 18px;
 }
 
+.colony-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Secondary card action: parchment button, lighter than the primary gold */
+.ghost-action {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--primary-dark);
+  font-family: var(--heading-font);
+  font-weight: 700;
+}
+
+.ghost-action:hover {
+  border-color: var(--gold);
+}
+
 .colony-card--recruit {
   align-items: center;
   text-align: center;

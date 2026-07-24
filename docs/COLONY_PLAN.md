@@ -81,13 +81,13 @@ Cat {
 
 ## Fases (milestones)
 
-| # | Entrega | Visível? | Risco |
+| # | Entrega | Visível? | Status |
 |---|---|---|---|
-| **C0** | Refator do modelo: roster + `leaderId` + `Cat.activity` + migração v1→v2, **preservando 100%** o comportamento de 1 gato. Testes atuais verdes. | Não | Alto (toca muitos arquivos) |
-| **C1** | Regen passiva de energia + offline percorrendo todos os gatos. | Sutil | Médio |
-| **C2** | Recrutamento (sink de gemas, classe aleatória) + tela Colônia (visualizar). | Sim | Baixo |
-| **C3** | Designar atividades por gato → **paralelismo ao vivo** (o multiplicador). | Sim | Médio |
-| **C4** | Polish: trocar líder, gatos ambiente no mundo, fila de recompensas, **rebalanço** (renda paralela multiplica — revisar custos). | Sim | Médio |
+| **C0** | Refator do modelo: roster + `leaderId` + `Cat.activity` + migração v1→v2, **preservando 100%** o comportamento de 1 gato. Testes atuais verdes. | Não | ✅ feito |
+| **C1** | Regen passiva de energia + offline percorrendo todos os gatos. | Sutil | ✅ feito |
+| **C2** | Recrutamento (sink de gemas, classe aleatória) + tela Colônia (visualizar + trocar líder). | Sim | ✅ feito |
+| **C3** | Designar atividades por gato → **paralelismo ao vivo** (o multiplicador). Aviso agregado ("N gatos voltaram"), offline colhe todos. | Sim | ✅ feito |
+| **C4** | Polish: gatos ambiente no mundo, **rebalanço** (renda paralela multiplica — revisar custos). | Sim | pendente |
 
 > **Estratégia de menor risco:** C0 é uma refatoração *invisível e comportamento-
 > preservante* — sai com todos os testes atuais verdes antes de qualquer feature

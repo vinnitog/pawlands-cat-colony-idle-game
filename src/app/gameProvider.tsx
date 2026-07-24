@@ -11,7 +11,7 @@ import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
 import {
-  completeCurrentActivity,
+  completeFinishedActivities,
   startActivity as startActivityInState,
   type StartActivityOptions,
 } from '../game/systems/activitySystem.ts';
@@ -107,27 +107,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  const leaderActivity = getLeader(state).activity;
+  const hasBusyCat = state.cats.some((cat) => cat.activity !== null);
 
   useEffect(() => {
-    if (!leaderActivity) return undefined;
+    if (!hasBusyCat) return undefined;
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       let notice: RewardNotice | null = null;
 
       setState((current) => {
-        const activity = getLeader(current).activity;
-        if (!activity || activity.endsAt > now) {
-          return current;
-        }
-
-        const completion = completeCurrentActivity(current, now);
-        if (!completion.completed) return current;
+        const completion = completeFinishedActivities(current, now);
+        if (completion.completedCount === 0) return current;
         saveGame(completion.state, undefined, now);
 
         notice = {
-          title: 'Atividade concluída',
+          title:
+            completion.completedCount > 1
+              ? `${completion.completedCount} gatos voltaram`
+              : 'Atividade concluída',
           reward: completion.reward,
           levelsGained: completion.levelsGained,
           levelCoins: completion.levelCoins,
@@ -142,7 +140,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [leaderActivity]);
+  }, [hasBusyCat]);
 
   const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
     setState((current) => {
@@ -153,7 +151,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }
 
       saveGame(result.state);
-      setToast(options?.atLake ? 'Pescaria no lago — pesca reforçada!' : 'Atividade iniciada.');
+      const actorName = options?.catId
+        ? result.state.cats.find((cat) => cat.id === options.catId)?.name
+        : getLeader(result.state).name;
+      setToast(
+        options?.atLake
+          ? 'Pescaria no lago — pesca reforçada!'
+          : `${actorName ?? 'Seu gato'} começou a atividade.`,
+      );
       return result.state;
     });
   }, []);

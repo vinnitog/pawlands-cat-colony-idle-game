@@ -20,13 +20,17 @@ export function getLeader(state: GameState): Cat {
   return state.cats.find((cat) => cat.id === state.leaderId) ?? state.cats[0];
 }
 
-/** Return a new state with the leader cat passed through `updater`. */
-export function updateLeader(state: GameState, updater: (cat: Cat) => Cat): GameState {
-  const leaderId = getLeader(state).id;
+/** Return a new state with the cat `catId` passed through `updater`. */
+export function updateCat(state: GameState, catId: string, updater: (cat: Cat) => Cat): GameState {
   return {
     ...state,
-    cats: state.cats.map((cat) => (cat.id === leaderId ? updater(cat) : cat)),
+    cats: state.cats.map((cat) => (cat.id === catId ? updater(cat) : cat)),
   };
+}
+
+/** Return a new state with the leader cat passed through `updater`. */
+export function updateLeader(state: GameState, updater: (cat: Cat) => Cat): GameState {
+  return updateCat(state, getLeader(state).id, updater);
 }
 
 /** Gem cost to recruit the next cat. Null when the roster is full. */

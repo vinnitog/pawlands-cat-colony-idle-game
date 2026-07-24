@@ -1,17 +1,84 @@
-import { activityById } from '../../game/data/activities.ts';
+import { useState } from 'react';
+import { activities, activityById } from '../../game/data/activities.ts';
+import type { Cat } from '../../game/models/cat.ts';
 import { catClassById } from '../../game/models/catClass.ts';
 import { getRecruitCost, MAX_COLONY_SIZE } from '../../game/systems/colonySystem.ts';
+import { getDailyBonusActivityId } from '../../game/systems/dailyBonusSystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { formatDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 
+type AssignModalProps = {
+  cat: Cat;
+  onPick(activityId: (typeof activities)[number]['id']): void;
+  onClose(): void;
+};
+
+function AssignActivityModal({ cat, onPick, onClose }: AssignModalProps) {
+  const bonusId = getDailyBonusActivityId();
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="reward-modal shop-modal"
+        role="dialog"
+        aria-label={`Designar atividade para ${cat.name}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p className="eyebrow">{cat.name}</p>
+        <h2>Designar atividade</h2>
+        <div className="shop-balance">
+          <GameIcon name="energy" />
+          <strong>{cat.energy}</strong>
+          <span>/ {cat.maxEnergy} energia</span>
+        </div>
+
+        <ul className="shop-list">
+          {activities.map((activity) => {
+            const hasEnergy = cat.energy >= activity.energyCost;
+            return (
+              <li className="shop-item" key={activity.id}>
+                <div>
+                  <strong>
+                    {activity.name}
+                    {activity.id === bonusId ? ' ★' : ''}
+                  </strong>
+                  <p className="muted-text">
+                    {formatDuration(activity.durationMs)} ·{' '}
+                    {activity.energyCost > 0 ? `-${activity.energyCost} energia` : 'recupera energia'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="primary-action shop-buy"
+                  disabled={!hasEnergy}
+                  onClick={() => onPick(activity.id)}
+                >
+                  <GameIcon name={activity.id} />
+                  Iniciar
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+
+        <button type="button" className="shop-close" onClick={onClose}>
+          Fechar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ColonyScreen() {
-  const { state, recruitCat, setLeader } = useGame();
+  const { state, recruitCat, setLeader, startActivity } = useGame();
   const now = useNow();
+  const [assigningId, setAssigningId] = useState<string | null>(null);
   const recruitCost = getRecruitCost(state);
   const canAfford = recruitCost !== null && state.resources.gems >= recruitCost;
+  const assigningCat = assigningId ? state.cats.find((cat) => cat.id === assigningId) : undefined;
 
   return (
     <div className="screen-stack">
@@ -74,11 +141,21 @@ export function ColonyScreen() {
                 )}
               </p>
 
-              {!isLeader ? (
-                <button className="primary-action" type="button" onClick={() => setLeader(cat.id)}>
-                  Tornar líder
+              <div className="colony-actions">
+                <button
+                  className="primary-action"
+                  type="button"
+                  disabled={cat.activity !== null}
+                  onClick={() => setAssigningId(cat.id)}
+                >
+                  {cat.activity ? 'Ocupado' : 'Designar atividade'}
                 </button>
-              ) : null}
+                {!isLeader ? (
+                  <button className="ghost-action" type="button" onClick={() => setLeader(cat.id)}>
+                    Tornar líder
+                  </button>
+                ) : null}
+              </div>
             </article>
           );
         })}
@@ -104,6 +181,17 @@ export function ColonyScreen() {
           </article>
         ) : null}
       </div>
+
+      {assigningCat ? (
+        <AssignActivityModal
+          cat={assigningCat}
+          onPick={(activityId) => {
+            startActivity(activityId, { catId: assigningCat.id });
+            setAssigningId(null);
+          }}
+          onClose={() => setAssigningId(null)}
+        />
+      ) : null}
     </div>
   );
 }
