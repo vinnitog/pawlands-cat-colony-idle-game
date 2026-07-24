@@ -35,6 +35,7 @@
   --shadow: 0 12px 30px rgba(10, 6, 2, 0.42);
   --soft-shadow: 0 6px 16px rgba(10, 6, 2, 0.32);
   --header-h: 66px;
+  --nav-w: 208px;
 }
 
 * {
@@ -134,19 +135,29 @@ dd {
   margin: 0;
 }
 
+/* [UI] Layout: menu lateral fixo + coluna de conteúdo (sem nav inferior) */
+.app-frame {
+  display: flex;
+  min-height: 100dvh;
+}
+
+.app-right {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .app-shell {
   position: relative;
   width: min(100%, 1120px);
-  min-height: 100vh;
   margin: 0 auto;
-  padding: calc(var(--header-h) + 14px) 16px 104px;
+  padding: 18px 16px 48px;
 }
 
 .app-header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  right: 0;
-  left: 0;
   z-index: 30;
   border: 0;
   border-bottom: 2px solid var(--gold);
@@ -572,33 +583,9 @@ dd {
   background: rgba(122, 85, 39, 0.16);
 }
 
-.quick-grid,
 .item-grid {
   display: grid;
   gap: 12px;
-}
-
-.quick-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.quick-grid button {
-  display: grid;
-  min-height: 74px;
-  place-items: center;
-  gap: 4px;
-  border: 2px solid var(--border);
-  border-radius: 6px;
-  background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), transparent 60%), var(--surface);
-  color: var(--text);
-  box-shadow: var(--soft-shadow);
-  font-family: var(--heading-font);
-}
-
-.quick-grid .game-icon {
-  width: 30px;
-  height: 30px;
-  color: var(--primary);
 }
 
 .item-card {
@@ -916,53 +903,134 @@ dd {
   font-weight: 700;
 }
 
-.bottom-nav {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
-  border-top: 2px solid var(--gold);
+/* [UI] Menu lateral: madeira escura, borda dourada e corrente de elos */
+.side-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 10px;
+  width: var(--nav-w);
+  height: 100dvh;
+  padding: 16px 14px 16px 10px;
+  border-right: 2px solid var(--gold);
   background: linear-gradient(180deg, #2a2620, #17140f);
-  box-shadow: 0 -12px 30px rgba(10, 6, 2, 0.5);
+  box-shadow: 8px 0 24px rgba(10, 6, 2, 0.45);
 }
 
-.nav-inner {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  width: min(100%, 1120px);
-  margin: 0 auto;
-  padding: 8px;
-  gap: 6px;
+/* [UI] Corrente: elos repetidos descendo a borda interna do menu */
+.side-nav::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 2px;
+  bottom: 0;
+  width: 9px;
+  background: radial-gradient(
+    circle at 4.5px 7px,
+    transparent 1.8px,
+    rgba(200, 150, 44, 0.55) 2.4px,
+    rgba(200, 150, 44, 0.55) 3.4px,
+    transparent 4px
+  );
+  background-size: 9px 14px;
+  background-repeat: repeat-y;
+  opacity: 0.85;
+  pointer-events: none;
 }
 
-.bottom-nav button {
-  position: relative;
+/* [UI] Brasão: escudo com pata no topo do menu */
+.nav-crest {
   display: grid;
-  min-width: 0;
-  min-height: 56px;
   place-items: center;
-  padding: 6px 4px;
+  margin: 0 auto;
+  color: var(--gold);
+}
+
+.nav-crest .game-icon {
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 2px 2px rgba(10, 6, 2, 0.6));
+}
+
+/* [UI] Divisor: haste com ponta de lança (losango) ao centro */
+.nav-divider {
+  position: relative;
+  height: 2px;
+  margin: 2px 8px 6px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.nav-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  background: var(--gold);
+  translate: -50% -50%;
+  rotate: 45deg;
+}
+
+.nav-items {
+  display: grid;
+  gap: 4px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.side-nav button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 6px;
   background: transparent;
   color: #cbb488;
-  font-size: 0.72rem;
+  font-family: var(--heading-font);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-align: left;
 }
 
-.bottom-nav .game-icon {
-  width: 23px;
-  height: 23px;
-}
-
-.bottom-nav button.active {
-  border-radius: 6px;
-  background: linear-gradient(180deg, #6d4c18, #4a3110);
+.side-nav button:hover {
+  background: rgba(255, 230, 166, 0.08);
   color: #ffe6a6;
 }
 
-.bottom-nav strong {
+.side-nav .game-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.side-nav button.active {
+  background: linear-gradient(180deg, #6d4c18, #4a3110);
+  color: #ffe6a6;
+  box-shadow: inset 0 0 0 1px rgba(200, 150, 44, 0.5);
+}
+
+/* [UI] Ponta de lança apontando a tela ativa */
+.side-nav button.active::before {
+  content: '';
   position: absolute;
-  top: 3px;
-  right: 5px;
+  top: 50%;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-block: 5px solid transparent;
+  border-left: 7px solid var(--gold);
+  translate: 0 -50%;
+}
+
+.side-nav strong {
+  position: absolute;
+  top: 4px;
+  right: 6px;
   min-width: 18px;
   padding: 2px 5px;
   border-radius: 999px;
@@ -974,8 +1042,8 @@ dd {
 .toast {
   position: fixed;
   right: 12px;
-  bottom: 92px;
-  left: 12px;
+  bottom: 18px;
+  left: calc(var(--nav-w) + 12px);
   z-index: 30;
   display: flex;
   align-items: center;
@@ -1189,7 +1257,7 @@ dd {
 .world-screen {
   position: relative;
   width: 100%;
-  height: calc(100dvh - var(--header-h) - 118px);
+  height: calc(100dvh - var(--header-h) - 76px);
   min-height: 360px;
   overflow: hidden;
   border: 2px solid var(--border);
@@ -1748,7 +1816,7 @@ dd {
 
 @media (min-width: 720px) {
   .app-shell {
-    padding: calc(var(--header-h) + 20px) 22px 108px;
+    padding: 24px 22px 56px;
   }
 
   .cat-status {
@@ -1771,7 +1839,8 @@ dd {
   }
 
   .toast {
-    left: 50%;
+    right: auto;
+    left: calc(var(--nav-w) + (100vw - var(--nav-w)) / 2);
     transform: translateX(-50%);
   }
 }
@@ -1782,13 +1851,40 @@ dd {
   }
 }
 
-@media (max-width: 640px) {
-  .nav-inner {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+/* [UI] Mobile: o menu vira uma coluna estreita só de ícones */
+@media (max-width: 760px) {
+  :root {
+    --nav-w: 60px;
   }
 
-  .app-shell {
-    padding-bottom: 150px;
+  .side-nav {
+    padding: 12px 8px 12px 6px;
+  }
+
+  .side-nav button {
+    justify-content: center;
+    gap: 0;
+    padding: 8px 4px;
+  }
+
+  .side-nav button span {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nav-crest .game-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .side-nav button.active::before {
+    left: -7px;
+    border-block-width: 4px;
+    border-left-width: 6px;
   }
 }
 
@@ -1803,9 +1899,5 @@ dd {
 
   .stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .toast {
-    bottom: 172px;
   }
 }

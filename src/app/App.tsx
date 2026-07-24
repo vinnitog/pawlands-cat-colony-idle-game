@@ -46,35 +46,13 @@ export function App() {
   }
 
   return (
-    <>
-      <header className="app-header">
-        <div className="app-bar">
-          <div>
-            <p className="eyebrow">Reino de Pawlands</p>
-            <h1>Cat Colony Idle</h1>
-          </div>
-          <div className="level-pill">
-            <GameIcon name="level" />
-            <span>Nv. {getLeader(state).level}</span>
-          </div>
+    <div className="app-frame">
+      <aside className="side-nav">
+        <div className="nav-crest" aria-hidden="true">
+          <GameIcon name="shield" />
         </div>
-      </header>
-
-      <div className="app-shell">
-        <main className="app-main">
-          {screen === 'dashboard' && <DashboardScreen goTo={setScreen} />}
-          {screen === 'world' && <WorldScreen goTo={setScreen} />}
-          {screen === 'colony' && <ColonyScreen />}
-          {screen === 'activities' && <ActivitiesScreen />}
-          {screen === 'upgrades' && <UpgradesScreen />}
-          {screen === 'missions' && <MissionsScreen />}
-          {screen === 'inventory' && <InventoryScreen />}
-          {screen === 'settings' && <SettingsScreen />}
-        </main>
-      </div>
-
-      <nav className="bottom-nav" aria-label="Navegação principal">
-        <div className="nav-inner">
+        <div className="nav-divider" aria-hidden="true" />
+        <nav className="nav-items" aria-label="Navegação principal">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -89,8 +67,36 @@ export function App() {
               ) : null}
             </button>
           ))}
+        </nav>
+      </aside>
+
+      <div className="app-right">
+        <header className="app-header">
+          <div className="app-bar">
+            <div>
+              <p className="eyebrow">Reino de Pawlands</p>
+              <h1>Cat Colony Idle</h1>
+            </div>
+            <div className="level-pill">
+              <GameIcon name="level" />
+              <span>Nv. {getLeader(state).level}</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="app-shell">
+          <main className="app-main">
+            {screen === 'dashboard' && <DashboardScreen />}
+            {screen === 'world' && <WorldScreen goTo={setScreen} />}
+            {screen === 'colony' && <ColonyScreen />}
+            {screen === 'activities' && <ActivitiesScreen />}
+            {screen === 'upgrades' && <UpgradesScreen />}
+            {screen === 'missions' && <MissionsScreen />}
+            {screen === 'inventory' && <InventoryScreen />}
+            {screen === 'settings' && <SettingsScreen />}
+          </main>
         </div>
-      </nav>
+      </div>
 
       {toast ? (
         <div className="toast" role="status">
@@ -102,6 +108,6 @@ export function App() {
       ) : null}
 
       {rewardNotice ? <OfflineRewardsModal notice={rewardNotice} onClose={dismissRewardNotice} /> : null}
-    </>
+    </div>
   );
 }

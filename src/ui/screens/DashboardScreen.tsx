@@ -4,15 +4,10 @@ import { getLeader } from '../../game/systems/colonySystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatStatus } from '../components/CatStatus.tsx';
 import { ResourceBar } from '../components/ResourceBar.tsx';
-import { GameIcon } from '../components/GameIcon.tsx';
 import { formatDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 
-type DashboardScreenProps = {
-  goTo(screen: 'activities' | 'upgrades' | 'missions' | 'inventory'): void;
-};
-
-export function DashboardScreen({ goTo }: DashboardScreenProps) {
+export function DashboardScreen() {
   const { state } = useGame();
   const now = useNow();
   const leader = getLeader(state);
@@ -37,25 +32,6 @@ export function DashboardScreen({ goTo }: DashboardScreenProps) {
             ? activeActivity.description
             : 'Escolha uma atividade para continuar juntando recursos e expandir a colônia.'}
         </p>
-      </section>
-
-      <section className="quick-grid" aria-label="Ações rápidas">
-        <button type="button" onClick={() => goTo('activities')}>
-          <GameIcon name="exploreYard" />
-          <span>Atividades</span>
-        </button>
-        <button type="button" onClick={() => goTo('upgrades')}>
-          <GameIcon name="upgrades" />
-          <span>Melhorias</span>
-        </button>
-        <button type="button" onClick={() => goTo('missions')}>
-          <GameIcon name="missions" />
-          <span>Missões</span>
-        </button>
-        <button type="button" onClick={() => goTo('inventory')}>
-          <GameIcon name="inventory" />
-          <span>Inventário</span>
-        </button>
       </section>
     </div>
   );
