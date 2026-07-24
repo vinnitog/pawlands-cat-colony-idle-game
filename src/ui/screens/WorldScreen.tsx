@@ -17,7 +17,7 @@ const ZOOM = 3;
 const SPEED = 72; // world px per second
 
 type WorldScreenProps = {
-  goTo(kind: InteractionKind): void;
+  goTo(kind: Exclude<InteractionKind, 'fish'>): void;
 };
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -30,10 +30,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 export function WorldScreen({ goTo }: WorldScreenProps) {
-  const { state, setWorldPosition } = useGame();
+  const { state, setWorldPosition, startActivity } = useGame();
   const catClass = state.cat.catClass as CatClass;
   const persistRef = useRef(setWorldPosition);
   persistRef.current = setWorldPosition;
+  const startActivityRef = useRef(startActivity);
+  startActivityRef.current = startActivity;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const keysRef = useRef<Set<string>>(new Set());
   const goToRef = useRef(goTo);
@@ -258,7 +260,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
           else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
         } else if (nearSign) {
-          goToRef.current(nearSign.kind);
+          if (nearSign.kind === 'fish') startActivityRef.current('fishPond');
+          else goToRef.current(nearSign.kind);
         }
       }
 
