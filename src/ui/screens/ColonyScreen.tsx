@@ -162,9 +162,14 @@ export function ColonyScreen() {
 
         {recruitCost !== null ? (
           <article className="item-card colony-card colony-card--recruit">
-            <div className="colony-recruit-art">
-              <GameIcon name="colony" />
-            </div>
+            <img
+              className="colony-recruit-mascot"
+              src={`${import.meta.env.BASE_URL}art/cat_mascot.png`}
+              alt=""
+              width={104}
+              height={106}
+              loading="lazy"
+            />
             <h3>Recrutar gato</h3>
             <p className="muted-text">
               Um novo aliado de classe misteriosa se junta ao refúgio. Quem aparecerá?

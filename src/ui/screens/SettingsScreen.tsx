@@ -28,6 +28,30 @@ export function SettingsScreen() {
           Reiniciar progresso
         </button>
       </section>
+
+      <section className="panel">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Créditos</p>
+            <h2>Arte</h2>
+          </div>
+        </div>
+        <ul className="credits-list">
+          <li>
+            Sprites dos gatos: pack "Cute Legends — Cat Heroes" (Elthen).
+          </li>
+          <li>
+            Tiles do mundo: Kenney "Tiny Town" (CC0).
+          </li>
+          <li>
+            Ilustrações de gatos medievais:{' '}
+            <a href="https://www.vecteezy.com" target="_blank" rel="noreferrer">
+              Vetores por Vecteezy
+            </a>
+            .
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }

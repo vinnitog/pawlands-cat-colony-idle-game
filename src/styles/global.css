@@ -837,18 +837,27 @@ dd {
   border-style: dashed;
 }
 
-.colony-recruit-art {
-  display: grid;
-  width: 56px;
-  height: 56px;
-  place-items: center;
+.colony-recruit-mascot {
+  display: block;
+  width: 104px;
+  height: auto;
   margin: 0 auto;
-  color: var(--primary);
+  filter: drop-shadow(0 3px 4px rgba(10, 6, 2, 0.25));
 }
 
-.colony-recruit-art .game-icon {
-  width: 44px;
-  height: 44px;
+.credits-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--primary-dark);
+  font-size: 0.85rem;
+}
+
+.credits-list a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 .colony-card--recruit .primary-action .game-icon {
