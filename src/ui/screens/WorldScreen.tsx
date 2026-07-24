@@ -17,7 +17,7 @@ const ZOOM = 3;
 const SPEED = 72; // world px per second
 
 type WorldScreenProps = {
-  goTo(kind: InteractionKind): void;
+  goTo(kind: Exclude<InteractionKind, 'fish'>): void;
 };
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -30,10 +30,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 export function WorldScreen({ goTo }: WorldScreenProps) {
-  const { state, setWorldPosition } = useGame();
+  const { state, setWorldPosition, startActivity } = useGame();
   const catClass = state.cat.catClass as CatClass;
   const persistRef = useRef(setWorldPosition);
   persistRef.current = setWorldPosition;
+  const startActivityRef = useRef(startActivity);
+  startActivityRef.current = startActivity;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const keysRef = useRef<Set<string>>(new Set());
   const goToRef = useRef(goTo);
@@ -126,7 +128,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const mapH = map.height * TILE;
       let camX = mapW < viewW ? (mapW - viewW) / 2 : Math.max(0, Math.min(player.x - viewW / 2, mapW - viewW));
       let camY = mapH < viewH ? (mapH - viewH) / 2 : Math.max(0, Math.min(player.y - viewH / 2, mapH - viewH));
-      ctx.setTransform(ZOOM, 0, 0, ZOOM, -camX * ZOOM, -camY * ZOOM);
+      // round the camera to whole device pixels to avoid 1px tile seams while moving
+      ctx.setTransform(ZOOM, 0, 0, ZOOM, Math.round(-camX * ZOOM), Math.round(-camY * ZOOM));
 
       const drawTile = (index: number, dx: number, dy: number) => {
         const sx = (index % TILESET_COLUMNS) * TILE;
@@ -166,7 +169,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           0,
           nm.frameWidth,
           nm.frameHeight,
-          -nm.frameWidth / 2,
+          -Math.floor(nm.frameWidth / 2),
           -nm.frameHeight,
           nm.frameWidth,
           nm.frameHeight,
@@ -180,9 +183,10 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const fh = meta.frameHeight;
       const frame = Math.floor(player.anim * meta.fps) % meta.frames;
       ctx.save();
-      ctx.translate(player.x, player.y);
+      // snap to whole device pixels so scaled sprite edges don't bleed/shimmer
+      ctx.translate(Math.round(player.x * ZOOM) / ZOOM, Math.round(player.y * ZOOM) / ZOOM);
       ctx.scale(player.facing, 1);
-      ctx.drawImage(sheet, frame * fw, 0, fw, fh, -fw / 2, -fh, fw, fh);
+      ctx.drawImage(sheet, frame * fw, 0, fw, fh, -Math.floor(fw / 2), -fh, fw, fh);
       ctx.restore();
     };
 
@@ -258,7 +262,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
           else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
         } else if (nearSign) {
-          goToRef.current(nearSign.kind);
+          if (nearSign.kind === 'fish') startActivityRef.current('fishPond');
+          else goToRef.current(nearSign.kind);
         }
       }
 

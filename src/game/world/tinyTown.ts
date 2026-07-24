@@ -20,7 +20,7 @@ export const TILES = {
   crate: 130,
 } as const;
 
-export type InteractionKind = 'missions' | 'upgrades' | 'activities';
+export type InteractionKind = 'missions' | 'upgrades' | 'activities' | 'fish';
 
 export type Interaction = {
   tx: number;
@@ -101,8 +101,11 @@ export function createGrimalkin(): WorldMap {
   for (const [bx, by] of [
     [4, 4],
     [19, 5],
-    [5, 12],
     [18, 11],
+    [7, 13],
+    [2, 13],
+    [22, 13],
+    [9, 13],
   ] as const) {
     objects[idx(bx, by)] = TILES.bush;
   }
@@ -111,6 +114,7 @@ export function createGrimalkin(): WorldMap {
     { tx: 8, ty: 8, kind: 'missions', label: 'Mural de Grimalkin' },
     { tx: 15, ty: 8, kind: 'upgrades', label: 'Forja da Garra' },
     { tx: 12, ty: 12, kind: 'activities', label: 'Portão do Além' },
+    { tx: 7, ty: 12, kind: 'fish', label: 'Lago de Grimalkin (pescar)' },
   ];
 
   for (const post of interactions) {
@@ -137,6 +141,27 @@ export function createGrimalkin(): WorldMap {
   for (const [sx, sy, t] of [...house, ...gatehouse, ...props]) {
     objects[idx(sx, sy)] = t;
     solid[idx(sx, sy)] = true;
+  }
+
+  // a pond (recolored Tiny Town autotile, indices 132-140) on the ground layer
+  const pond: Array<[number, number, number]> = [
+    [3, 11, 132], [4, 11, 133], [5, 11, 133], [6, 11, 134],
+    [3, 12, 135], [4, 12, 136], [5, 12, 136], [6, 12, 137],
+    [3, 13, 135], [4, 13, 136], [5, 13, 136], [6, 13, 137],
+    [3, 14, 138], [4, 14, 139], [5, 14, 139], [6, 14, 140],
+  ];
+  for (const [px, py, t] of pond) {
+    ground[idx(px, py)] = t;
+    solid[idx(px, py)] = true;
+  }
+
+  // a small grove for a leafier Grimalkin (trees are solid)
+  const grove: Array<[number, number]> = [
+    [2, 11], [8, 12], [19, 12], [21, 12], [20, 13], [20, 14],
+  ];
+  for (const [tx, ty] of grove) {
+    objects[idx(tx, ty)] = TILES.tree;
+    solid[idx(tx, ty)] = true;
   }
 
   const npcs: Npc[] = [
