@@ -32,7 +32,9 @@
 
 ## 🎯 Médio prazo (features maiores, single-player)
 1. **Colônia de vários gatos** ⭐ — a promessa do nome. Recrutar gatos (sink de
-   Gemas), cada um de uma classe, produzindo recursos. Maior salto de valor.
+   Gemas), cada um de uma classe, **atividades em paralelo**. Maior salto de
+   valor. 📋 Plano técnico em `docs/COLONY_PLAN.md` (decisões travadas: paralelo,
+   regen passiva, recrutar por gemas/classe aleatória). Fases C0→C4.
 2. **Expedição idle no Além** ⭐ (inspirado no auto-hunt do Baiak Idle) — pelo
    portão, o gato caça sozinho ao longo do tempo e traz XP + loot. Dá uso ao
    ataque/defesa das classes. Zonas em tiers (fáceis→difíceis), gated por gear.
