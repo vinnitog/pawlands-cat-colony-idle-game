@@ -87,9 +87,16 @@ export function ColonyScreen() {
           <p className="eyebrow">Refúgio de Grimalkin</p>
           <h2>Colônia</h2>
         </div>
-        <strong>
-          {state.cats.length}/{MAX_COLONY_SIZE} gatos
-        </strong>
+        <div className="colony-heading-side">
+          <div className="colony-trio" aria-hidden="true">
+            <img src={`${import.meta.env.BASE_URL}art/cat_knight_1.png`} alt="" loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}art/cat_king_1.png`} alt="" loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}art/cat_viking_1.png`} alt="" loading="lazy" />
+          </div>
+          <strong>
+            {state.cats.length}/{MAX_COLONY_SIZE} gatos
+          </strong>
+        </div>
       </div>
 
       <div className="item-grid">

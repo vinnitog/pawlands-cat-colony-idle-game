@@ -27,7 +27,8 @@ test('recruit cost escalates with roster size and stops at the cap', () => {
     state = result.state;
   }
 
-  assert.deepEqual(costs, [10, 15, 20, 25, 30, 35, 40]);
+  // Escalating increments (5, 10, 15, ...): each hire multiplies parallel income.
+  assert.deepEqual(costs, [10, 15, 25, 40, 60, 85, 115]);
   assert.equal(state.cats.length, MAX_COLONY_SIZE);
 
   const full = recruitCat(state, () => 0, 9999);

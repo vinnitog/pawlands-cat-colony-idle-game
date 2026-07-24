@@ -809,6 +809,36 @@ dd {
   height: 18px;
 }
 
+.colony-heading-side {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Medieval cat trio (Vecteezy art) marching along the colony heading */
+.colony-trio {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.colony-trio img {
+  width: 44px;
+  height: auto;
+  filter: drop-shadow(0 2px 2px rgba(10, 6, 2, 0.25));
+}
+
+.colony-trio img:nth-child(2) {
+  width: 52px;
+}
+
+@media (max-width: 640px) {
+  .colony-trio {
+    display: none;
+  }
+}
+
 .colony-actions {
   display: grid;
   gap: 8px;

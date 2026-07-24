@@ -87,7 +87,10 @@ Cat {
 | **C1** | Regen passiva de energia + offline percorrendo todos os gatos. | Sutil | ✅ feito |
 | **C2** | Recrutamento (sink de gemas, classe aleatória) + tela Colônia (visualizar + trocar líder). | Sim | ✅ feito |
 | **C3** | Designar atividades por gato → **paralelismo ao vivo** (o multiplicador). Aviso agregado ("N gatos voltaram"), offline colhe todos. | Sim | ✅ feito |
-| **C4** | Polish: gatos ambiente no mundo, **rebalanço** (renda paralela multiplica — revisar custos). | Sim | pendente |
+| **C4** | Polish: gatos ociosos perambulam por Grimalkin; curva de recrutamento reescalada (10→115 gemas, incrementos crescentes); trio medieval (arte Vecteezy) na tela Colônia. | Sim | ✅ feito |
+
+> **Colônia completa (C0→C4).** Próximos passos naturais: Expedição no Além
+> (usa o roster + arte medieval), equipamento, combate — ver `ROADMAP.md`.
 
 > **Estratégia de menor risco:** C0 é uma refatoração *invisível e comportamento-
 > preservante* — sai com todos os testes atuais verdes antes de qualquer feature

@@ -92,7 +92,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     let idleImg: HTMLImageElement | null = null;
     let runImg: HTMLImageElement | null = null;
     const npcImgs = new Map<CatClass, HTMLImageElement>();
-    const npcClasses = Array.from(new Set(map.npcs.map((n) => n.sprite)));
+    // Ambient colony cats can be any class, so load every idle sheet.
+    const npcClasses = Object.keys(manifest.heroes) as CatClass[];
     let raf = 0;
     let running = true;
     let last = performance.now();
@@ -111,6 +112,96 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const ty = Math.floor(wy / TILE);
       if (tx < 0 || ty < 0 || tx >= map.width || ty >= map.height) return true;
       return map.solid[ty * map.width + tx];
+    };
+
+    // --- Ambient colony cats: idle roster mates wander the courtyard ---
+    type Wanderer = {
+      catClass: CatClass;
+      x: number;
+      y: number;
+      facing: number;
+      target: { x: number; y: number } | null;
+      pauseUntil: number;
+    };
+    const WANDER_SPEED = 22;
+    const ambient = new Map<string, Wanderer>();
+    const openTiles: Array<{ tx: number; ty: number }> = [];
+    for (let ty = 3; ty <= 12; ty += 1) {
+      for (let tx = 3; tx <= 20; tx += 1) {
+        if (!map.solid[ty * map.width + tx]) openTiles.push({ tx, ty });
+      }
+    }
+    const hashId = (id: string) => {
+      let h = 0;
+      for (let i = 0; i < id.length; i += 1) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+      return h;
+    };
+
+    const syncAmbient = () => {
+      const current = gameStateRef.current;
+      const leaderId =
+        current.cats.find((cat) => cat.id === current.leaderId)?.id ?? current.cats[0]?.id;
+      const idleMates = current.cats.filter((cat) => cat.id !== leaderId && !cat.activity);
+
+      for (const id of [...ambient.keys()]) {
+        if (!idleMates.some((cat) => cat.id === id)) ambient.delete(id);
+      }
+      for (const cat of idleMates) {
+        const existing = ambient.get(cat.id);
+        if (existing) {
+          existing.catClass = cat.catClass as CatClass;
+          continue;
+        }
+        const spot = openTiles[hashId(cat.id) % openTiles.length];
+        ambient.set(cat.id, {
+          catClass: cat.catClass as CatClass,
+          x: spot.tx * TILE + TILE / 2,
+          y: spot.ty * TILE + TILE,
+          facing: hashId(cat.id) % 2 === 0 ? 1 : -1,
+          target: null,
+          pauseUntil: performance.now() + (hashId(cat.id) % 2000),
+        });
+      }
+    };
+
+    const stepAmbient = (now: number, dt: number) => {
+      for (const cat of ambient.values()) {
+        if (now < cat.pauseUntil) continue;
+        if (!cat.target) {
+          const tx = Math.floor(cat.x / TILE);
+          const ty = Math.floor((cat.y - 1) / TILE);
+          const dirs = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+          ].sort(() => Math.random() - 0.5);
+          for (const [ax, ay] of dirs) {
+            const nx = tx + ax;
+            const ny = ty + ay;
+            if (nx < 1 || ny < 1 || nx >= map.width - 1 || ny >= map.height - 1) continue;
+            if (map.solid[ny * map.width + nx]) continue;
+            cat.target = { x: nx * TILE + TILE / 2, y: ny * TILE + TILE };
+            if (ax !== 0) cat.facing = ax;
+            break;
+          }
+          if (!cat.target) cat.pauseUntil = now + 2000;
+          continue;
+        }
+        const dx = cat.target.x - cat.x;
+        const dy = cat.target.y - cat.y;
+        const dist = Math.hypot(dx, dy);
+        const stepLen = WANDER_SPEED * dt;
+        if (dist <= stepLen) {
+          cat.x = cat.target.x;
+          cat.y = cat.target.y;
+          cat.target = null;
+          cat.pauseUntil = now + 1200 + Math.random() * 2600;
+        } else {
+          cat.x += (dx / dist) * stepLen;
+          cat.y += (dy / dist) * stepLen;
+        }
+      }
     };
     const hw = 5;
     const hh = 5;
@@ -198,6 +289,28 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         ctx.restore();
       }
 
+      for (const cat of ambient.values()) {
+        const img = npcImgs.get(cat.catClass);
+        if (!img) continue;
+        const am = manifest.heroes[cat.catClass].idle;
+        const aframe = Math.floor(clock * am.fps) % am.frames;
+        ctx.save();
+        ctx.translate(Math.round(cat.x * ZOOM) / ZOOM, Math.round(cat.y * ZOOM) / ZOOM);
+        ctx.scale(cat.facing, 1);
+        ctx.drawImage(
+          img,
+          aframe * am.frameWidth,
+          0,
+          am.frameWidth,
+          am.frameHeight,
+          -Math.floor(am.frameWidth / 2),
+          -am.frameHeight,
+          am.frameWidth,
+          am.frameHeight,
+        );
+        ctx.restore();
+      }
+
       const meta = player.moving ? runMeta : idleMeta;
       const sheet = player.moving ? runImg : idleImg;
       const fw = meta.frameWidth;
@@ -215,6 +328,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       if (!running) return;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+
+      syncAmbient();
+      stepAmbient(now, dt);
 
       const interacting = keys.has('e') || keys.has('enter') || keys.has(' ');
       const interactEdge = interacting && !interactLatch;

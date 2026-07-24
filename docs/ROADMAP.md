@@ -31,10 +31,10 @@
 - [ ] Verificar **PWA instalável** + deploy GitHub Pages (workflow já existe).
 
 ## 🎯 Médio prazo (features maiores, single-player)
-1. **Colônia de vários gatos** ⭐ — a promessa do nome. Recrutar gatos (sink de
-   Gemas), cada um de uma classe, **atividades em paralelo**. Maior salto de
-   valor. 📋 Plano técnico em `docs/COLONY_PLAN.md` (decisões travadas: paralelo,
-   regen passiva, recrutar por gemas/classe aleatória). Fases C0→C4.
+1. ✅ **Colônia de vários gatos** — ENTREGUE (fases C0→C4 em
+   `docs/COLONY_PLAN.md`): roster + migração, regen passiva, recrutamento por
+   gemas (curva 10→115), atividades paralelas por gato, gatos ociosos
+   perambulando por Grimalkin e tela Colônia com arte medieval.
 2. **Expedição idle no Além** ⭐ (inspirado no auto-hunt do Baiak Idle) — pelo
    portão, o gato caça sozinho ao longo do tempo e traz XP + loot. Dá uso ao
    ataque/defesa das classes. Zonas em tiers (fáceis→difíceis), gated por gear.

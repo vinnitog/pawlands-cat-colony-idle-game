@@ -8,8 +8,12 @@ import { refreshMissionProgress } from './missionSystem.ts';
 /** Roster cap: keeps the UI sane and the gem cost curve meaningful. */
 export const MAX_COLONY_SIZE = 8;
 
-const RECRUIT_BASE_COST = 10;
-const RECRUIT_COST_STEP = 5;
+/**
+ * Gem cost of the next recruit, indexed by current roster size - 1.
+ * Increments escalate (5, 10, 15, ...) because each recruit multiplies the
+ * colony's permanent parallel income — a flat step would trivialize late hires.
+ */
+const RECRUIT_COSTS = [10, 15, 25, 40, 60, 85, 115] as const;
 
 /**
  * The cat who fronts the game — walks the world and is the target of the
@@ -36,7 +40,7 @@ export function updateLeader(state: GameState, updater: (cat: Cat) => Cat): Game
 /** Gem cost to recruit the next cat. Null when the roster is full. */
 export function getRecruitCost(state: GameState): number | null {
   if (state.cats.length >= MAX_COLONY_SIZE) return null;
-  return RECRUIT_BASE_COST + RECRUIT_COST_STEP * (state.cats.length - 1);
+  return RECRUIT_COSTS[state.cats.length - 1] ?? null;
 }
 
 export type RecruitResult =
