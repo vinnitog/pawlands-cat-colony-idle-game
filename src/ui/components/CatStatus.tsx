@@ -1,9 +1,11 @@
 import type { Cat } from '../../game/models/cat.ts';
+import { catClassById } from '../../game/models/catClass.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import { CatSprite } from './CatSprite.tsx';
 import { GameIcon } from './GameIcon.tsx';
 
 export function CatStatus({ cat }: { cat: Cat }) {
+  const catClass = catClassById[cat.catClass];
   const nextLevelXp = xpForNextLevel(cat.level);
   const xpProgress = Math.min(100, Math.floor((cat.xp / nextLevelXp) * 100));
   const energyProgress = Math.min(100, Math.floor((cat.energy / cat.maxEnergy) * 100));
@@ -17,14 +19,14 @@ export function CatStatus({ cat }: { cat: Cat }) {
         <div className="scene-cloud two" />
         <div className="scene-hill back" />
         <div className="scene-hill front" />
-        <CatSprite hero="knight" scale={9} label={`${cat.name}, o gato cavaleiro da colônia`} />
+        <CatSprite hero={cat.catClass} scale={9} label={`${cat.name}, ${catClass.role}`} />
         <div className="scene-sign">Torre de {cat.name}</div>
       </div>
 
       <div className="cat-panel">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Primeiro cavaleiro</p>
+            <p className="eyebrow">{catClass.role}</p>
             <h2>{cat.name}</h2>
           </div>
           <strong>Nível {cat.level}</strong>

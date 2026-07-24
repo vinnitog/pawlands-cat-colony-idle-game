@@ -38,7 +38,7 @@ export const missions: MissionDefinition[] = [
   },
   {
     id: 'reachCatLevel3',
-    title: 'Milo veterano',
+    title: 'Guardião veterano',
     description: 'Alcance o nível 3 com o gato.',
     condition: { kind: 'catLevel', target: 3 },
     reward: { coins: 75, xp: 40, gems: 2 },

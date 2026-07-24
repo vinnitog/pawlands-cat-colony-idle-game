@@ -26,7 +26,7 @@ export function DashboardScreen({ goTo }: DashboardScreenProps) {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Atividade atual</p>
-            <h2>{activeActivity ? activeActivity.name : 'Milo está disponível'}</h2>
+            <h2>{activeActivity ? activeActivity.name : `${state.cat.name} está disponível`}</h2>
           </div>
           <strong>{activeActivity ? formatDuration(remainingMs) : 'Livre'}</strong>
         </div>

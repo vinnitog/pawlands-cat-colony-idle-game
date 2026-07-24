@@ -77,11 +77,11 @@ export function startActivity(state: GameState, activityId: ActivityId, now = Da
   const activity = activityById[activityId];
 
   if (state.activeActivity) {
-    return { ok: false, state, reason: 'Milo já está ocupado com outra atividade.' };
+    return { ok: false, state, reason: `${state.cat.name} já está ocupado com outra atividade.` };
   }
 
   if (state.cat.energy < activity.energyCost) {
-    return { ok: false, state, reason: 'Energia insuficiente. Coloque Milo para dormir.' };
+    return { ok: false, state, reason: `Energia insuficiente. Coloque ${state.cat.name} para dormir.` };
   }
 
   return {

@@ -54,7 +54,7 @@ export function ActivityCard({ activity, state, onStart }: ActivityCardProps) {
       </dl>
 
       <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
-        {isBusy ? 'Milo está ocupado' : hasEnergy ? 'Iniciar' : 'Sem energia'}
+        {isBusy ? `${state.cat.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
       </button>
     </article>
   );
