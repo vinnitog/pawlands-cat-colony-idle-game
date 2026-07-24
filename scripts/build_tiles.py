@@ -2,17 +2,19 @@
 """
 Pawlands world tileset pipeline.
 
-Kenney's "Tiny Town" (CC0) has no water tiles, and mixing another Kenney pack
-clashes with its chunky style. So we derive water in Tiny Town's OWN style:
-recolor its grass->dirt autotile (the rounded patch) from tan to blue. The 9
-recolored tiles are appended as a new row, giving a grass->water autotile that
-blends perfectly.
+Takes Kenney's "Tiny Town" (CC0) and produces public/tiles/tiny_town.png:
+
+  1. Enhances the flat terrain palette — a richer grass with a subtle texture
+     dither (kills the "flat plastic" look) and a softer, less-orange dirt.
+  2. Derives water in Tiny Town's own style: recolors the grass->dirt autotile
+     from tan to blue, appended as a new row (grass->water autotile). Water is
+     built from the ENHANCED tiles so pond edges match the new grass.
 
 Run once (the raw Tiny Town pack lives in assets/, git-ignored):
 
     python scripts/build_tiles.py
 
-Output: public/tiles/tiny_town.png  (base sheet + appended water autotile row)
+Output: public/tiles/tiny_town.png
 Requires: Pillow
 """
 import colorsys
@@ -25,10 +27,50 @@ OUT = os.path.join(ROOT, "public", "tiles", "tiny_town.png")
 
 COLS = 12
 TILE = 16
-# Tiny Town grass->dirt autotile (rounded patch): 3x3 of corners/edges/center.
 DIRT_AUTOTILE = [12, 13, 14, 24, 25, 26, 36, 37, 38]
 
+# --- palette enhancement (exact-color remap, so trees/props are untouched) ---
+GRASS = (132, 198, 105)
+GRASS_HI = (139, 216, 125)
+GRASS_LO = (101, 165, 86)
+DIRT = (234, 165, 108)
 
+NEW_GRASS = (108, 182, 94)
+NEW_GRASS_SHADE = (96, 168, 84)  # subtle texture dither
+NEW_GRASS_HI = (126, 198, 110)
+NEW_GRASS_LO = (88, 150, 78)
+NEW_DIRT = (198, 160, 114)
+
+
+def grass_textured(x, y):
+    # deterministic sparse dither by in-tile position -> consistent & seamless
+    return NEW_GRASS_SHADE if ((x % TILE) * 3 + (y % TILE) * 7) % 13 < 2 else NEW_GRASS
+
+
+def enhance(sheet):
+    px = sheet.load()
+    out = Image.new("RGBA", sheet.size, (0, 0, 0, 0))
+    op = out.load()
+    for y in range(sheet.height):
+        for x in range(sheet.width):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            rgb = (r, g, b)
+            if rgb == GRASS:
+                op[x, y] = (*grass_textured(x, y), a)
+            elif rgb == GRASS_HI:
+                op[x, y] = (*NEW_GRASS_HI, a)
+            elif rgb == GRASS_LO:
+                op[x, y] = (*NEW_GRASS_LO, a)
+            elif rgb == DIRT:
+                op[x, y] = (*NEW_DIRT, a)
+            else:
+                op[x, y] = (r, g, b, a)
+    return out
+
+
+# --- water derivation ---
 def is_dirt(r, g, b):
     h, s, _ = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
     return s > 0.18 and 12 <= h * 360 <= 58
@@ -40,7 +82,7 @@ def to_water(r, g, b):
     return int(nr * 255), int(ng * 255), int(nb * 255)
 
 
-def recolor_tile(sheet, index):
+def recolor_to_water(sheet, index):
     sx, sy = (index % COLS) * TILE, (index // COLS) * TILE
     src = sheet.crop((sx, sy, sx + TILE, sy + TILE))
     px = src.load()
@@ -56,20 +98,22 @@ def recolor_tile(sheet, index):
 
 
 def main():
-    sheet = Image.open(SRC).convert("RGBA")
+    original = Image.open(SRC).convert("RGBA")
+    sheet = enhance(original)
     rows = sheet.height // TILE
-    # extend by one row for the water autotile (indices rows*COLS ..)
+
     extended = Image.new("RGBA", (sheet.width, sheet.height + TILE), (0, 0, 0, 0))
     extended.paste(sheet, (0, 0))
     base = rows * COLS
     for offset, index in enumerate(DIRT_AUTOTILE):
-        water = recolor_tile(sheet, index)
+        water = recolor_to_water(sheet, index)  # from enhanced tiles -> matching edges
         col = (base + offset) % COLS
         extended.alpha_composite(water, (col * TILE, rows * TILE))
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     extended.save(OUT)
     print(f"Wrote {OUT} ({extended.width}x{extended.height}); "
-          f"water autotile at indices {base}..{base + len(DIRT_AUTOTILE) - 1}")
+          f"grass/dirt enhanced; water autotile at indices {base}..{base + len(DIRT_AUTOTILE) - 1}")
 
 
 if __name__ == "__main__":
