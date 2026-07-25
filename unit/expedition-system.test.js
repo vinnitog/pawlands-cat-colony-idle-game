@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createInitialGameState } from '../src/game/data/initialGameState.ts';
+import { expeditionZoneById } from '../src/game/data/zones.ts';
 import { migrateGameSave } from '../src/game/storage/migrations.ts';
 import { startActivity } from '../src/game/systems/activitySystem.ts';
 import { getLeader, recruitCat, setLeader } from '../src/game/systems/colonySystem.ts';
@@ -650,6 +651,92 @@ test('expedition RNG gives no drop above or exactly on each chance boundary', ()
   assert.deepEqual(boundary.reward.resources, {});
 });
 
+test('rare gear drops below chance and not exactly on mistwood and ruins boundaries', () => {
+  const collectOne = (zoneId, gearRoll) => {
+    const state = createInitialGameState(0);
+    state.cats[0].expedition = {
+      zoneId,
+      startedAt: 0,
+      lastProgressAt: 0,
+      accumulatedPulses: 1,
+    };
+    const rolls = [0.99, gearRoll, 0.99];
+    let calls = 0;
+    const result = collectExpedition(state, getLeader(state).id, 0, () => {
+      const value = rolls[calls];
+      calls += 1;
+      return value;
+    });
+    assert.equal(calls, 3);
+    return result.reward.inventory;
+  };
+
+  assert.deepEqual(collectOne('mistwood', 0.00149), { mistFang: 1 });
+  assert.deepEqual(collectOne('mistwood', 0.0015), {});
+  assert.deepEqual(collectOne('grimalkinRuins', 0.00099), { grimaldeAegis: 1 });
+  assert.deepEqual(collectOne('grimalkinRuins', 0.001), {});
+});
+
+test('offline cap collects one controlled rare gear drop with stable rolls and persistence', () => {
+  const initial = createInitialGameState(0);
+  initial.cats[0].level = 4;
+  const catId = initial.leaderId;
+  const started = startExpedition(initial, catId, 'mistwood', 0);
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+
+  const efficiency = getExpeditionEfficiency(
+    getLeader(started.state),
+    'mistwood',
+  );
+  const elapsedBasePulses = Math.ceil(EXPEDITION_PULSE_CAP / efficiency);
+  let offlineRolls = 0;
+  const offline = processOfflineProgress(
+    started.state,
+    elapsedBasePulses * EXPEDITION_PULSE_MS,
+    () => {
+      offlineRolls += 1;
+      return 0.99;
+    },
+  );
+  assert.equal(offlineRolls, 0);
+  assert.equal(
+    getLeader(offline.state).expedition?.accumulatedPulses,
+    EXPEDITION_PULSE_CAP,
+  );
+  assert.equal(offline.state.inventory.mistFang, 0);
+
+  const zone = expeditionZoneById.mistwood;
+  const rollsPerPulse =
+    zone.lootTable.length + zone.gearTable.length + 1;
+  let collectionRolls = 0;
+  const collected = collectExpedition(
+    offline.state,
+    catId,
+    elapsedBasePulses * EXPEDITION_PULSE_MS,
+    () => {
+      const rollIndex = collectionRolls;
+      collectionRolls += 1;
+      return rollIndex === zone.lootTable.length ? 0 : 0.99;
+    },
+  );
+
+  assert.equal(collected.resolvedPulses, EXPEDITION_PULSE_CAP);
+  assert.equal(
+    collectionRolls,
+    EXPEDITION_PULSE_CAP * rollsPerPulse,
+  );
+  assert.deepEqual(collected.reward.inventory, { mistFang: 1 });
+  assert.equal(collected.state.inventory.mistFang, 1);
+  assert.equal(getLeader(collected.state).expedition, null);
+
+  const loaded = migrateGameSave(
+    JSON.parse(JSON.stringify(collected.state)),
+  );
+  assert.equal(loaded.inventory.mistFang, 1);
+  assert.equal(getLeader(loaded).expedition, null);
+});
+
 test('minimal realistic v2 save defaults every E1 expedition field', () => {
   const migrated = migrateGameSave({
     schemaVersion: 2,
@@ -681,7 +768,7 @@ test('minimal realistic v2 save defaults every E1 expedition field', () => {
     lastSavedAt: 9_000,
   });
 
-  assert.equal(migrated.schemaVersion, 3);
+  assert.equal(migrated.schemaVersion, 4);
   assert.equal(getLeader(migrated).name, 'Bruma');
   assert.equal(getLeader(migrated).xp, 37);
   assert.equal(getLeader(migrated).expedition, null);

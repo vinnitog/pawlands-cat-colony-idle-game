@@ -1,6 +1,7 @@
 import { missions } from './missions.ts';
 import { upgrades } from './upgrades.ts';
 import type { Cat } from '../models/cat.ts';
+import { createEmptyEquipment } from '../models/gear.ts';
 import { createEmptyInventory, createEmptyResources } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
 
@@ -24,6 +25,7 @@ export function createInitialGameState(now = Date.now()): GameState {
       fishing: 2,
       luck: 2,
     },
+    equipment: createEmptyEquipment(),
     activity: null,
     expedition: null,
     expeditionPulseCarry: {},

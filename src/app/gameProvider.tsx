@@ -2,12 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { ActivityId } from '../game/models/activity.ts';
 import type { CatClass } from '../game/models/catClass.ts';
 import type { ExpeditionZoneId } from '../game/models/expedition.ts';
+import type { GearId, GearSlot } from '../game/models/gear.ts';
 import type { MissionId } from '../game/models/missions.ts';
 import type { RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
 import type { ShopItemId } from '../game/models/shop.ts';
 import { createInitialGameState } from '../game/data/initialGameState.ts';
+import { gearById } from '../game/data/gear.ts';
 import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
@@ -22,6 +24,10 @@ import {
   setLeader as setLeaderInState,
 } from '../game/systems/colonySystem.ts';
 import { applyEnergyRegen } from '../game/systems/energySystem.ts';
+import {
+  equipGear as equipGearInState,
+  unequipGear as unequipGearInState,
+} from '../game/systems/equipmentSystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
 import {
@@ -48,6 +54,8 @@ type GameContextValue = {
   collectExpedition(catId: string): void;
   recruitCat(): void;
   setLeader(catId: string): void;
+  equipGear(catId: string, slot: GearSlot, gearId: GearId): void;
+  unequipGear(catId: string, slot: GearSlot): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
@@ -250,6 +258,34 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const equipGear = useCallback((catId: string, slot: GearSlot, gearId: GearId) => {
+    setState((current) => {
+      const result = equipGearInState(current, catId, slot, gearId);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${gearById[gearId].name} equipado.`);
+      return result.state;
+    });
+  }, []);
+
+  const unequipGear = useCallback((catId: string, slot: GearSlot) => {
+    setState((current) => {
+      const result = unequipGearInState(current, catId, slot);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast('Equipamento guardado no inventário.');
+      return result.state;
+    });
+  }, []);
+
   const buyUpgrade = useCallback((upgradeId: UpgradeId) => {
     setState((current) => {
       const result = buyUpgradeInState(current, upgradeId);
@@ -329,6 +365,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       collectExpedition,
       recruitCat,
       setLeader,
+      equipGear,
+      unequipGear,
       buyUpgrade,
       claimMission,
       buyShopItem,
@@ -344,6 +382,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       claimMission,
       collectExpedition,
       completeOnboarding,
+      equipGear,
       recruitCat,
       rewardNotice,
       resetGame,
@@ -353,6 +392,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       startExpedition,
       state,
       toast,
+      unequipGear,
     ],
   );
 

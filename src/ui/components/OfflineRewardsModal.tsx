@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { RewardNotice } from '../../app/gameProvider.tsx';
 import { inventoryItemLabels, resourceLabels } from '../../game/models/resources.ts';
+import { gearById, gearTierLabels, isGearId } from '../../game/data/gear.ts';
 import { formatLongDuration } from '../formatters.ts';
 import { getFocusTrapTarget } from '../focusTrap.ts';
 import { GameIcon, type GameIconName } from './GameIcon.tsx';
@@ -102,15 +103,21 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
               <strong>+{notice.reward.energy}</strong>
             </li>
           ) : null}
-          {itemEntries.map(([key, amount]) => (
-            <li key={key}>
-              <span>
-                <GameIcon name={key as GameIconName} />
-                {inventoryItemLabels[key as keyof typeof inventoryItemLabels]}
-              </span>
-              <strong>+{amount}</strong>
-            </li>
-          ))}
+          {itemEntries.map(([key, amount]) => {
+            const gearItem = isGearId(key) ? gearById[key] : null;
+            return (
+              <li key={key}>
+                <span>
+                  <GameIcon name={key as GameIconName} />
+                  <span className="reward-item-copy">
+                    {inventoryItemLabels[key as keyof typeof inventoryItemLabels]}
+                    {gearItem ? <small>{gearTierLabels[gearItem.tier]}</small> : null}
+                  </span>
+                </span>
+                <strong>+{amount}</strong>
+              </li>
+            );
+          })}
           {notice.levelsGained > 0 ? (
             <li>
               <span>

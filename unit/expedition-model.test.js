@@ -15,6 +15,7 @@ import {
 import { getCatPower } from '../src/game/systems/expeditionSystem.ts';
 import { getLeader, recruitCat } from '../src/game/systems/colonySystem.ts';
 import { getInventoryLabel } from '../src/ui/formatters.ts';
+import { gearById } from '../src/game/data/gear.ts';
 
 test('expedition zones expose a valid catalog and lookup for the three planned tiers', () => {
   assert.deepEqual(
@@ -48,7 +49,19 @@ test('expedition zones expose a valid catalog and lookup for the three planned t
       assert.equal(loot.quantity[1] >= loot.quantity[0], true);
       assert.equal(expeditionTrophyById[loot.item] !== undefined, true);
     }
+    for (const drop of zone.gearTable) {
+      assert.equal(drop.chancePerPulse > 0 && drop.chancePerPulse <= 1, true);
+      assert.equal(gearById[drop.item].origin.kind, 'expedition');
+      assert.equal(gearById[drop.item].origin.zoneId, zone.id);
+    }
   }
+  assert.deepEqual(expeditionZoneById.whisperingFields.gearTable, []);
+  assert.deepEqual(expeditionZoneById.mistwood.gearTable, [
+    { item: 'mistFang', chancePerPulse: 0.0015 },
+  ]);
+  assert.deepEqual(expeditionZoneById.grimalkinRuins.gearTable, [
+    { item: 'grimaldeAegis', chancePerPulse: 0.001 },
+  ]);
   assert.equal(isExpeditionZoneId('unknownZone'), false);
 });
 
@@ -81,7 +94,7 @@ test('cat power uses attack twice, defense, level, and zero gear power in E0', (
 test('fresh cats start home with an empty expedition trophy inventory', () => {
   const state = createInitialGameState(1_000);
 
-  assert.equal(state.schemaVersion, 3);
+  assert.equal(state.schemaVersion, 4);
   assert.equal(getLeader(state).expedition, null);
   assert.equal(state.inventory.spectralSardine, 0);
   assert.equal(state.inventory.phantomFur, 0);

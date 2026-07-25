@@ -74,11 +74,33 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 ## Equipamento (E3 — satisfaz "poder inclui equipamento")
 
 - `Cat.equipment: { weapon: GearId | null; armor: GearId | null }`.
-- `GearDef { id, name, slot, power, tier }` em `src/game/data/gear.ts`.
+- `GearDef { id, name, slot, power, tier, price, origin, art }` em
+  `src/game/data/gear.ts`.
 - **Fontes:** ferreiro (Aldric) vende tiers básicos por moedas/gemas; expedições
   dropam peças raras (ponte para a feature "loot tables" do roadmap).
 - Equipar/desequipar no card do gato (tela Colônia) ou numa aba de equipamento.
 - `equipPower(cat)` entra na fórmula de poder → melhora a eficiência nas zonas.
+
+### Parâmetros fechados da E3
+
+| ID | Nome | Slot | Tier | Poder | Origem |
+|---|---|---|---|---:|---|
+| `ironClaw` | Garra de Ferro | arma | básico | +2 | Aldric, 100 moedas |
+| `guardArmor` | Armadura do Guarda | armadura | básico | +2 | Aldric, 140 moedas |
+| `mistFang` | Presa da Bruma | arma | raro | +5 | Bosque das Brumas, 0,15% por pulso |
+| `grimaldeAegis` | Égide de Grimalde | armadura | raro | +4 | Ruínas de Grimalkin, 0,10% por pulso |
+
+- O inventário guarda somente peças **não equipadas**, como contagens por
+  `GearId`. Cada slot do gato guarda apenas o ID equipado.
+- Equipar consome uma unidade do inventário; trocar devolve a peça anterior;
+  desequipar devolve a peça ao inventário.
+- Trocas só podem ocorrer com o gato em casa, sem atividade ou expedição.
+- O poder continua derivado em runtime e nunca é persistido:
+  `(attack*2 + defense + level*1.5) + soma do power equipado`.
+- A loja aceita custos em moedas e gemas. Os itens antigos continuam usando
+  gemas; as duas peças básicas usam moedas.
+- O save sobe de v3 para **v4**. Migrações v1/v2/v3 criam slots vazios e
+  contagens zero; saves v4 sanitizam IDs incompatíveis com cada slot.
 
 ## Fases
 
@@ -103,8 +125,8 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 - **Escopo:** épico grande. Mitigado pelo fatiamento E0→E4, cada fase num commit.
 - **Balanceamento:** renda contínua + paralela (N gatos em N zonas) escala rápido
   — a E4 revê `PULSE_MS`, cap e loot. Reaproveita a régua da 1ª passada de balanço.
-- **Save:** novos campos em `Cat` e `Inventory` exigem migração cuidada (bump v3),
-  no mesmo padrão testado da colônia (v1→v2).
+- **Save:** os novos campos em `Cat` e `Inventory` usam schema v4, com migração
+  testada de v1/v2/v3 e sanitização de IDs/slots.
 
 ## Fora de escopo (segue Fase 3)
 Bosses, prestígio/rebirth, multiplayer. Combate detalhado (turnos/animação) fica

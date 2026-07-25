@@ -1,4 +1,5 @@
 import type { ExpeditionTrophyKey } from './resources.ts';
+import type { GearId } from './gear.ts';
 
 export type ExpeditionZoneId =
   | 'whisperingFields'
@@ -35,6 +36,11 @@ export type ExpeditionLootEntry = {
   quantity: readonly [number, number];
 };
 
+export type ExpeditionGearEntry = {
+  item: GearId;
+  chancePerPulse: number;
+};
+
 export type ExpeditionZone = {
   id: ExpeditionZoneId;
   name: string;
@@ -42,6 +48,7 @@ export type ExpeditionZone = {
   recommendedPower: number;
   unlock: ExpeditionUnlock;
   lootTable: readonly ExpeditionLootEntry[];
+  gearTable: readonly ExpeditionGearEntry[];
   xpPerPulse: number;
   gemChance: number;
 };

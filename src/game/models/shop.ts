@@ -1,5 +1,5 @@
 import type { CatStats } from './cat.ts';
-import type { ResourceKey, SpecialItemKey } from './resources.ts';
+import type { InventoryItemKey, ResourceKey } from './resources.ts';
 
 export type ShopId = 'jeweler' | 'blacksmith';
 
@@ -16,22 +16,33 @@ export type ShopItemId =
   | 'ironScale'
   | 'sharpPoint'
   | 'warFang'
-  | 'greatHelm';
+  | 'greatHelm'
+  | 'ironClaw'
+  | 'guardArmor';
 
 /** What a purchase grants, reusing the existing economy/cat systems. */
 export type ShopEffect =
-  | { kind: 'inventory'; item: SpecialItemKey; amount: number }
+  | { kind: 'inventory'; item: InventoryItemKey; amount: number }
   | { kind: 'energy'; amount: number }
   | { kind: 'stat'; stat: keyof CatStats; amount: number }
   | { kind: 'resource'; resource: ResourceKey; amount: number };
+
+type GemPrice = {
+  gemCost: number;
+  coinCost?: never;
+};
+
+type CoinPrice = {
+  coinCost: number;
+  gemCost?: never;
+};
 
 export type ShopItemDefinition = {
   id: ShopItemId;
   name: string;
   description: string;
-  gemCost: number;
   effect: ShopEffect;
-};
+} & (GemPrice | CoinPrice);
 
 export type ShopDefinition = {
   id: ShopId;

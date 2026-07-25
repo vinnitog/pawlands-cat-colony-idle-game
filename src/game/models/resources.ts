@@ -16,7 +16,7 @@ export type ExpeditionTrophyKey =
   | 'phantomFur'
   | 'grimaldeRelic';
 
-export type InventoryItemKey = SpecialItemKey | ExpeditionTrophyKey;
+export type InventoryItemKey = SpecialItemKey | ExpeditionTrophyKey | GearId;
 
 export type Inventory = Record<InventoryItemKey, number>;
 
@@ -49,9 +49,17 @@ export const trophyKeys: ExpeditionTrophyKey[] = [
   'grimaldeRelic',
 ];
 
+export const gearItemKeys: GearId[] = [
+  'ironClaw',
+  'guardArmor',
+  'mistFang',
+  'grimaldeAegis',
+];
+
 export const inventoryItemKeys: InventoryItemKey[] = [
   ...specialItemKeys,
   ...trophyKeys,
+  ...gearItemKeys,
 ];
 
 export const resourceLabels: Record<ResourceKey, string> = {
@@ -76,9 +84,17 @@ export const trophyLabels: Record<ExpeditionTrophyKey, string> = {
   grimaldeRelic: 'Relíquia grimalde',
 };
 
+export const gearItemLabels: Record<GearId, string> = {
+  ironClaw: 'Garra de Ferro',
+  guardArmor: 'Armadura do Guarda',
+  mistFang: 'Presa da Bruma',
+  grimaldeAegis: 'Égide de Grimalde',
+};
+
 export const inventoryItemLabels: Record<InventoryItemKey, string> = {
   ...specialItemLabels,
   ...trophyLabels,
+  ...gearItemLabels,
 };
 
 export function createEmptyResources(): Resources {
@@ -101,6 +117,10 @@ export function createEmptyInventory(): Inventory {
     spectralSardine: 0,
     phantomFur: 0,
     grimaldeRelic: 0,
+    ironClaw: 0,
+    guardArmor: 0,
+    mistFang: 0,
+    grimaldeAegis: 0,
   };
 }
 
@@ -112,3 +132,4 @@ export function createEmptyRewardBundle(): RewardBundle {
     energy: 0,
   };
 }
+import type { GearId } from './gear.ts';

@@ -1,10 +1,12 @@
 import { shopItemById } from '../data/shop.ts';
 import type { GameState } from '../models/save.ts';
-import type { ShopEffect, ShopItemId } from '../models/shop.ts';
+import type { Resources } from '../models/resources.ts';
+import type { ShopEffect, ShopItemDefinition, ShopItemId } from '../models/shop.ts';
 import { updateLeader } from './colonySystem.ts';
 import {
   addInventoryToState,
   addResourcesToState,
+  hasResources,
   subtractResourcesFromState,
 } from './economySystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
@@ -35,14 +37,26 @@ function applyEffect(state: GameState, effect: ShopEffect): GameState {
   }
 }
 
+export function getShopItemCost(item: ShopItemDefinition): Partial<Resources> {
+  if (item.gemCost !== undefined) return { gems: item.gemCost };
+  return { coins: item.coinCost };
+}
+
 export function buyShopItem(state: GameState, itemId: ShopItemId): ShopPurchaseResult {
   const item = shopItemById[itemId];
+  if (!item) {
+    return { ok: false, state, reason: 'Este item não está disponível.' };
+  }
+  const cost = getShopItemCost(item);
 
-  if (state.resources.gems < item.gemCost) {
+  if (!hasResources(state.resources, cost)) {
+    if ((cost.coins ?? 0) > state.resources.coins) {
+      return { ok: false, state, reason: 'Moedas insuficientes.' };
+    }
     return { ok: false, state, reason: 'Gemas insuficientes.' };
   }
 
-  let nextState = subtractResourcesFromState(state, { gems: item.gemCost });
+  let nextState = subtractResourcesFromState(state, cost);
   nextState = applyEffect(nextState, item.effect);
 
   return { ok: true, state: refreshMissionProgress(nextState) };

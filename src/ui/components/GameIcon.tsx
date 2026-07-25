@@ -211,6 +211,23 @@ function renderIcon(name: GameIconName) {
           <path d="M18 50c9-11 18-20 29-32" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
         </>
       );
+    case 'ironClaw':
+    case 'mistFang':
+      return (
+        <>
+          <path d="M12 48 43 17l5 5-31 31H12v-5Z" fill="currentColor" />
+          <path d="m37 14 6-6 13 13-6 6Z" fill="currentColor" opacity="0.72" />
+          <path d="m20 39 5 5" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'guardArmor':
+    case 'grimaldeAegis':
+      return (
+        <>
+          <path d="M32 6 53 14v17c0 14-8 23-21 28C19 54 11 45 11 31V14Z" fill="currentColor" />
+          <path d="M32 13v37M19 25h26" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
     case 'phantomFur':
       return (
         <>

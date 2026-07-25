@@ -6,6 +6,7 @@ import { isExpeditionZoneId } from '../data/zones.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import { isCatClass } from '../models/catClass.ts';
+import { gearById, isGearId } from '../data/gear.ts';
 import {
   EXPEDITION_PULSE_CAP,
   EXPEDITION_PULSE_MS,
@@ -15,6 +16,7 @@ import {
   type ExpeditionZoneId,
 } from '../models/expedition.ts';
 import type { MissionState } from '../models/missions.ts';
+import type { CatEquipment, GearSlot } from '../models/gear.ts';
 import type { Inventory, Resources } from '../models/resources.ts';
 import { inventoryItemKeys, resourceKeys } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
@@ -39,7 +41,11 @@ export function migrateGameSave(value: unknown): GameState {
       return buildState(candidate, fallback, [leader], leader.id);
     }
 
-    if (candidate.schemaVersion === 2 || candidate.schemaVersion === saveSchemaVersion) {
+    if (
+      candidate.schemaVersion === 2
+      || candidate.schemaVersion === 3
+      || candidate.schemaVersion === saveSchemaVersion
+    ) {
       const cats = mergeCats(candidate.cats, fallback.cats);
       return buildState(candidate, fallback, cats, resolveLeaderId(candidate.leaderId, cats));
     }
@@ -151,12 +157,26 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
       fishing: Math.max(1, toSafeNumber(stats.fishing, fallback.stats.fishing)),
       luck: Math.max(1, toSafeNumber(stats.luck, fallback.stats.luck)),
     },
+    equipment: mergeEquipment(value.equipment),
     activity,
     // A cat cannot perform two jobs. Preserve the established activity when a
     // malformed or transitional save contains both states.
     expedition: activity ? null : mergeActiveExpedition(value.expedition),
     expeditionPulseCarry: mergeExpeditionPulseCarry(value.expeditionPulseCarry),
     expeditionTimeCarryMs: mergeExpeditionTimeCarry(value.expeditionTimeCarryMs),
+  };
+}
+
+function mergeEquipment(value: unknown): CatEquipment {
+  const source = isObject(value) ? value : {};
+  const readSlot = (slot: GearSlot) => {
+    if (!Object.hasOwn(source, slot)) return null;
+    const gearId = source[slot];
+    return isGearId(gearId) && gearById[gearId].slot === slot ? gearId : null;
+  };
+  return {
+    weapon: readSlot('weapon'),
+    armor: readSlot('armor'),
   };
 }
 

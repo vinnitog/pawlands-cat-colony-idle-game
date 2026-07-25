@@ -1,4 +1,5 @@
 import type { ShopDefinition, ShopId, ShopItemDefinition, ShopItemId } from '../models/shop.ts';
+import { gearById } from './gear.ts';
 
 const jeweler: ShopDefinition = {
   id: 'jeweler',
@@ -53,6 +54,20 @@ const blacksmith: ShopDefinition = {
   id: 'blacksmith',
   title: 'Forja de Aldric',
   items: [
+    {
+      id: 'ironClaw',
+      name: 'Garra de Ferro',
+      description: 'Arma básica. +2 de poder quando equipada.',
+      coinCost: gearById.ironClaw.price!.coins,
+      effect: { kind: 'inventory', item: 'ironClaw', amount: 1 },
+    },
+    {
+      id: 'guardArmor',
+      name: 'Armadura do Guarda',
+      description: 'Armadura básica. +2 de poder quando equipada.',
+      coinCost: gearById.guardArmor.price!.coins,
+      effect: { kind: 'inventory', item: 'guardArmor', amount: 1 },
+    },
     {
       id: 'steelClaw',
       name: 'Garra de Aço',

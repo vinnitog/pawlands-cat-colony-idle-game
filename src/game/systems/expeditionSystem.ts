@@ -12,14 +12,10 @@ import { updateCat } from './colonySystem.ts';
 import { addInventoryToState, addResourcesToState } from './economySystem.ts';
 import { addXpToCat } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
-
-function getEquipmentPower(_cat: Cat): number {
-  return 0;
-}
+import { getCatAttributePower, getEquipmentPower } from './equipmentSystem.ts';
 
 export function getCatPower(cat: Cat): number {
-  const attributePower = cat.stats.attack * 2 + cat.stats.defense + cat.level * 1.5;
-  return attributePower + getEquipmentPower(cat);
+  return getCatAttributePower(cat) + getEquipmentPower(cat);
 }
 
 export function getExpeditionEfficiency(cat: Cat, zoneId: ExpeditionZoneId): number {
@@ -172,6 +168,11 @@ function createExpeditionReward(
       if (random() < loot.chancePerPulse) {
         reward.inventory[loot.item] =
           (reward.inventory[loot.item] ?? 0) + rollRange(loot.quantity, random);
+      }
+    }
+    for (const gearDrop of zone.gearTable) {
+      if (random() < gearDrop.chancePerPulse) {
+        reward.inventory[gearDrop.item] = (reward.inventory[gearDrop.item] ?? 0) + 1;
       }
     }
     if (random() < zone.gemChance) {

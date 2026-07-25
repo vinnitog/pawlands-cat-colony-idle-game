@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useGame } from '../../app/gameProvider.tsx';
 import { expeditionZoneById, expeditionZones } from '../../game/data/zones.ts';
+import { gearById } from '../../game/data/gear.ts';
 import type { Cat } from '../../game/models/cat.ts';
 import {
   EXPEDITION_PULSE_CAP,
@@ -17,6 +18,7 @@ import {
 } from '../../game/systems/expeditionSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
+import { GearArt } from '../components/GearArt.tsx';
 import { formatDuration, formatLongDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 
@@ -297,6 +299,17 @@ export function ExpeditionScreen() {
                           <span>
                             <strong>{inventoryItemLabels[loot.item]}</strong>
                             <small>{(loot.chancePerPulse * 100).toLocaleString('pt-BR')}% por pulso</small>
+                          </span>
+                        </li>
+                      ))}
+                      {zone.gearTable.map((drop) => (
+                        <li className="expedition-rare-loot" key={drop.item}>
+                          <GearArt gearId={drop.item} />
+                          <span>
+                            <strong>{gearById[drop.item].name}</strong>
+                            <small>
+                              Raro · {(drop.chancePerPulse * 100).toLocaleString('pt-BR')}% por pulso
+                            </small>
                           </span>
                         </li>
                       ))}

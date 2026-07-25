@@ -5,6 +5,7 @@ import type {
   ExpeditionPulseCarry,
   ExpeditionTimeCarry,
 } from './expedition.ts';
+import type { CatEquipment } from './gear.ts';
 
 export type CatStats = {
   attack: number;
@@ -23,6 +24,8 @@ export type Cat = {
   energy: number;
   maxEnergy: number;
   stats: CatStats;
+  /** Equipped gear is stored by id; its derived power is never persisted. */
+  equipment: CatEquipment;
   /** The activity this cat is currently busy with, or null when free. */
   activity: ActiveActivity | null;
   /** The continuous expedition this cat is assigned to, or null when home. */

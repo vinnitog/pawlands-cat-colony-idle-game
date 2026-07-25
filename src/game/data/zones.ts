@@ -17,6 +17,7 @@ export const expeditionZones = [
         quantity: [1, 1],
       },
     ],
+    gearTable: [],
     xpPerPulse: 2,
     gemChance: 0.002,
   },
@@ -31,6 +32,12 @@ export const expeditionZones = [
         item: 'phantomFur',
         chancePerPulse: 0.14,
         quantity: [1, 1],
+      },
+    ],
+    gearTable: [
+      {
+        item: 'mistFang',
+        chancePerPulse: 0.0015,
       },
     ],
     xpPerPulse: 4,
@@ -51,6 +58,12 @@ export const expeditionZones = [
         item: 'grimaldeRelic',
         chancePerPulse: 0.1,
         quantity: [1, 1],
+      },
+    ],
+    gearTable: [
+      {
+        item: 'grimaldeAegis',
+        chancePerPulse: 0.001,
       },
     ],
     xpPerPulse: 7,

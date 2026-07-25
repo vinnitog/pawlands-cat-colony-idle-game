@@ -1,6 +1,7 @@
 import { recruitNames } from '../data/catNames.ts';
 import type { Cat } from '../models/cat.ts';
 import { catClasses } from '../models/catClass.ts';
+import { createEmptyEquipment } from '../models/gear.ts';
 import type { GameState } from '../models/save.ts';
 import { subtractResourcesFromState } from './economySystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
@@ -75,6 +76,7 @@ export function recruitCat(state: GameState, random = Math.random, now = Date.no
     energy: 40,
     maxEnergy: 40,
     stats: { ...classDef.stats },
+    equipment: createEmptyEquipment(),
     activity: null,
     expedition: null,
     expeditionPulseCarry: {},
