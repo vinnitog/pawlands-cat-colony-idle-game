@@ -142,8 +142,13 @@ def isolate_gold(image: Image.Image) -> Image.Image:
     return rgba
 
 
-def gold_tint(image: Image.Image) -> Image.Image:
-    """Converte silhuetas escuras (fundo branco) em ouro com alfa da tinta."""
+def gold_tint(image: Image.Image, bg_level: int = 150) -> Image.Image:
+    """Converte silhuetas escuras em ouro, descartando o fundo.
+
+    A folha de escudos NAO tem fundo branco puro: e um cinza ~168 com moldura
+    de 1px. Sem cortar em bg_level o fundo inteiro virava um veu dourado (e a
+    moldura da fonte aparecia como "borda do escudo").
+    """
     gray = image.convert("L")
     rgba = Image.new("RGBA", image.size)
     out = rgba.load()
@@ -151,8 +156,13 @@ def gold_tint(image: Image.Image) -> Image.Image:
     gold = (200, 150, 44)
     for y in range(image.height):
         for x in range(image.width):
-            ink = 255 - src[x, y]  # branco -> 0, preto -> 255
-            out[x, y] = (gold[0], gold[1], gold[2], ink)
+            level = src[x, y]
+            if level >= bg_level:
+                out[x, y] = (gold[0], gold[1], gold[2], 0)
+                continue
+            # bg_level -> 0 (transparente), 0 -> 255 (ouro cheio)
+            alpha = int(255 * (bg_level - level) / bg_level)
+            out[x, y] = (gold[0], gold[1], gold[2], alpha)
     return rgba
 
 
@@ -164,41 +174,17 @@ def build_ui_kit() -> None:
     divider.save(UI_DIR / "ui_divider.png", optimize=True)
     print(f"  ui_divider.png: {divider.size[0]}x{divider.size[1]}")
 
-    # Moldura 9-slice sintetica a partir do frame retangular do kit.
-    # Celulas ALINHADAS de 64px (sem autocrop) para as linhas casarem:
-    # canto em (488,50); topo reto em x>=596; lateral reta em y 114..178
-    # (o losango decorativo da borda so aparece em y~180, fora do recorte).
-    CELL = 64
-    corner = sheet.crop((488, 50, 488 + CELL, 50 + CELL))
-    edge_top = sheet.crop((596, 50, 596 + CELL, 50 + CELL))
-    edge_left = sheet.crop((488, 114, 488 + CELL, 114 + CELL))
-
-    frame = Image.new("RGBA", (CELL * 3, CELL * 3))
-    tl = corner
-    tr = corner.transpose(Image.FLIP_LEFT_RIGHT)
-    bl = corner.transpose(Image.FLIP_TOP_BOTTOM)
-    br = tr.transpose(Image.FLIP_TOP_BOTTOM)
-    frame.paste(tl, (0, 0), tl)
-    frame.paste(tr, (CELL * 2, 0), tr)
-    frame.paste(bl, (0, CELL * 2), bl)
-    frame.paste(br, (CELL * 2, CELL * 2), br)
-    frame.paste(edge_top, (CELL, 0), edge_top)
-    bottom = edge_top.transpose(Image.FLIP_TOP_BOTTOM)
-    frame.paste(bottom, (CELL, CELL * 2), bottom)
-    frame.paste(edge_left, (0, CELL), edge_left)
-    right = edge_left.transpose(Image.FLIP_LEFT_RIGHT)
-    frame.paste(right, (CELL * 2, CELL), right)
-
-    frame.save(UI_DIR / "ui_frame.png", optimize=True)
-    print(f"  ui_frame.png: {frame.size[0]}x{frame.size[1]} (slice {CELL})")
+    # Nota: uma moldura 9-slice foi testada e descartada — esticada em cards
+    # pequenos as linhas duplas do original desalinhavam e sumiam na tela.
+    # A borda dos cards hoje e CSS (fio de ouro + losangos nos cantos).
 
 
 def build_shield() -> None:
     sheet = Image.open(SRC_SHIELDS)
-    # 4 escudos lado a lado; o primeiro (silhueta cheia com espada) vira o brasao.
-    cell_w = sheet.width // 4
-    shield = sheet.crop((0, 0, cell_w, sheet.height))
-    art = autocrop(gold_tint(shield), margin=4)
+    # Caixa medida do 1o escudo (silhueta cheia com espada). Dividir a folha em
+    # 4 partes iguais cortava o desenho e incluia a moldura de 1px da fonte.
+    shield = sheet.crop((160, 40, 470, sheet.height - 40))
+    art = autocrop(gold_tint(shield), margin=2)
     art.thumbnail((256, 256), Image.LANCZOS)
     art.save(UI_DIR / "ui_shield.png", optimize=True)
     print(f"  ui_shield.png: {art.size[0]}x{art.size[1]}")

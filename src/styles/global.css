@@ -36,6 +36,12 @@
   --soft-shadow: 0 6px 16px rgba(10, 6, 2, 0.32);
   --header-h: 66px;
   --nav-w: 208px;
+  /* losango dourado dos cantos dos cards */
+  --corner-diamond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Cpath d='M4.5 0 9 4.5 4.5 9 0 4.5Z' fill='%23c8962c'/%3E%3C/svg%3E");
+  /* corrente de elos entrelaçados da borda do menu */
+  --chain-links: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='22'%3E%3Cg fill='none' stroke='%23c8962c' stroke-width='1.7'%3E%3Cellipse cx='7' cy='5.5' rx='3.6' ry='6.5'/%3E%3Cellipse cx='7' cy='16.5' rx='5.4' ry='5'/%3E%3C/g%3E%3C/svg%3E");
+  /* treliça heráldica (diaper pattern) do fundo do salão */
+  --keep-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23c8962c' stroke-width='1' opacity='0.11'%3E%3Cpath d='M28 0 56 28 28 56 0 28Z'/%3E%3Cpath d='M28 19 37 28 28 37 19 28Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 * {
@@ -52,8 +58,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* [UI] Salão do castelo: treliça heráldica sobre pedra, sem faixas duras.
+     (O gradiente antigo tinha hard stops em 34%/64% e cortava a tela em 3.) */
   background:
-    linear-gradient(180deg, #23283a 0 34%, #2b2822 34% 64%, #17140f 64% 100%);
+    var(--keep-pattern) repeat,
+    linear-gradient(180deg, #1e2231 0%, #232028 42%, #221f1a 72%, #14110d 100%);
+  background-attachment: fixed;
   color: var(--text);
 }
 
@@ -237,12 +247,32 @@ dd {
   box-shadow: var(--shadow);
 }
 
-/* [UI] Moldura dourada medieval (kit Vecteezy 23869687) em painéis e cards */
+/* [UI] Borda medieval dos cards: fio de ouro nítido + losangos nos 4 cantos.
+   (O 9-slice da arte esticava mal em cards pequenos e sumia na tela.) */
 .panel,
 .item-card {
-  border: 9px solid transparent;
-  border-radius: 0;
-  border-image: url('../ui/art/ui_frame.png') 64 / 9px stretch;
+  position: relative;
+  border: 2px solid #8a6a2e;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 244, 214, 0.55),
+    var(--shadow);
+}
+
+.panel::before,
+.item-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--corner-diamond), var(--corner-diamond), var(--corner-diamond),
+    var(--corner-diamond);
+  background-repeat: no-repeat;
+  background-position:
+    3px 3px,
+    calc(100% - 3px) 3px,
+    3px calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px);
 }
 
 /* [UI] Divisor ornamental (losango + hastes) sob os títulos de seção */
@@ -992,24 +1022,16 @@ dd {
   box-shadow: 8px 0 24px rgba(10, 6, 2, 0.45);
 }
 
-/* [UI] Corrente: elos repetidos descendo a borda interna do menu */
+/* [UI] Corrente de elos entrelaçados descendo a borda interna do menu */
 .side-nav::after {
   content: '';
   position: absolute;
   top: 0;
-  right: 2px;
+  right: 3px;
   bottom: 0;
-  width: 9px;
-  background: radial-gradient(
-    circle at 4.5px 7px,
-    transparent 1.8px,
-    rgba(200, 150, 44, 0.55) 2.4px,
-    rgba(200, 150, 44, 0.55) 3.4px,
-    transparent 4px
-  );
-  background-size: 9px 14px;
-  background-repeat: repeat-y;
-  opacity: 0.85;
+  width: 14px;
+  background: var(--chain-links) repeat-y center top;
+  opacity: 0.8;
   pointer-events: none;
 }
 
