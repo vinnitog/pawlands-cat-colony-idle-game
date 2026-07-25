@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from './gameProvider.tsx';
 import { DashboardScreen } from '../ui/screens/DashboardScreen.tsx';
 import { WorldScreen } from '../ui/screens/WorldScreen.tsx';
@@ -16,6 +16,8 @@ import { GameFeelEffectLayer } from '../ui/components/GameFeelEffectLayer.tsx';
 import { getLeader } from '../game/systems/colonySystem.ts';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 import shieldCrest from '../ui/art/ui_shield.png';
+
+const TOAST_AUTO_DISMISS_MS = 5_000;
 
 type ScreenId =
   | 'dashboard'
@@ -47,12 +49,28 @@ export function App() {
     rewardNotice,
     gameFeelEffect,
     toast,
+    toastRevision,
     completeOnboarding,
     dismissRewardNotice,
     dismissGameFeelEffect,
     dismissToast,
   } = useGame();
   const pendingMissions = getPendingMissionCount(state);
+  const dismissToastRef = useRef(dismissToast);
+
+  useEffect(() => {
+    dismissToastRef.current = dismissToast;
+  }, [dismissToast]);
+
+  useEffect(() => {
+    if (!toast || rewardNotice) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      dismissToastRef.current();
+    }, TOAST_AUTO_DISMISS_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [rewardNotice, toast, toastRevision]);
 
   if (!state.onboarded) {
     return <StarterScreen onConfirm={completeOnboarding} />;
@@ -113,8 +131,8 @@ export function App() {
         </div>
       </div>
 
-      {toast ? (
-        <div className="toast" role="status">
+      {toast && !rewardNotice ? (
+        <div key={toastRevision} className="toast" role="status" aria-atomic="true">
           <span>{toast}</span>
           <button type="button" onClick={dismissToast} aria-label="Fechar aviso">
             Fechar

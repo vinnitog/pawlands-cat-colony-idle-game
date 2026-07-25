@@ -71,6 +71,7 @@ type GameContextValue = {
   rewardNotice: RewardNotice | null;
   gameFeelEffect: GameFeelEffect | null;
   toast: string | null;
+  toastRevision: number;
   startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
   startExpedition(catId: string, zoneId: ExpeditionZoneId): void;
   collectExpedition(catId: string): void;
@@ -134,6 +135,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     boot.gameFeelEffects,
   );
   const [toast, setToast] = useState<string | null>(null);
+  const [toastRevision, setToastRevision] = useState(0);
   const previousStateRef = useRef(state);
   const nextGameFeelEffectIdRef = useRef(boot.nextGameFeelEffectId);
   const suppressNextGameFeelRef = useRef(false);
@@ -152,6 +154,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const enqueueRewardNotice = useCallback((notice: RewardNotice) => {
     setRewardNotices((current) => [...current, notice]);
+  }, []);
+
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+    setToastRevision((current) => current + 1);
+  }, []);
+
+  const dismissToast = useCallback(() => {
+    setToast(null);
   }, []);
 
   const queueGameFeelCues = useCallback((cues: GameFeelCue[]) => {
@@ -238,7 +249,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     updateState((current) => {
       const result = startActivityInState(current, activityId, Date.now(), options);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
@@ -246,21 +257,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const actorName = options?.catId
         ? result.state.cats.find((cat) => cat.id === options.catId)?.name
         : getLeader(result.state).name;
-      setToast(
+      showToast(
         options?.atLake
           ? 'Pescaria no lago — pesca reforçada!'
           : `${actorName ?? 'Seu gato'} começou a atividade.`,
       );
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const startExpedition = useCallback((catId: string, zoneId: ExpeditionZoneId) => {
     updateState((current) => {
       const now = Date.now();
       const result = startExpeditionInState(current, catId, zoneId, now);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
@@ -277,10 +288,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
       saveGame(nextState, undefined, now);
       const cat = nextState.cats.find((candidate) => candidate.id === catId);
-      setToast(`${cat?.name ?? 'Seu gato'} atravessou o Portão do Além.`);
+      showToast(`${cat?.name ?? 'Seu gato'} atravessou o Portão do Além.`);
       return nextState;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const collectExpedition = useCallback((catId: string) => {
     updateState((current) => {
@@ -288,7 +299,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const catName = current.cats.find((cat) => cat.id === catId)?.name ?? 'Seu gato';
       const result = collectExpeditionInState(current, catId, now);
       if (!result.collected) {
-        setToast('Esse gato não está em uma expedição.');
+        showToast('Esse gato não está em uma expedição.');
         return current;
       }
 
@@ -301,110 +312,110 @@ export function GameProvider({ children }: { children: ReactNode }) {
           levelCoins: result.levelCoins,
         });
       } else {
-        setToast(`${catName} voltou. O progresso parcial foi preservado.`);
+        showToast(`${catName} voltou. O progresso parcial foi preservado.`);
       }
       return result.state;
     });
-  }, [enqueueRewardNotice, updateState]);
+  }, [enqueueRewardNotice, showToast, updateState]);
 
   const recruitCat = useCallback(() => {
     updateState((current) => {
       const result = recruitCatInState(current, Math.random, Date.now());
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast(`${result.cat.name} juntou-se à colônia!`);
+      showToast(`${result.cat.name} juntou-se à colônia!`);
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const setLeader = useCallback((catId: string) => {
     updateState((current) => {
       const result = setLeaderInState(current, catId);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast(`${getLeader(result.state).name} agora lidera a colônia.`);
+      showToast(`${getLeader(result.state).name} agora lidera a colônia.`);
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const equipGear = useCallback((catId: string, slot: GearSlot, gearId: GearId) => {
     updateState((current) => {
       const result = equipGearInState(current, catId, slot, gearId);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast(`${gearById[gearId].name} equipado.`);
+      showToast(`${gearById[gearId].name} equipado.`);
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const unequipGear = useCallback((catId: string, slot: GearSlot) => {
     updateState((current) => {
       const result = unequipGearInState(current, catId, slot);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast('Equipamento guardado no inventário.');
+      showToast('Equipamento guardado no inventário.');
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const buyUpgrade = useCallback((upgradeId: UpgradeId) => {
     updateState((current) => {
       const result = buyUpgradeInState(current, upgradeId);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast('Melhoria comprada.');
+      showToast('Melhoria comprada.');
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const claimMission = useCallback((missionId: MissionId) => {
     updateState((current) => {
       const result = claimMissionInState(current, missionId);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
       const gemText = result.gems > 0 ? `, +${result.gems} gemas` : '';
-      setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP${gemText}.`);
+      showToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP${gemText}.`);
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const buyShopItem = useCallback((itemId: ShopItemId) => {
     updateState((current) => {
       const result = buyShopItemInState(current, itemId);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast(`${shopItemById[itemId].name} adquirido.`);
+      showToast(`${shopItemById[itemId].name} adquirido.`);
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const sellTrophy = useCallback((
     trophyId: ExpeditionTrophyKey,
@@ -413,17 +424,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     updateState((current) => {
       const result = sellTrophyInState(current, trophyId, mode);
       if (!result.ok) {
-        setToast(result.reason);
+        showToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast(
+      showToast(
         `${result.quantity} ${result.quantity === 1 ? 'troféu vendido' : 'troféus vendidos'} por ${result.coins} moedas.`,
       );
       return result.state;
     });
-  }, [updateState]);
+  }, [showToast, updateState]);
 
   const setWorldPosition = useCallback((x: number, y: number) => {
     updateState((current) => {
@@ -449,10 +460,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     suppressNextGameFeelRef.current = true;
     setGameFeelEffects([]);
     setRewardNotices([]);
-    setToast('Progresso reiniciado.');
+    showToast('Progresso reiniciado.');
     stateRef.current = nextState;
     setState(nextState);
-  }, []);
+  }, [showToast]);
 
   const value = useMemo<GameContextValue>(
     () => ({
@@ -460,6 +471,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       rewardNotice,
       gameFeelEffect: gameFeelEffects[0] ?? null,
       toast,
+      toastRevision,
       startActivity,
       startExpedition,
       collectExpedition,
@@ -476,7 +488,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       resetGame,
       dismissRewardNotice: () => setRewardNotices((current) => current.slice(1)),
       dismissGameFeelEffect,
-      dismissToast: () => setToast(null),
+      dismissToast,
     }),
     [
       buyShopItem,
@@ -484,6 +496,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       claimMission,
       collectExpedition,
       completeOnboarding,
+      dismissToast,
       enqueueRewardNotice,
       equipGear,
       gameFeelEffects,
@@ -498,6 +511,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       startExpedition,
       state,
       toast,
+      toastRevision,
       unequipGear,
     ],
   );

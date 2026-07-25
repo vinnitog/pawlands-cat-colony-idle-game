@@ -70,7 +70,7 @@ test('expedition provider actions persist starts and show collected rewards', ()
   assert.match(provider, /saveGame\(nextState, undefined, now\)/);
   assert.match(
     provider,
-    /if \(result\.resolvedPulses > 0\) \{[\s\S]*?enqueueRewardNotice\(\{[\s\S]*?\} else \{[\s\S]*?setToast\(/,
+    /if \(result\.resolvedPulses > 0\) \{[\s\S]*?enqueueRewardNotice\(\{[\s\S]*?\} else \{[\s\S]*?showToast\(/,
   );
 });
 

@@ -1540,7 +1540,8 @@ dd {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  width: min(calc(100% - 24px), 520px);
+  /* [UI] Desconta a navegação fixa para o aviso não escapar em 320px. */
+  width: min(calc(100% - var(--nav-w) - 24px), 520px);
   margin: 0 auto;
   padding: 12px;
   border: 2px solid var(--border);
@@ -1549,8 +1550,14 @@ dd {
   box-shadow: var(--shadow);
 }
 
+.toast span {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .toast button {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--border);
   background: var(--surface-soft);
