@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createInitialGameState } from '../src/game/data/initialGameState.ts';
 import { migrateGameSave } from '../src/game/storage/migrations.ts';
 import { startActivity } from '../src/game/systems/activitySystem.ts';
-import { getLeader, recruitCat } from '../src/game/systems/colonySystem.ts';
+import { getLeader, recruitCat, setLeader } from '../src/game/systems/colonySystem.ts';
 import {
   advanceExpeditions,
   collectExpedition,
@@ -98,6 +98,90 @@ test('starting an expedition occupies only that cat and never spends energy', ()
   assert.equal(startExpedition(working.state, cat.id, 'whisperingFields', 3_000).ok, false);
   assert.equal(startExpedition(state, 'stranger', 'whisperingFields', 3_000).ok, false);
   assert.equal(startExpedition(state, cat.id, 'mistwood', 3_000).ok, false);
+});
+
+test('an expedition cat cannot be appointed colony leader', () => {
+  const state = createInitialGameState(0);
+  state.resources.gems = 10;
+  const recruited = recruitCat(state, () => 0, 1_000);
+  assert.equal(recruited.ok, true);
+  if (!recruited.ok) return;
+
+  const started = startExpedition(
+    recruited.state,
+    recruited.cat.id,
+    'whisperingFields',
+    2_000,
+  );
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+
+  const result = setLeader(started.state, recruited.cat.id);
+  assert.equal(result.ok, false);
+  assert.equal(result.state, started.state);
+  assert.equal(result.state.leaderId, state.leaderId);
+});
+
+test('sending the leader can promote a free replacement without touching the hunter', () => {
+  const state = createInitialGameState(0);
+  state.resources.gems = 10;
+  const recruited = recruitCat(state, () => 0, 1_000);
+  assert.equal(recruited.ok, true);
+  if (!recruited.ok) return;
+
+  const leaderId = getLeader(recruited.state).id;
+  const started = startExpedition(recruited.state, leaderId, 'whisperingFields', 2_000);
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+
+  const replacement = started.state.cats.find(
+    (cat) => cat.id !== leaderId && !cat.activity && !cat.expedition,
+  );
+  assert.equal(replacement?.id, recruited.cat.id);
+  const switched = setLeader(started.state, replacement.id);
+  assert.equal(switched.ok, true);
+  if (!switched.ok) return;
+
+  assert.equal(switched.state.leaderId, replacement.id);
+  assert.equal(
+    switched.state.cats.find((cat) => cat.id === leaderId)?.expedition?.zoneId,
+    'whisperingFields',
+  );
+});
+
+test('a single-cat roster keeps its away leader until the expedition is collected', () => {
+  const state = createInitialGameState(0);
+  const leaderId = getLeader(state).id;
+  const started = startExpedition(state, leaderId, 'whisperingFields', 1_000);
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+
+  assert.equal(started.state.leaderId, leaderId);
+  assert.equal(getLeader(started.state).expedition?.zoneId, 'whisperingFields');
+  assert.equal(
+    started.state.cats.some(
+      (cat) => cat.id !== leaderId && !cat.activity && !cat.expedition,
+    ),
+    false,
+  );
+});
+
+test('zone unlock follows the chosen cat instead of the colony leader', () => {
+  const state = createInitialGameState(0);
+  state.resources.gems = 10;
+  const recruited = recruitCat(state, () => 0, 1_000);
+  assert.equal(recruited.ok, true);
+  if (!recruited.ok) return;
+
+  const leveled = {
+    ...recruited.state,
+    cats: recruited.state.cats.map((cat) =>
+      cat.id === recruited.cat.id ? { ...cat, level: 4 } : cat,
+    ),
+  };
+
+  assert.equal(isExpeditionZoneUnlocked(leveled, leveled.leaderId, 'mistwood'), false);
+  assert.equal(isExpeditionZoneUnlocked(leveled, recruited.cat.id, 'mistwood'), true);
 });
 
 test('progress preserves partial base time across ticks and re-anchors clock rollback', () => {

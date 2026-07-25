@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { activities, activityById } from '../../game/data/activities.ts';
+import { expeditionZoneById } from '../../game/data/zones.ts';
 import type { Cat } from '../../game/models/cat.ts';
 import { catClassById } from '../../game/models/catClass.ts';
 import { getRecruitCost, MAX_COLONY_SIZE } from '../../game/systems/colonySystem.ts';
@@ -104,6 +105,8 @@ export function ColonyScreen() {
           const classDef = catClassById[cat.catClass];
           const isLeader = cat.id === state.leaderId;
           const activity = cat.activity ? activityById[cat.activity.activityId] : null;
+          const expedition = cat.expedition ? expeditionZoneById[cat.expedition.zoneId] : null;
+          const isBusy = activity !== null || expedition !== null;
           const remainingMs = cat.activity ? Math.max(0, cat.activity.endsAt - now) : 0;
           const energyPct = Math.min(100, Math.floor((cat.energy / cat.maxEnergy) * 100));
 
@@ -143,6 +146,11 @@ export function ColonyScreen() {
                     <GameIcon name={activity.id} />
                     {activity.name} · {formatDuration(remainingMs)}
                   </>
+                ) : expedition ? (
+                  <>
+                    <GameIcon name="expedition" />
+                    Expedição · {expedition.name}
+                  </>
                 ) : (
                   'Livre'
                 )}
@@ -152,14 +160,19 @@ export function ColonyScreen() {
                 <button
                   className="primary-action"
                   type="button"
-                  disabled={cat.activity !== null}
+                  disabled={isBusy}
                   onClick={() => setAssigningId(cat.id)}
                 >
-                  {cat.activity ? 'Ocupado' : 'Designar atividade'}
+                  {isBusy ? 'Ocupado' : 'Designar atividade'}
                 </button>
                 {!isLeader ? (
-                  <button className="ghost-action" type="button" onClick={() => setLeader(cat.id)}>
-                    Tornar líder
+                  <button
+                    className="ghost-action"
+                    type="button"
+                    disabled={cat.expedition !== null}
+                    onClick={() => setLeader(cat.id)}
+                  >
+                    {cat.expedition ? 'Em expedição' : 'Tornar líder'}
                   </button>
                 ) : null}
               </div>

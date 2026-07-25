@@ -2013,3 +2013,453 @@ dd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ============================================
+   UI/UX Expert — Portão do Além
+   Mobile-first, leitura sobre arte em pixel e alvos de toque amplos.
+   ============================================ */
+
+.expedition-screen {
+  gap: 32px;
+}
+
+.expedition-heading {
+  align-items: flex-end;
+}
+
+.expedition-intro {
+  max-width: 62ch;
+  margin-top: 8px;
+  color: #d9c9aa;
+  line-height: 1.55;
+}
+
+.expedition-section {
+  display: grid;
+  gap: 16px;
+}
+
+.expedition-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #f3e4c7;
+}
+
+.expedition-section-title > .game-icon {
+  width: 44px;
+  height: 44px;
+  padding: 9px;
+  border: 1px solid rgba(200, 150, 44, 0.62);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #37384b, #1d1c2b);
+  color: #d6b563;
+  box-shadow: var(--soft-shadow);
+}
+
+.expedition-section-title .eyebrow {
+  color: #bda260;
+}
+
+.expedition-active-grid,
+.expedition-zone-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.expedition-hunt-card,
+.expedition-zone-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 2px solid rgba(200, 150, 44, 0.58);
+  border-radius: 12px;
+  background: #171725;
+  color: #f3ead7;
+  box-shadow: var(--shadow);
+  isolation: isolate;
+  animation: cardIn 220ms ease-out;
+}
+
+.expedition-card-hero {
+  position: relative;
+  aspect-ratio: 137 / 89;
+  overflow: hidden;
+  background: #0d101c;
+}
+
+.expedition-card-art,
+.expedition-card-veil {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.expedition-card-art {
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: saturate(0.72) contrast(1.06);
+}
+
+/* [UI] Véu frio garante contraste e separa o Além do salão quente do app. */
+.expedition-card-veil {
+  background:
+    linear-gradient(180deg, rgba(11, 17, 37, 0.18), rgba(9, 10, 20, 0.58)),
+    radial-gradient(circle at 78% 10%, rgba(91, 122, 177, 0.3), transparent 42%);
+}
+
+.expedition-hunt-content,
+.expedition-zone-content {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background:
+    linear-gradient(180deg, rgba(32, 36, 54, 0.96), rgba(11, 12, 22, 0.99));
+}
+
+.expedition-cat-line,
+.expedition-zone-head,
+.expedition-bag-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.expedition-cat-line {
+  justify-content: flex-start;
+}
+
+.expedition-cat-line .cat-sprite {
+  flex: 0 0 auto;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.72));
+}
+
+.expedition-cat-line > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.expedition-hunt-content .eyebrow,
+.expedition-zone-content .eyebrow {
+  color: #c8af72;
+}
+
+.expedition-efficiency,
+.zone-open,
+.zone-locked {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid rgba(218, 189, 112, 0.72);
+  border-radius: 999px;
+  background: rgba(20, 25, 43, 0.88);
+  color: #f0cf7b;
+  font-family: var(--heading-font);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.zone-locked {
+  border-color: rgba(194, 145, 145, 0.68);
+  color: #efb2ad;
+}
+
+.expedition-bag-line {
+  font-size: 0.92rem;
+}
+
+.expedition-progress {
+  height: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(224, 196, 123, 0.52);
+  border-radius: 999px;
+  background: rgba(5, 7, 15, 0.82);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55);
+}
+
+.expedition-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #496a8d, #82a8ca 72%, #dbc374);
+  box-shadow: 0 0 12px rgba(126, 171, 210, 0.58);
+  transition: width 180ms ease;
+}
+
+.expedition-hunt-facts {
+  display: grid;
+  gap: 8px;
+  color: #d9cfbb;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.expedition-hunt-facts span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(224, 196, 123, 0.2);
+}
+
+.expedition-hunt-facts span:last-child {
+  display: block;
+  border-bottom: 0;
+  color: #b9cae0;
+}
+
+.expedition-collect,
+.expedition-send {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  border: 1px solid #31250f;
+  background: linear-gradient(180deg, #d2a643, #795018);
+  color: #fff3d2;
+  font-family: var(--heading-font);
+  box-shadow: 0 5px 0 #30200d;
+}
+
+.expedition-collect .game-icon,
+.expedition-send .game-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.expedition-hunt-content small {
+  color: #bec8d8;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.expedition-empty,
+.expedition-no-cats {
+  border: 1px dashed rgba(200, 150, 44, 0.48);
+  border-radius: 10px;
+  background: rgba(18, 18, 29, 0.68);
+  color: #d9c9aa;
+}
+
+.expedition-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 92px;
+  padding: 16px;
+}
+
+.expedition-empty .game-icon {
+  width: 36px;
+  height: 36px;
+  color: #af9659;
+}
+
+.expedition-empty p {
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.expedition-no-cats {
+  padding: 16px;
+  line-height: 1.5;
+}
+
+.expedition-cat-picker {
+  display: grid;
+  gap: 10px;
+}
+
+.expedition-cat-option {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 8px 14px;
+  border: 2px solid rgba(200, 150, 44, 0.3);
+  background: linear-gradient(180deg, #302f3e, #1c1b27);
+  color: #eee2c9;
+  text-align: left;
+}
+
+.expedition-cat-option.is-selected {
+  border-color: #d5ad4c;
+  background: linear-gradient(180deg, #4a443d, #29242a);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 225, 145, 0.42),
+    0 0 20px rgba(200, 150, 44, 0.2);
+}
+
+.expedition-cat-option > span {
+  display: grid;
+  gap: 3px;
+}
+
+.expedition-cat-option small {
+  color: #c7b893;
+  font-size: 0.9rem;
+}
+
+.expedition-zone-card.is-locked .expedition-card-art {
+  filter: grayscale(0.72) saturate(0.38) brightness(0.7);
+}
+
+.expedition-loot-promise {
+  display: grid;
+  gap: 10px;
+}
+
+.expedition-loot-promise h5 {
+  margin: 0;
+  color: #f0d58d;
+  font-family: var(--heading-font);
+  font-size: 1rem;
+}
+
+.expedition-loot-promise ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.expedition-loot-promise li {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(213, 183, 106, 0.24);
+  border-radius: 7px;
+  background: rgba(10, 13, 25, 0.68);
+}
+
+.expedition-loot-promise .game-icon {
+  width: 28px;
+  height: 28px;
+  color: #91b6d6;
+}
+
+.expedition-loot-promise li > span {
+  display: grid;
+  gap: 2px;
+}
+
+.expedition-loot-promise small {
+  color: #c9bfaa;
+  font-size: 0.9rem;
+}
+
+.expedition-zone-content > p {
+  color: #ddd2bd;
+  line-height: 1.55;
+}
+
+.expedition-power-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.expedition-power-grid div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(213, 183, 106, 0.26);
+  border-radius: 7px;
+  background: rgba(10, 13, 25, 0.68);
+}
+
+.expedition-power-grid dt {
+  color: #bdb29d;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.expedition-power-grid dd {
+  margin-top: 5px;
+  color: #f1d783;
+  font-family: var(--heading-font);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.expedition-unlock-reason {
+  padding: 10px 12px;
+  border-left: 3px solid #9ab0ca;
+  background: rgba(18, 31, 51, 0.78);
+  color: #d6dfeb !important;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 640px) {
+  .expedition-cat-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .expedition-cat-picker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .expedition-active-grid,
+  .expedition-zone-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .expedition-zone-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* [UI] Sem um líder presente, o mundo não monta canvas nem controles inertes. */
+.world-away-state {
+  display: grid;
+  width: min(100%, 620px);
+  margin: clamp(32px, 10vh, 96px) auto;
+  justify-items: center;
+  gap: 14px;
+  padding: 28px 20px;
+  border: 2px solid rgba(200, 150, 44, 0.58);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(77, 101, 145, 0.28), transparent 42%),
+    linear-gradient(180deg, #292b3c, #17151d);
+  color: #eee2ca;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.world-away-state > .game-icon {
+  width: 64px;
+  height: 64px;
+  color: #c8a755;
+}
+
+.world-away-state .eyebrow {
+  color: #c6a75e;
+}
+
+.world-away-state p:not(.eyebrow) {
+  max-width: 48ch;
+  color: #d4c8b1;
+  line-height: 1.6;
+}
+
+.world-away-state .primary-action {
+  width: min(100%, 320px);
+  min-height: 48px;
+  margin-top: 6px;
+}

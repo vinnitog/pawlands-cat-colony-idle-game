@@ -4,6 +4,7 @@ import { DashboardScreen } from '../ui/screens/DashboardScreen.tsx';
 import { WorldScreen } from '../ui/screens/WorldScreen.tsx';
 import { ColonyScreen } from '../ui/screens/ColonyScreen.tsx';
 import { ActivitiesScreen } from '../ui/screens/ActivitiesScreen.tsx';
+import { ExpeditionScreen } from '../ui/screens/ExpeditionScreen.tsx';
 import { UpgradesScreen } from '../ui/screens/UpgradesScreen.tsx';
 import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
 import { InventoryScreen } from '../ui/screens/InventoryScreen.tsx';
@@ -20,6 +21,7 @@ type ScreenId =
   | 'world'
   | 'colony'
   | 'activities'
+  | 'expedition'
   | 'upgrades'
   | 'missions'
   | 'inventory'
@@ -30,6 +32,7 @@ const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
   { id: 'world', label: 'Grimalkin', icon: 'world' },
   { id: 'colony', label: 'Colônia', icon: 'colony' },
   { id: 'activities', label: 'Atividades', icon: 'exploreYard' },
+  { id: 'expedition', label: 'Além', icon: 'expedition' },
   { id: 'upgrades', label: 'Melhorias', icon: 'upgrades' },
   { id: 'missions', label: 'Missões', icon: 'missions' },
   { id: 'inventory', label: 'Inventário', icon: 'inventory' },
@@ -59,6 +62,7 @@ export function App() {
               key={tab.id}
               className={screen === tab.id ? 'active' : ''}
               type="button"
+              aria-current={screen === tab.id ? 'page' : undefined}
               onClick={() => setScreen(tab.id)}
             >
               <GameIcon name={tab.icon} />
@@ -91,6 +95,7 @@ export function App() {
             {screen === 'world' && <WorldScreen goTo={setScreen} />}
             {screen === 'colony' && <ColonyScreen />}
             {screen === 'activities' && <ActivitiesScreen />}
+            {screen === 'expedition' && <ExpeditionScreen />}
             {screen === 'upgrades' && <UpgradesScreen />}
             {screen === 'missions' && <MissionsScreen />}
             {screen === 'inventory' && <InventoryScreen />}

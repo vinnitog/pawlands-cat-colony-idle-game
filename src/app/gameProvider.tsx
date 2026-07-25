@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ActivityId } from '../game/models/activity.ts';
 import type { CatClass } from '../game/models/catClass.ts';
+import type { ExpeditionZoneId } from '../game/models/expedition.ts';
 import type { MissionId } from '../game/models/missions.ts';
 import type { RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
@@ -23,6 +24,10 @@ import {
 import { applyEnergyRegen } from '../game/systems/energySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
+import {
+  collectExpedition as collectExpeditionInState,
+  startExpedition as startExpeditionInState,
+} from '../game/systems/expeditionSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
 import { clearGame, loadGame, saveGame } from '../game/storage/saveManager.ts';
 
@@ -39,6 +44,8 @@ type GameContextValue = {
   rewardNotice: RewardNotice | null;
   toast: string | null;
   startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
+  startExpedition(catId: string, zoneId: ExpeditionZoneId): void;
+  collectExpedition(catId: string): void;
   recruitCat(): void;
   setLeader(catId: string): void;
   buyUpgrade(upgradeId: UpgradeId): void;
@@ -163,6 +170,58 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const startExpedition = useCallback((catId: string, zoneId: ExpeditionZoneId) => {
+    setState((current) => {
+      const now = Date.now();
+      const result = startExpeditionInState(current, catId, zoneId, now);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      const replacement =
+        current.leaderId === catId
+          ? result.state.cats.find(
+              (candidate) =>
+                candidate.id !== catId && !candidate.activity && !candidate.expedition,
+            )
+          : undefined;
+      const nextState = replacement
+        ? setLeaderInState(result.state, replacement.id).state
+        : result.state;
+
+      saveGame(nextState, undefined, now);
+      const cat = nextState.cats.find((candidate) => candidate.id === catId);
+      setToast(`${cat?.name ?? 'Seu gato'} atravessou o Portão do Além.`);
+      return nextState;
+    });
+  }, []);
+
+  const collectExpedition = useCallback((catId: string) => {
+    setState((current) => {
+      const now = Date.now();
+      const catName = current.cats.find((cat) => cat.id === catId)?.name ?? 'Seu gato';
+      const result = collectExpeditionInState(current, catId, now);
+      if (!result.collected) {
+        setToast('Esse gato não está em uma expedição.');
+        return current;
+      }
+
+      saveGame(result.state, undefined, now);
+      if (result.resolvedPulses > 0) {
+        setRewardNotice({
+          title: `${catName} voltou do Além`,
+          reward: result.reward,
+          levelsGained: result.levelsGained,
+          levelCoins: result.levelCoins,
+        });
+      } else {
+        setToast(`${catName} voltou. O progresso parcial foi preservado.`);
+      }
+      return result.state;
+    });
+  }, []);
+
   const recruitCat = useCallback(() => {
     setState((current) => {
       const result = recruitCatInState(current, Math.random, Date.now());
@@ -266,6 +325,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       rewardNotice,
       toast,
       startActivity,
+      startExpedition,
+      collectExpedition,
       recruitCat,
       setLeader,
       buyUpgrade,
@@ -281,6 +342,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyShopItem,
       buyUpgrade,
       claimMission,
+      collectExpedition,
       completeOnboarding,
       recruitCat,
       rewardNotice,
@@ -288,6 +350,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setLeader,
       setWorldPosition,
       startActivity,
+      startExpedition,
       state,
       toast,
     ],

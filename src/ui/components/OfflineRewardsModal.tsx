@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import type { RewardNotice } from '../../app/gameProvider.tsx';
-import { resourceLabels, specialItemLabels } from '../../game/models/resources.ts';
+import { inventoryItemLabels, resourceLabels } from '../../game/models/resources.ts';
 import { formatLongDuration } from '../formatters.ts';
+import { getFocusTrapTarget } from '../focusTrap.ts';
 import { GameIcon, type GameIconName } from './GameIcon.tsx';
 
 type OfflineRewardsModalProps = {
@@ -9,12 +11,61 @@ type OfflineRewardsModalProps = {
 };
 
 export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProps) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const resourceEntries = Object.entries(notice.reward.resources).filter(([, amount]) => Number(amount) > 0);
   const itemEntries = Object.entries(notice.reward.inventory).filter(([, amount]) => Number(amount) > 0);
 
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement
+      && document.activeElement !== document.body
+      ? document.activeElement
+      : null;
+    const handleDialogKeys = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      const activeElement = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+      const focusTarget = getFocusTrapTarget(focusableElements, activeElement, event.shiftKey);
+
+      if (focusableElements.length === 0 || focusTarget) event.preventDefault();
+      focusTarget?.focus();
+    };
+
+    document.addEventListener('keydown', handleDialogKeys);
+    closeButtonRef.current?.focus();
+    return () => {
+      document.removeEventListener('keydown', handleDialogKeys);
+      const focusTarget = previousFocus?.isConnected
+        ? previousFocus
+        : document.querySelector<HTMLElement>('[aria-current="page"]')
+          ?? document.querySelector<HTMLElement>('#expedition-title');
+      focusTarget?.focus();
+    };
+  }, []);
+
   return (
     <div className="modal-backdrop" role="presentation">
-      <section className="reward-modal" role="dialog" aria-modal="true" aria-labelledby="reward-title">
+      <section
+        ref={dialogRef}
+        className="reward-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reward-title"
+      >
         <div className="reward-badge">
           <GameIcon name="reward" />
         </div>
@@ -55,7 +106,7 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
             <li key={key}>
               <span>
                 <GameIcon name={key as GameIconName} />
-                {specialItemLabels[key as keyof typeof specialItemLabels]}
+                {inventoryItemLabels[key as keyof typeof inventoryItemLabels]}
               </span>
               <strong>+{amount}</strong>
             </li>
@@ -80,7 +131,7 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
           ) : null}
         </ul>
 
-        <button className="primary-action" type="button" onClick={onClose}>
+        <button ref={closeButtonRef} className="primary-action" type="button" onClick={onClose}>
           Continuar
         </button>
       </section>
