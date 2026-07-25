@@ -78,3 +78,14 @@ interromper atividades e expedições.
 Um capstone narrativo jogável deve chegar junto de uma expansão de conteúdo.
 Prestígio/rebirth permanece adiado até existirem combate, curva de endgame e
 recompensa permanente suficientes para justificar um reset voluntário.
+
+## Grimalkin visual
+
+- [x] **G0 — auditoria e planta:** contrato do mapa, distritos e critérios
+      documentados em `docs/GRIMALKIN_VISUAL_PLAN.md`.
+- [x] **G1 — cidade-fortaleza Tiny Town:** mapa 24×16 recomposto com muralhas,
+      portão sul, eixo cívico, distritos, casas, caminhos e posição salva segura.
+- [ ] **G2 — profundidade e atmosfera:** y-sort, sombras, água, luz e névoa,
+      seguidos de playtest visual.
+- [ ] **G3 — expansão premium:** avaliar Elthen, personagens em quatro direções,
+      interiores e novos distritos/mapas.

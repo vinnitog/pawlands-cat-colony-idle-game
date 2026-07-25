@@ -16,9 +16,11 @@ import { formatDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 import {
   createGrimalkin,
+  resolveWorldPosition,
   TILE,
   TILESET_COLUMNS,
   tilesetSrc,
+  WORLD_PLAYER_COLLISION_HALF_SIZE,
   type InteractionKind,
 } from '../../game/world/tinyTown.ts';
 import manifest from '../sprites/manifest.json';
@@ -92,7 +94,10 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     const runMeta = anims.run;
     const keys = keysRef.current;
 
-    const start = state.world;
+    const start = resolveWorldPosition(map, state.world);
+    if (start.x !== state.world.x || start.y !== state.world.y) {
+      persistRef.current(start.x, start.y);
+    }
     const player = { x: start.x, y: start.y, facing: 1, anim: 0, moving: false };
     let dirty = false;
     let tileImg: HTMLImageElement | null = null;
@@ -212,8 +217,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         }
       }
     };
-    const hw = 5;
-    const hh = 5;
+    const hw = WORLD_PLAYER_COLLISION_HALF_SIZE;
+    const hh = WORLD_PLAYER_COLLISION_HALF_SIZE;
     const blocked = (x: number, y: number) =>
       solidAt(x - hw, y - hh) || solidAt(x + hw, y - hh) || solidAt(x - hw, y) || solidAt(x + hw, y);
 
