@@ -7,6 +7,8 @@ export type GameIconName =
   | ActivityId
   | 'home'
   | 'world'
+  | 'colony'
+  | 'shield'
   | 'upgrades'
   | 'missions'
   | 'inventory'
@@ -128,6 +130,25 @@ function renderIcon(name: GameIconName) {
           <path d="M10 24h44v28H10Z" fill="currentColor" />
           <path d="M10 24V12h8v6h8v-6h12v6h8v-6h8v12" fill="currentColor" />
           <path d="M24 52V40h16v12" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'shield':
+      return (
+        <>
+          <path d="M32 4 54 11v19c0 15-9 25-22 30C19 55 10 45 10 30V11Z" fill="currentColor" />
+          <circle cx="32" cy="34" r="6" fill="#ffffff" />
+          <circle cx="24" cy="25" r="3" fill="#ffffff" />
+          <circle cx="32" cy="22" r="3" fill="#ffffff" />
+          <circle cx="40" cy="25" r="3" fill="#ffffff" />
+        </>
+      );
+    case 'colony':
+      return (
+        <>
+          <path d="M14 26 10 12l12 6h20l12-6-4 14c3 4 4 8 4 12 0 12-10 18-22 18S10 50 10 38c0-4 1-8 4-12Z" fill="currentColor" />
+          <circle cx="24" cy="38" r="3.5" fill="#ffffff" />
+          <circle cx="40" cy="38" r="3.5" fill="#ffffff" />
+          <path d="M28 47h8l-4 5Z" fill="#ffffff" />
         </>
       );
     case 'upgrades':

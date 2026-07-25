@@ -1,5 +1,6 @@
 import type { GameState } from '../models/save.ts';
 import { addResourcesToState } from './economySystem.ts';
+import { getLeader, updateCat } from './colonySystem.ts';
 
 export type LevelResult = {
   state: GameState;
@@ -11,15 +12,16 @@ export function xpForNextLevel(level: number): number {
   return 100 + level * 50;
 }
 
-export function addXpToState(state: GameState, xp: number): LevelResult {
-  if (xp <= 0) {
+export function addXpToCat(state: GameState, catId: string, xp: number): LevelResult {
+  const target = state.cats.find((cat) => cat.id === catId);
+  if (xp <= 0 || !target) {
     return { state, levelsGained: 0, coinsAwarded: 0 };
   }
 
   let cat = {
-    ...state.cat,
-    xp: state.cat.xp + xp,
-    stats: { ...state.cat.stats },
+    ...target,
+    xp: target.xp + xp,
+    stats: { ...target.stats },
   };
   let levelsGained = 0;
 
@@ -38,10 +40,7 @@ export function addXpToState(state: GameState, xp: number): LevelResult {
     levelsGained += 1;
   }
 
-  let nextState = {
-    ...state,
-    cat,
-  };
+  let nextState = updateCat(state, catId, () => cat);
 
   const coinsAwarded = levelsGained * 15;
   if (coinsAwarded > 0) {
@@ -53,4 +52,9 @@ export function addXpToState(state: GameState, xp: number): LevelResult {
     levelsGained,
     coinsAwarded,
   };
+}
+
+/** XP for the leader — the single-cat era entry point, kept for mission rewards. */
+export function addXpToState(state: GameState, xp: number): LevelResult {
+  return addXpToCat(state, getLeader(state).id, xp);
 }

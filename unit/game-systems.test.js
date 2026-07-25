@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createInitialGameState } from '../src/game/data/initialGameState.ts';
 import { startActivity } from '../src/game/systems/activitySystem.ts';
+import { getLeader } from '../src/game/systems/colonySystem.ts';
 import { addXpToState } from '../src/game/systems/levelSystem.ts';
 import { processOfflineProgress } from '../src/game/systems/offlineSystem.ts';
 import { buyUpgrade } from '../src/game/systems/upgradeSystem.ts';
@@ -23,9 +24,9 @@ test('offline progress completes one finished activity once', () => {
   const completed = processOfflineProgress(started.state, startAt + 3 * 60_000 + 1, fixedRandom);
 
   assert.equal(completed.activityCompleted, true);
-  assert.equal(completed.state.activeActivity, null);
+  assert.equal(getLeader(completed.state).activity, null);
   assert.equal(completed.state.resources.yarn, 2);
-  assert.equal(completed.state.cat.xp, 10);
+  assert.equal(getLeader(completed.state).xp, 10);
   assert.equal(completed.state.totals.activitiesCompleted, 1);
   assert.equal(completed.state.missions.completeFirstActivity.completed, true);
 
@@ -49,7 +50,7 @@ test('offline progress keeps unfinished activity active', () => {
 
   assert.equal(result.activityCompleted, false);
   assert.equal(result.reward, null);
-  assert.equal(result.state.activeActivity?.activityId, 'fishPond');
+  assert.equal(getLeader(result.state).activity?.activityId, 'fishPond');
   assert.equal(result.state.lastSavedAt, startAt + 5 * 60_000);
 });
 
@@ -68,7 +69,7 @@ test('offline progress handles no activity, clock rollback, and exact completion
   const exactEnd = processOfflineProgress(started.state, 10_000 + 3 * 60_000, fixedRandom);
 
   assert.equal(exactEnd.activityCompleted, true);
-  assert.equal(exactEnd.state.activeActivity, null);
+  assert.equal(getLeader(exactEnd.state).activity, null);
 });
 
 test('start activity blocks busy cat and insufficient energy', () => {
@@ -82,10 +83,7 @@ test('start activity blocks busy cat and insufficient energy', () => {
 
   const tiredState = {
     ...state,
-    cat: {
-      ...state.cat,
-      energy: 2,
-    },
+    cats: state.cats.map((cat) => ({ ...cat, energy: 2 })),
   };
   const tired = startActivity(tiredState, 'huntMice', 12_000);
   assert.equal(tired.ok, false);
@@ -95,10 +93,7 @@ test('sleep restores energy without exceeding max energy', () => {
   const state = createInitialGameState(12_000);
   const tiredState = {
     ...state,
-    cat: {
-      ...state.cat,
-      energy: 35,
-    },
+    cats: state.cats.map((cat) => ({ ...cat, energy: 35 })),
   };
   const started = startActivity(tiredState, 'sleep', 12_000);
   assert.equal(started.ok, true);
@@ -107,7 +102,7 @@ test('sleep restores energy without exceeding max energy', () => {
   const slept = processOfflineProgress(started.state, 12_000 + 15 * 60_000, fixedRandom);
 
   assert.equal(slept.activityCompleted, true);
-  assert.equal(slept.state.cat.energy, 40);
+  assert.equal(getLeader(slept.state).energy, 40);
 });
 
 test('level system applies level up, stat gains, and coin bonus', () => {
@@ -116,9 +111,9 @@ test('level system applies level up, stat gains, and coin bonus', () => {
 
   assert.equal(result.levelsGained, 1);
   assert.equal(result.coinsAwarded, 15);
-  assert.equal(result.state.cat.level, 2);
-  assert.equal(result.state.cat.xp, 0);
-  assert.equal(result.state.cat.stats.hunting, 4);
+  assert.equal(getLeader(result.state).level, 2);
+  assert.equal(getLeader(result.state).xp, 0);
+  assert.equal(getLeader(result.state).stats.hunting, 4);
   assert.equal(result.state.resources.coins, 35);
 });
 
@@ -140,7 +135,7 @@ test('buying cardboard box upgrade spends resources and updates mission progress
   assert.equal(result.state.resources.coins, 0);
   assert.equal(result.state.resources.cardboardBoxes, 0);
   assert.equal(result.state.upgrades.cardboardBox.level, 2);
-  assert.equal(result.state.cat.maxEnergy, 50);
+  assert.equal(getLeader(result.state).maxEnergy, 50);
   assert.equal(result.state.missions.upgradeCardboard2.completed, true);
 });
 
@@ -197,7 +192,7 @@ test('save manager uses an adapter and stores a timestamped save', () => {
   const loaded = loadGame(adapter);
 
   assert.equal(raw.lastSavedAt, 9_000);
-  assert.equal(loaded.cat.name, 'Milo');
+  assert.equal(getLeader(loaded).name, 'Milo');
   assert.equal(loaded.lastSavedAt, 9_000);
 });
 
@@ -207,14 +202,14 @@ test('save manager tolerates missing, corrupted, invalid, and unavailable storag
     write: () => undefined,
     remove: () => undefined,
   };
-  assert.equal(loadGame(missingAdapter).cat.name, 'Milo');
+  assert.equal(getLeader(loadGame(missingAdapter)).name, 'Milo');
 
   const corruptedAdapter = {
     read: () => '{not-json',
     write: () => undefined,
     remove: () => undefined,
   };
-  assert.equal(loadGame(corruptedAdapter).cat.name, 'Milo');
+  assert.equal(getLeader(loadGame(corruptedAdapter)).name, 'Milo');
 
   const partialAdapter = {
     read: () => JSON.stringify({ schemaVersion: 1, cat: { name: 'Nina' } }),
@@ -222,7 +217,7 @@ test('save manager tolerates missing, corrupted, invalid, and unavailable storag
     remove: () => undefined,
   };
   const partial = loadGame(partialAdapter);
-  assert.equal(partial.cat.name, 'Nina');
+  assert.equal(getLeader(partial).name, 'Nina');
   assert.equal(partial.missions.completeFirstActivity.completed, false);
   assert.equal(partial.resources.coins, 20);
 
@@ -237,7 +232,7 @@ test('save manager tolerates missing, corrupted, invalid, and unavailable storag
       throw new Error('blocked');
     },
   };
-  assert.equal(loadGame(throwingAdapter).cat.name, 'Milo');
+  assert.equal(getLeader(loadGame(throwingAdapter)).name, 'Milo');
   assert.doesNotThrow(() => saveGame(createInitialGameState(), throwingAdapter));
   assert.doesNotThrow(() => clearGame(throwingAdapter));
 });

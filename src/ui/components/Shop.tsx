@@ -1,18 +1,22 @@
 import { useGame } from '../../app/gameProvider.tsx';
 import { shopsById } from '../../game/data/shop.ts';
 import type { ShopId } from '../../game/models/shop.ts';
+import type { MissionId } from '../../game/models/missions.ts';
+import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { GameIcon } from './GameIcon.tsx';
 
 type ShopProps = {
   sellerName: string;
   shopId: ShopId;
+  questId?: MissionId;
   onClose(): void;
 };
 
-export function Shop({ sellerName, shopId, onClose }: ShopProps) {
+export function Shop({ sellerName, shopId, questId, onClose }: ShopProps) {
   const { state, buyShopItem } = useGame();
   const gems = state.resources.gems;
   const shop = shopsById[shopId];
+  const questLine = questId ? describeQuestStatus(state, questId) : null;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -24,6 +28,7 @@ export function Shop({ sellerName, shopId, onClose }: ShopProps) {
       >
         <p className="eyebrow">{sellerName}</p>
         <h2>{shop.title}</h2>
+        {questLine ? <p className="shop-quest">“{questLine}”</p> : null}
         <div className="shop-balance">
           <GameIcon name="gems" />
           <strong>{gems}</strong>

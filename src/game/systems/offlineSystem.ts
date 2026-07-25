@@ -1,12 +1,14 @@
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
-import { completeCurrentActivity } from './activitySystem.ts';
+import { completeFinishedActivities } from './activitySystem.ts';
+import { applyEnergyRegen } from './energySystem.ts';
 
 export type OfflineProgressResult = {
   state: GameState;
   reward: RewardBundle | null;
   offlineDurationMs: number;
   activityCompleted: boolean;
+  completedCount: number;
   levelsGained: number;
   levelCoins: number;
 };
@@ -18,30 +20,17 @@ export function processOfflineProgress(
 ): OfflineProgressResult {
   const offlineDurationMs = Math.max(0, now - state.lastSavedAt);
 
-  if (!state.activeActivity || state.activeActivity.endsAt > now) {
-    return {
-      state: {
-        ...state,
-        lastSavedAt: now,
-      },
-      reward: null,
-      offlineDurationMs,
-      activityCompleted: false,
-      levelsGained: 0,
-      levelCoins: 0,
-    };
-  }
-
-  const completion = completeCurrentActivity(state, now, random);
+  const completion = completeFinishedActivities(state, now, random);
 
   return {
     state: {
-      ...completion.state,
+      ...applyEnergyRegen(completion.state, now),
       lastSavedAt: now,
     },
-    reward: completion.reward,
+    reward: completion.completedCount > 0 ? completion.reward : null,
     offlineDurationMs,
-    activityCompleted: completion.completed,
+    activityCompleted: completion.completedCount > 0,
+    completedCount: completion.completedCount,
     levelsGained: completion.levelsGained,
     levelCoins: completion.levelCoins,
   };

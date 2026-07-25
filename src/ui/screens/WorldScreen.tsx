@@ -3,7 +3,10 @@ import { useGame } from '../../app/gameProvider.tsx';
 import { catClassById, type CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
 import { activityById } from '../../game/data/activities.ts';
+import type { MissionId } from '../../game/models/missions.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import { getLeader } from '../../game/systems/colonySystem.ts';
+import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
@@ -37,13 +40,14 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 export function WorldScreen({ goTo }: WorldScreenProps) {
   const { state, setWorldPosition, startActivity } = useGame();
-  const catClass = state.cat.catClass as CatClass;
+  const leader = getLeader(state);
+  const catClass = leader.catClass as CatClass;
   const now = useNow();
   const catDef = catClassById[catClass];
-  const activeActivity = state.activeActivity ? activityById[state.activeActivity.activityId] : null;
+  const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
   const remainingMs = getRemainingActivityMs(state, now);
-  const nextXp = xpForNextLevel(state.cat.level);
-  const xpPct = Math.min(100, Math.floor((state.cat.xp / nextXp) * 100));
+  const nextXp = xpForNextLevel(leader.level);
+  const xpPct = Math.min(100, Math.floor((leader.xp / nextXp) * 100));
   const persistRef = useRef(setWorldPosition);
   persistRef.current = setWorldPosition;
   const startActivityRef = useRef(startActivity);
@@ -56,9 +60,14 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
   const dialogRef = useRef(false);
   dialogRef.current = dialog !== null;
-  const [shopSeller, setShopSeller] = useState<{ name: string; shopId: ShopId } | null>(null);
+  const [shopSeller, setShopSeller] = useState<{ name: string; shopId: ShopId; questId?: MissionId } | null>(
+    null,
+  );
   const shopRef = useRef(false);
   shopRef.current = shopSeller !== null;
+  // Read current mission state inside the render loop (effect closes over catClass only).
+  const gameStateRef = useRef(state);
+  gameStateRef.current = state;
   const advanceRef = useRef<() => void>(() => {});
   advanceRef.current = () => {
     setDialog((d) => (d && d.index < d.lines.length - 1 ? { ...d, index: d.index + 1 } : null));
@@ -83,7 +92,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     let idleImg: HTMLImageElement | null = null;
     let runImg: HTMLImageElement | null = null;
     const npcImgs = new Map<CatClass, HTMLImageElement>();
-    const npcClasses = Array.from(new Set(map.npcs.map((n) => n.sprite)));
+    // Ambient colony cats can be any class, so load every idle sheet.
+    const npcClasses = Object.keys(manifest.heroes) as CatClass[];
     let raf = 0;
     let running = true;
     let last = performance.now();
@@ -102,6 +112,96 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const ty = Math.floor(wy / TILE);
       if (tx < 0 || ty < 0 || tx >= map.width || ty >= map.height) return true;
       return map.solid[ty * map.width + tx];
+    };
+
+    // --- Ambient colony cats: idle roster mates wander the courtyard ---
+    type Wanderer = {
+      catClass: CatClass;
+      x: number;
+      y: number;
+      facing: number;
+      target: { x: number; y: number } | null;
+      pauseUntil: number;
+    };
+    const WANDER_SPEED = 22;
+    const ambient = new Map<string, Wanderer>();
+    const openTiles: Array<{ tx: number; ty: number }> = [];
+    for (let ty = 3; ty <= 12; ty += 1) {
+      for (let tx = 3; tx <= 20; tx += 1) {
+        if (!map.solid[ty * map.width + tx]) openTiles.push({ tx, ty });
+      }
+    }
+    const hashId = (id: string) => {
+      let h = 0;
+      for (let i = 0; i < id.length; i += 1) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+      return h;
+    };
+
+    const syncAmbient = () => {
+      const current = gameStateRef.current;
+      const leaderId =
+        current.cats.find((cat) => cat.id === current.leaderId)?.id ?? current.cats[0]?.id;
+      const idleMates = current.cats.filter((cat) => cat.id !== leaderId && !cat.activity);
+
+      for (const id of [...ambient.keys()]) {
+        if (!idleMates.some((cat) => cat.id === id)) ambient.delete(id);
+      }
+      for (const cat of idleMates) {
+        const existing = ambient.get(cat.id);
+        if (existing) {
+          existing.catClass = cat.catClass as CatClass;
+          continue;
+        }
+        const spot = openTiles[hashId(cat.id) % openTiles.length];
+        ambient.set(cat.id, {
+          catClass: cat.catClass as CatClass,
+          x: spot.tx * TILE + TILE / 2,
+          y: spot.ty * TILE + TILE,
+          facing: hashId(cat.id) % 2 === 0 ? 1 : -1,
+          target: null,
+          pauseUntil: performance.now() + (hashId(cat.id) % 2000),
+        });
+      }
+    };
+
+    const stepAmbient = (now: number, dt: number) => {
+      for (const cat of ambient.values()) {
+        if (now < cat.pauseUntil) continue;
+        if (!cat.target) {
+          const tx = Math.floor(cat.x / TILE);
+          const ty = Math.floor((cat.y - 1) / TILE);
+          const dirs = [
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+          ].sort(() => Math.random() - 0.5);
+          for (const [ax, ay] of dirs) {
+            const nx = tx + ax;
+            const ny = ty + ay;
+            if (nx < 1 || ny < 1 || nx >= map.width - 1 || ny >= map.height - 1) continue;
+            if (map.solid[ny * map.width + nx]) continue;
+            cat.target = { x: nx * TILE + TILE / 2, y: ny * TILE + TILE };
+            if (ax !== 0) cat.facing = ax;
+            break;
+          }
+          if (!cat.target) cat.pauseUntil = now + 2000;
+          continue;
+        }
+        const dx = cat.target.x - cat.x;
+        const dy = cat.target.y - cat.y;
+        const dist = Math.hypot(dx, dy);
+        const stepLen = WANDER_SPEED * dt;
+        if (dist <= stepLen) {
+          cat.x = cat.target.x;
+          cat.y = cat.target.y;
+          cat.target = null;
+          cat.pauseUntil = now + 1200 + Math.random() * 2600;
+        } else {
+          cat.x += (dx / dist) * stepLen;
+          cat.y += (dy / dist) * stepLen;
+        }
+      }
     };
     const hw = 5;
     const hh = 5;
@@ -189,6 +289,28 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         ctx.restore();
       }
 
+      for (const cat of ambient.values()) {
+        const img = npcImgs.get(cat.catClass);
+        if (!img) continue;
+        const am = manifest.heroes[cat.catClass].idle;
+        const aframe = Math.floor(clock * am.fps) % am.frames;
+        ctx.save();
+        ctx.translate(Math.round(cat.x * ZOOM) / ZOOM, Math.round(cat.y * ZOOM) / ZOOM);
+        ctx.scale(cat.facing, 1);
+        ctx.drawImage(
+          img,
+          aframe * am.frameWidth,
+          0,
+          am.frameWidth,
+          am.frameHeight,
+          -Math.floor(am.frameWidth / 2),
+          -am.frameHeight,
+          am.frameWidth,
+          am.frameHeight,
+        );
+        ctx.restore();
+      }
+
       const meta = player.moving ? runMeta : idleMeta;
       const sheet = player.moving ? runImg : idleImg;
       const fw = meta.frameWidth;
@@ -206,6 +328,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       if (!running) return;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+
+      syncAmbient();
+      stepAmbient(now, dt);
 
       const interacting = keys.has('e') || keys.has('enter') || keys.has(' ');
       const interactEdge = interacting && !interactLatch;
@@ -271,10 +396,17 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       }
       if (interactEdge) {
         if (nearNpc) {
-          if (nearNpc.shop) setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop });
-          else setDialog({ name: nearNpc.name, lines: nearNpc.lines, index: 0 });
+          if (nearNpc.shop) {
+            setShopSeller({ name: nearNpc.name, shopId: nearNpc.shop, questId: nearNpc.questId });
+          } else {
+            const lines = [...nearNpc.lines];
+            if (nearNpc.questId) {
+              lines.push(describeQuestStatus(gameStateRef.current, nearNpc.questId));
+            }
+            setDialog({ name: nearNpc.name, lines, index: 0 });
+          }
         } else if (nearSign) {
-          if (nearSign.kind === 'fish') startActivityRef.current('fishPond');
+          if (nearSign.kind === 'fish') startActivityRef.current('fishPond', { atLake: true });
           else goToRef.current(nearSign.kind);
         }
       }
@@ -332,12 +464,12 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       <div className="world-hud">
         <div className="world-cat-card">
           <div className="wcc-portrait">
-            <CatSprite hero={catClass} scale={3} label={`${state.cat.name}, ${catDef.role}`} />
+            <CatSprite hero={catClass} scale={3} label={`${leader.name}, ${catDef.role}`} />
           </div>
           <div className="wcc-info">
-            <strong>{state.cat.name}</strong>
+            <strong>{leader.name}</strong>
             <span className="wcc-sub">
-              {catDef.name} · Nv {state.cat.level}
+              {catDef.name} · Nv {leader.level}
             </span>
             <div className="wcc-xp">
               <span style={{ width: `${xpPct}%` }} />
@@ -347,7 +479,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         <div className="world-pills">
           <span className="hud-pill">
             <GameIcon name="energy" />
-            {state.cat.energy}/{state.cat.maxEnergy}
+            {leader.energy}/{leader.maxEnergy}
           </span>
           <span className="hud-pill">
             <GameIcon name="coins" />
@@ -378,6 +510,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         <Shop
           sellerName={shopSeller.name}
           shopId={shopSeller.shopId}
+          questId={shopSeller.questId}
           onClose={() => setShopSeller(null)}
         />
       ) : null}

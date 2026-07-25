@@ -35,4 +35,6 @@ export type ActiveActivity = {
   activityId: ActivityId;
   startedAt: number;
   endsAt: number;
+  /** True when fishing was started at the Grimalkin lake in the world (bonus). */
+  atLake?: boolean;
 };

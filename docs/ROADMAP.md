@@ -18,15 +18,23 @@
   O bônus é decidido pelo dia de início (honrado mesmo concluindo offline).
 
 ## 🔜 Curto prazo (polish — dá pra fazer sozinho, ordem de simplicidade)
-- [ ] Pesca com **bônus no lago** (pescar no mundo rende mais que pela tela).
-- [ ] Mais **missões/quests** e diálogos com gancho de missão.
+- [x] Pesca com **bônus no lago** — pescar no Lago de Grimalkin (mundo) rende
+      **+50% peixe e +25% XP** vs. iniciar `Pescar` pela tela. Flag `atLake`
+      persiste no save.
+- [x] Mais **missões/quests** e diálogos com gancho de missão — 5 novas missões
+      (13 no total), 3 encomendadas por NPCs (Vittorio/Aldric/Rei Grimalkin) com
+      chip "Pedido de" no card e status vivo da quest na fala/loja do NPC.
 - [ ] **Sons/feedback** (SFX de clique, colheita, compra) — precisa de assets.
-- [ ] **Balanceamento** dos números do idle.
+- [x] **Balanceamento** dos números do idle — 1ª passada: Pescar 10→8 min
+      (era a pior atividade core por minuto) e Caixa de Papelão nv3 exige 1
+      caixa em vez de 2 (paredão de grind de um recurso raro do Explorar).
 - [ ] Verificar **PWA instalável** + deploy GitHub Pages (workflow já existe).
 
 ## 🎯 Médio prazo (features maiores, single-player)
-1. **Colônia de vários gatos** ⭐ — a promessa do nome. Recrutar gatos (sink de
-   Gemas), cada um de uma classe, produzindo recursos. Maior salto de valor.
+1. ✅ **Colônia de vários gatos** — ENTREGUE (fases C0→C4 em
+   `docs/COLONY_PLAN.md`): roster + migração, regen passiva, recrutamento por
+   gemas (curva 10→115), atividades paralelas por gato, gatos ociosos
+   perambulando por Grimalkin e tela Colônia com arte medieval.
 2. **Expedição idle no Além** ⭐ (inspirado no auto-hunt do Baiak Idle) — pelo
    portão, o gato caça sozinho ao longo do tempo e traz XP + loot. Dá uso ao
    ataque/defesa das classes. Zonas em tiers (fáceis→difíceis), gated por gear.

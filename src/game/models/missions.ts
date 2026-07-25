@@ -6,7 +6,12 @@ export type MissionId =
   | 'upgradeCardboard2'
   | 'reachCatLevel3'
   | 'collectGems3'
-  | 'reachActivities10';
+  | 'reachActivities10'
+  | 'captureMice25'
+  | 'collectFish25'
+  | 'jewelerGems5'
+  | 'crownTribute250'
+  | 'reachCatLevel5';
 
 export type MissionCondition =
   | { kind: 'activitiesCompleted'; target: number }
@@ -33,4 +38,6 @@ export type MissionDefinition = {
     xp: number;
     gems?: number;
   };
+  /** Short name of the NPC who asks for this quest, shown on the mission card. */
+  giver?: string;
 };

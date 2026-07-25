@@ -19,7 +19,7 @@ export const activities: ActivityDefinition[] = [
     id: 'fishPond',
     name: 'Pescar',
     description: 'Uma pescaria calma, com bigodes em modo antena.',
-    durationMs: 10 * minute,
+    durationMs: 8 * minute,
     energyCost: 8,
     relatedStat: 'fishing',
     rewards: {

@@ -1,6 +1,7 @@
 import type { ActivityDefinition } from '../../game/models/activity.ts';
 import type { GameState } from '../../game/models/save.ts';
 import { resourceLabels, type ResourceKey } from '../../game/models/resources.ts';
+import { getLeader } from '../../game/systems/colonySystem.ts';
 import { formatDuration } from '../formatters.ts';
 import { GameIcon } from './GameIcon.tsx';
 
@@ -12,8 +13,9 @@ type ActivityCardProps = {
 };
 
 export function ActivityCard({ activity, state, isDailyBonus = false, onStart }: ActivityCardProps) {
-  const isBusy = Boolean(state.activeActivity);
-  const hasEnergy = state.cat.energy >= activity.energyCost;
+  const leader = getLeader(state);
+  const isBusy = Boolean(leader.activity);
+  const hasEnergy = leader.energy >= activity.energyCost;
   const xpRange = activity.rewards.xp;
   const xpMultiplier = isDailyBonus ? 2 : 1;
   const xpPerMin = xpRange
@@ -71,7 +73,7 @@ export function ActivityCard({ activity, state, isDailyBonus = false, onStart }:
       ) : null}
 
       <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
-        {isBusy ? `${state.cat.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
+        {isBusy ? `${leader.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
       </button>
     </article>
   );

@@ -1,17 +1,31 @@
 import { activityById } from '../data/activities.ts';
 import type { ActivityId, RewardRange } from '../models/activity.ts';
+import type { Cat } from '../models/cat.ts';
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
 import { createEmptyRewardBundle, resourceKeys } from '../models/resources.ts';
-import { addInventoryToState, addResourcesToState } from './economySystem.ts';
+import { getLeader, updateCat } from './colonySystem.ts';
+import { addInventoryToState, addResourcesToState, mergeRewardBundles } from './economySystem.ts';
 import {
   DAILY_BONUS_GEM_CHANCE,
   DAILY_BONUS_XP_MULTIPLIER,
   isDailyBonusActivity,
 } from './dailyBonusSystem.ts';
-import { addXpToState } from './levelSystem.ts';
+import { addXpToCat } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
 import { getUpgradeBonuses } from './upgradeSystem.ts';
+
+/** Extra fish caught when fishing at the Grimalkin lake instead of the menu. */
+export const LAKE_FISH_MULTIPLIER = 1.5;
+/** Extra XP for fishing at the lake, rewarding the trip out to the world. */
+export const LAKE_XP_MULTIPLIER = 1.25;
+
+export type StartActivityOptions = {
+  /** Fishing started at the world lake earns a location bonus. */
+  atLake?: boolean;
+  /** Which cat performs the activity. Defaults to the colony leader. */
+  catId?: string;
+};
 
 export type ActivityStartResult =
   | { ok: true; state: GameState }
@@ -32,9 +46,11 @@ function rollRange(range: RewardRange, random: () => number): number {
 
 function createActivityReward(
   state: GameState,
+  actor: Cat,
   activityId: ActivityId,
   random: () => number,
   startedAt: number,
+  atLake: boolean,
 ): RewardBundle {
   const activity = activityById[activityId];
   const bonuses = getUpgradeBonuses(state);
@@ -50,11 +66,12 @@ function createActivityReward(
     let amount = rollRange(range, random);
 
     if (activity.relatedStat && key !== 'coins') {
-      amount += Math.floor(state.cat.stats[activity.relatedStat] / 3);
+      amount += Math.floor(actor.stats[activity.relatedStat] / 3);
     }
 
     if (key === 'fish') {
       amount = Math.floor(amount * bonuses.fishMultiplier);
+      if (atLake) amount = Math.floor(amount * LAKE_FISH_MULTIPLIER);
     }
 
     if (amount > 0) reward.resources[key] = amount;
@@ -63,6 +80,7 @@ function createActivityReward(
   if (activity.rewards.xp) {
     let xp = rollRange(activity.rewards.xp, random) * bonuses.xpMultiplier;
     if (featured) xp *= DAILY_BONUS_XP_MULTIPLIER;
+    if (atLake) xp *= LAKE_XP_MULTIPLIER;
     reward.xp = Math.floor(xp);
   }
 
@@ -71,7 +89,7 @@ function createActivityReward(
   }
 
   for (const rareReward of activity.rewards.rareItems ?? []) {
-    const luckBonus = state.cat.stats.luck * 0.005;
+    const luckBonus = actor.stats.luck * 0.005;
     if (random() <= rareReward.chance + bonuses.rareChanceBonus + luckBonus) {
       reward.inventory[rareReward.item] = (reward.inventory[rareReward.item] ?? 0) + 1;
     }
@@ -79,14 +97,14 @@ function createActivityReward(
 
   const gemDrop = activity.rewards.gemDrop;
   if (gemDrop) {
-    const luckBonus = state.cat.stats.luck * 0.005;
+    const luckBonus = actor.stats.luck * 0.005;
     if (random() <= gemDrop.chance + luckBonus) {
       reward.resources.gems = (reward.resources.gems ?? 0) + rollRange(gemDrop.amount, random);
     }
   }
 
   if (featured) {
-    const luckBonus = state.cat.stats.luck * 0.005;
+    const luckBonus = actor.stats.luck * 0.005;
     if (random() <= DAILY_BONUS_GEM_CHANCE + luckBonus) {
       reward.resources.gems = (reward.resources.gems ?? 0) + 1;
     }
@@ -95,40 +113,52 @@ function createActivityReward(
   return reward;
 }
 
-export function startActivity(state: GameState, activityId: ActivityId, now = Date.now()): ActivityStartResult {
+export function startActivity(
+  state: GameState,
+  activityId: ActivityId,
+  now = Date.now(),
+  options: StartActivityOptions = {},
+): ActivityStartResult {
   const activity = activityById[activityId];
+  const catId = options.catId ?? getLeader(state).id;
+  const actor = state.cats.find((cat) => cat.id === catId);
 
-  if (state.activeActivity) {
-    return { ok: false, state, reason: `${state.cat.name} já está ocupado com outra atividade.` };
+  if (!actor) {
+    return { ok: false, state, reason: 'Esse gato não faz parte da colônia.' };
   }
 
-  if (state.cat.energy < activity.energyCost) {
-    return { ok: false, state, reason: `Energia insuficiente. Coloque ${state.cat.name} para dormir.` };
+  if (actor.activity) {
+    return { ok: false, state, reason: `${actor.name} já está ocupado com outra atividade.` };
+  }
+
+  if (actor.energy < activity.energyCost) {
+    return { ok: false, state, reason: `Energia insuficiente. Coloque ${actor.name} para dormir.` };
   }
 
   return {
     ok: true,
-    state: {
-      ...state,
-      cat: {
-        ...state.cat,
-        energy: state.cat.energy - activity.energyCost,
-      },
-      activeActivity: {
+    state: updateCat(state, catId, (cat) => ({
+      ...cat,
+      energy: cat.energy - activity.energyCost,
+      activity: {
         activityId,
         startedAt: now,
         endsAt: now + activity.durationMs,
+        ...(options.atLake ? { atLake: true } : {}),
       },
-    },
+    })),
   };
 }
 
-export function completeCurrentActivity(
+export function completeCatActivity(
   state: GameState,
+  catId: string,
   now = Date.now(),
   random = Math.random,
 ): ActivityCompletionResult {
-  if (!state.activeActivity || state.activeActivity.endsAt > now) {
+  const actor = state.cats.find((cat) => cat.id === catId);
+  const activity = actor?.activity;
+  if (!actor || !activity || activity.endsAt > now) {
     return {
       completed: false,
       state,
@@ -140,30 +170,29 @@ export function completeCurrentActivity(
 
   const reward = createActivityReward(
     state,
-    state.activeActivity.activityId,
+    actor,
+    activity.activityId,
     random,
-    state.activeActivity.startedAt,
+    activity.startedAt,
+    activity.atLake === true,
   );
   let nextState = addResourcesToState(state, reward.resources);
   nextState = addInventoryToState(nextState, reward.inventory);
 
   if (reward.energy > 0) {
-    nextState = {
-      ...nextState,
-      cat: {
-        ...nextState.cat,
-        energy: Math.min(nextState.cat.maxEnergy, nextState.cat.energy + reward.energy),
-      },
-    };
+    nextState = updateCat(nextState, catId, (cat) => ({
+      ...cat,
+      energy: Math.min(cat.maxEnergy, cat.energy + reward.energy),
+    }));
   }
 
-  const levelResult = addXpToState(nextState, reward.xp);
+  const levelResult = addXpToCat(nextState, catId, reward.xp);
+  nextState = updateCat(levelResult.state, catId, (cat) => ({ ...cat, activity: null }));
   nextState = {
-    ...levelResult.state,
-    activeActivity: null,
+    ...nextState,
     totals: {
-      ...levelResult.state.totals,
-      activitiesCompleted: levelResult.state.totals.activitiesCompleted + 1,
+      ...nextState.totals,
+      activitiesCompleted: nextState.totals.activitiesCompleted + 1,
     },
   };
 
@@ -176,7 +205,50 @@ export function completeCurrentActivity(
   };
 }
 
+/** Leader-only completion — the single-cat era entry point, kept for callers/tests. */
+export function completeCurrentActivity(
+  state: GameState,
+  now = Date.now(),
+  random = Math.random,
+): ActivityCompletionResult {
+  return completeCatActivity(state, getLeader(state).id, now, random);
+}
+
+export type ColonyCompletionResult = {
+  completedCount: number;
+  state: GameState;
+  reward: RewardBundle;
+  levelsGained: number;
+  levelCoins: number;
+};
+
+/** Harvest every finished activity across the colony in one pass. */
+export function completeFinishedActivities(
+  state: GameState,
+  now = Date.now(),
+  random = Math.random,
+): ColonyCompletionResult {
+  let current = state;
+  let reward = createEmptyRewardBundle();
+  let completedCount = 0;
+  let levelsGained = 0;
+  let levelCoins = 0;
+
+  for (const cat of state.cats) {
+    const result = completeCatActivity(current, cat.id, now, random);
+    if (!result.completed) continue;
+    current = result.state;
+    reward = mergeRewardBundles(reward, result.reward);
+    completedCount += 1;
+    levelsGained += result.levelsGained;
+    levelCoins += result.levelCoins;
+  }
+
+  return { completedCount, state: current, reward, levelsGained, levelCoins };
+}
+
 export function getRemainingActivityMs(state: GameState, now = Date.now()): number {
-  if (!state.activeActivity) return 0;
-  return Math.max(0, state.activeActivity.endsAt - now);
+  const activity = getLeader(state).activity;
+  if (!activity) return 0;
+  return Math.max(0, activity.endsAt - now);
 }

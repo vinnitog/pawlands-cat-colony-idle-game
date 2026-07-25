@@ -17,6 +17,7 @@ export function MissionItem({ missionId, mission, onClaim }: MissionItemProps) {
       <div className="item-card-header">
         <div>
           <h3>{definition.title}</h3>
+          {definition.giver ? <span className="mission-giver">Pedido de {definition.giver}</span> : null}
           <p>{definition.description}</p>
         </div>
         <span>{mission.claimed ? 'OK' : `${mission.progress}/${mission.target}`}</span>

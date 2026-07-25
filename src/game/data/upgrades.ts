@@ -8,7 +8,7 @@ export const upgrades: UpgradeDefinition[] = [
     maxLevel: 3,
     costsByNextLevel: {
       2: { coins: 40, cardboardBoxes: 1 },
-      3: { coins: 90, cardboardBoxes: 2, yarn: 10 },
+      3: { coins: 90, cardboardBoxes: 1, yarn: 10 },
     },
     effectTextByLevel: {
       1: 'Abrigo inicial.',

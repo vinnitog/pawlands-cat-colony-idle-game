@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createInitialGameState } from '../src/game/data/initialGameState.ts';
 import { catClassById } from '../src/game/models/catClass.ts';
+import { getLeader } from '../src/game/systems/colonySystem.ts';
 import {
   applyStarterChoice,
   isValidCatName,
@@ -13,30 +14,30 @@ test('fresh colony inherits the chosen class starting stats', () => {
   const next = applyStarterChoice(state, { name: 'Grimwhisker', catClass: 'mage' });
 
   assert.equal(next.onboarded, true);
-  assert.equal(next.cat.name, 'Grimwhisker');
-  assert.equal(next.cat.catClass, 'mage');
-  assert.deepEqual(next.cat.stats, catClassById.mage.stats);
+  assert.equal(getLeader(next).name, 'Grimwhisker');
+  assert.equal(getLeader(next).catClass, 'mage');
+  assert.deepEqual(getLeader(next).stats, catClassById.mage.stats);
 });
 
 test('a colony with progress keeps its stats, only records name and class', () => {
   const state = createInitialGameState(1000);
   const played = {
     ...state,
-    cat: { ...state.cat, level: 4, xp: 20 },
+    cats: state.cats.map((cat) => ({ ...cat, level: 4, xp: 20 })),
     totals: { ...state.totals, activitiesCompleted: 5 },
   };
 
   const next = applyStarterChoice(played, { name: 'Ironpaw', catClass: 'archer' });
 
-  assert.equal(next.cat.catClass, 'archer');
-  assert.deepEqual(next.cat.stats, played.cat.stats);
+  assert.equal(getLeader(next).catClass, 'archer');
+  assert.deepEqual(getLeader(next).stats, getLeader(played).stats);
 });
 
 test('blank name falls back to the class archetype name', () => {
   const state = createInitialGameState(1000);
   const next = applyStarterChoice(state, { name: '   ', catClass: 'knight' });
 
-  assert.equal(next.cat.name, catClassById.knight.name);
+  assert.equal(getLeader(next).name, catClassById.knight.name);
 });
 
 test('name validation and normalization', () => {

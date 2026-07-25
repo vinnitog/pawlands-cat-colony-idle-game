@@ -1,6 +1,7 @@
 import { shopItemById } from '../data/shop.ts';
 import type { GameState } from '../models/save.ts';
 import type { ShopEffect, ShopItemId } from '../models/shop.ts';
+import { updateLeader } from './colonySystem.ts';
 import {
   addInventoryToState,
   addResourcesToState,
@@ -19,24 +20,18 @@ function applyEffect(state: GameState, effect: ShopEffect): GameState {
     case 'resource':
       return addResourcesToState(state, { [effect.resource]: effect.amount });
     case 'energy':
-      return {
-        ...state,
-        cat: {
-          ...state.cat,
-          energy: Math.min(state.cat.maxEnergy, state.cat.energy + effect.amount),
-        },
-      };
+      return updateLeader(state, (cat) => ({
+        ...cat,
+        energy: Math.min(cat.maxEnergy, cat.energy + effect.amount),
+      }));
     case 'stat':
-      return {
-        ...state,
-        cat: {
-          ...state.cat,
-          stats: {
-            ...state.cat.stats,
-            [effect.stat]: state.cat.stats[effect.stat] + effect.amount,
-          },
+      return updateLeader(state, (cat) => ({
+        ...cat,
+        stats: {
+          ...cat.stats,
+          [effect.stat]: cat.stats[effect.stat] + effect.amount,
         },
-      };
+      }));
   }
 }
 

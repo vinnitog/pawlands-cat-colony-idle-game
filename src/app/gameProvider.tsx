@@ -10,7 +10,17 @@ import { createInitialGameState } from '../game/data/initialGameState.ts';
 import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
-import { completeCurrentActivity, startActivity as startActivityInState } from '../game/systems/activitySystem.ts';
+import {
+  completeFinishedActivities,
+  startActivity as startActivityInState,
+  type StartActivityOptions,
+} from '../game/systems/activitySystem.ts';
+import {
+  getLeader,
+  recruitCat as recruitCatInState,
+  setLeader as setLeaderInState,
+} from '../game/systems/colonySystem.ts';
+import { applyEnergyRegen } from '../game/systems/energySystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
@@ -28,7 +38,9 @@ type GameContextValue = {
   state: GameState;
   rewardNotice: RewardNotice | null;
   toast: string | null;
-  startActivity(activityId: ActivityId): void;
+  startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
+  recruitCat(): void;
+  setLeader(catId: string): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
@@ -87,23 +99,33 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   useEffect(() => {
-    if (!state.activeActivity) return undefined;
+    const intervalId = window.setInterval(() => {
+      // Same-reference return means nothing regenerated — React skips the update.
+      setState((current) => applyEnergyRegen(current, Date.now()));
+    }, 30_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const hasBusyCat = state.cats.some((cat) => cat.activity !== null);
+
+  useEffect(() => {
+    if (!hasBusyCat) return undefined;
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       let notice: RewardNotice | null = null;
 
       setState((current) => {
-        if (!current.activeActivity || current.activeActivity.endsAt > now) {
-          return current;
-        }
-
-        const completion = completeCurrentActivity(current, now);
-        if (!completion.completed) return current;
+        const completion = completeFinishedActivities(current, now);
+        if (completion.completedCount === 0) return current;
         saveGame(completion.state, undefined, now);
 
         notice = {
-          title: 'Atividade concluída',
+          title:
+            completion.completedCount > 1
+              ? `${completion.completedCount} gatos voltaram`
+              : 'Atividade concluída',
           reward: completion.reward,
           levelsGained: completion.levelsGained,
           levelCoins: completion.levelCoins,
@@ -118,18 +140,53 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [state.activeActivity]);
+  }, [hasBusyCat]);
 
-  const startActivity = useCallback((activityId: ActivityId) => {
+  const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
     setState((current) => {
-      const result = startActivityInState(current, activityId, Date.now());
+      const result = startActivityInState(current, activityId, Date.now(), options);
       if (!result.ok) {
         setToast(result.reason);
         return current;
       }
 
       saveGame(result.state);
-      setToast('Atividade iniciada.');
+      const actorName = options?.catId
+        ? result.state.cats.find((cat) => cat.id === options.catId)?.name
+        : getLeader(result.state).name;
+      setToast(
+        options?.atLake
+          ? 'Pescaria no lago — pesca reforçada!'
+          : `${actorName ?? 'Seu gato'} começou a atividade.`,
+      );
+      return result.state;
+    });
+  }, []);
+
+  const recruitCat = useCallback(() => {
+    setState((current) => {
+      const result = recruitCatInState(current, Math.random, Date.now());
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${result.cat.name} juntou-se à colônia!`);
+      return result.state;
+    });
+  }, []);
+
+  const setLeader = useCallback((catId: string) => {
+    setState((current) => {
+      const result = setLeaderInState(current, catId);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${getLeader(result.state).name} agora lidera a colônia.`);
       return result.state;
     });
   }, []);
@@ -209,6 +266,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       rewardNotice,
       toast,
       startActivity,
+      recruitCat,
+      setLeader,
       buyUpgrade,
       claimMission,
       buyShopItem,
@@ -223,8 +282,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyUpgrade,
       claimMission,
       completeOnboarding,
+      recruitCat,
       rewardNotice,
       resetGame,
+      setLeader,
       setWorldPosition,
       startActivity,
       state,

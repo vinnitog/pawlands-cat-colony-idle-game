@@ -57,6 +57,44 @@ export const missions: MissionDefinition[] = [
     condition: { kind: 'activitiesCompleted', target: 10 },
     reward: { coins: 100, xp: 50, gems: 1 },
   },
+  {
+    id: 'jewelerGems5',
+    title: 'A cobiça de Vittorio',
+    description: 'Encontre 5 Gemas para o joalheiro.',
+    condition: { kind: 'resourceEarned', resource: 'gems', target: 5 },
+    reward: { coins: 140, xp: 55 },
+    giver: 'Vittorio',
+  },
+  {
+    id: 'captureMice25',
+    title: 'Encomenda do ferreiro',
+    description: 'Capture 25 ratinhos (Aldric aprecia bigodes afiados).',
+    condition: { kind: 'resourceEarned', resource: 'mice', target: 25 },
+    reward: { coins: 90, xp: 45 },
+    giver: 'Aldric',
+  },
+  {
+    id: 'crownTribute250',
+    title: 'Tributo à coroa',
+    description: 'Acumule 250 moedas para o Rei Grimalkin.',
+    condition: { kind: 'resourceCurrent', resource: 'coins', target: 250 },
+    reward: { coins: 60, xp: 60, gems: 3 },
+    giver: 'Rei Grimalkin',
+  },
+  {
+    id: 'collectFish25',
+    title: 'Fartura de sardinhas',
+    description: 'Colete 25 peixes.',
+    condition: { kind: 'resourceEarned', resource: 'fish', target: 25 },
+    reward: { coins: 90, xp: 45 },
+  },
+  {
+    id: 'reachCatLevel5',
+    title: 'Lenda de Grimalkin',
+    description: 'Alcance o nível 5 com o gato.',
+    condition: { kind: 'catLevel', target: 5 },
+    reward: { coins: 150, xp: 70, gems: 2 },
+  },
 ];
 
 export const missionById = Object.fromEntries(
