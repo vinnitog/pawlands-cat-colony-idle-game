@@ -292,23 +292,20 @@ dd {
   color: #f2ca6c;
 }
 
-/* [UI] Régua ornamental sob os títulos: fio de ouro atravessando a largura com
-   o ornamento do kit apoiado no centro (solto, o ornamento parecia perdido). */
+/* [UI] Régua sob os títulos: só o fio de ouro que esmaece nas pontas. O
+   ornamento sobreposto nunca casava com a linha e lia como enfeite solto. */
 .section-heading::after {
   content: '';
   flex-basis: 100%;
   order: 99;
-  height: 14px;
-  background:
-    url('../ui/art/ui_divider.png') center center / auto 14px no-repeat,
-    linear-gradient(
-        90deg,
-        transparent,
-        rgba(160, 120, 40, 0.55) 8%,
-        rgba(160, 120, 40, 0.55) 92%,
-        transparent
-      )
-      center center / 100% 1px no-repeat;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(160, 120, 40, 0.55) 8%,
+    rgba(160, 120, 40, 0.55) 92%,
+    transparent
+  );
 }
 
 .cat-portrait {

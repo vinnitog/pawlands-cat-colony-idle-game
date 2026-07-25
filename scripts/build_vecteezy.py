@@ -169,12 +169,13 @@ def gold_tint(image: Image.Image, bg_level: int = 150) -> Image.Image:
 def build_ui_kit() -> None:
     sheet = isolate_gold(Image.open(SRC_UIKIT))
 
-    # Divisor ornamental (ponta de seta + losango central).
+    # Ornamento (ponta de seta + losango). Usado sob o brasao do menu; girado
+    # 90 graus vira o trilho da borda lateral. Nao entra mais na regua dos
+    # titulos: sobreposto ao fio as duas linhas nunca casavam (la ficou so CSS).
     divider = autocrop(sheet.crop((1100, 285, 1435, 345)), margin=2)
     divider.save(UI_DIR / "ui_divider.png", optimize=True)
     print(f"  ui_divider.png: {divider.size[0]}x{divider.size[1]}")
 
-    # Mesmo ornamento na vertical: trilho decorativo da borda do menu lateral.
     rail = divider.rotate(90, expand=True)
     rail.save(UI_DIR / "ui_rail.png", optimize=True)
     print(f"  ui_rail.png: {rail.size[0]}x{rail.size[1]}")
