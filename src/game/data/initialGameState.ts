@@ -26,6 +26,8 @@ export function createInitialGameState(now = Date.now()): GameState {
     },
     activity: null,
     expedition: null,
+    expeditionPulseCarry: {},
+    expeditionTimeCarryMs: {},
   };
 
   return {
@@ -33,6 +35,11 @@ export function createInitialGameState(now = Date.now()): GameState {
     onboarded: false,
     cats: [leader],
     leaderId: leader.id,
+    expeditionCollections: {
+      whisperingFields: 0,
+      mistwood: 0,
+      grimalkinRuins: 0,
+    },
     resources,
     inventory: createEmptyInventory(),
     upgrades: Object.fromEntries(

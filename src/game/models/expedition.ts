@@ -12,6 +12,14 @@ export type ActiveExpedition = {
   accumulatedPulses: number;
 };
 
+export type ExpeditionPulseCarry = Partial<Record<ExpeditionZoneId, number>>;
+export type ExpeditionTimeCarry = Partial<Record<ExpeditionZoneId, number>>;
+
+/** One base hunting opportunity every five minutes. */
+export const EXPEDITION_PULSE_MS = 5 * 60 * 1000;
+/** Eight hours of effective hunting at the nominal 1.0 efficiency. */
+export const EXPEDITION_PULSE_CAP = 96;
+
 export type ExpeditionUnlock =
   | { kind: 'always' }
   | { kind: 'catLevel'; level: number }

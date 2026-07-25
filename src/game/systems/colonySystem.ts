@@ -77,6 +77,8 @@ export function recruitCat(state: GameState, random = Math.random, now = Date.no
     stats: { ...classDef.stats },
     activity: null,
     expedition: null,
+    expeditionPulseCarry: {},
+    expeditionTimeCarryMs: {},
   };
 
   const nextState = {

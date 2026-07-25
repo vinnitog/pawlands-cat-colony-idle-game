@@ -127,7 +127,7 @@ export function startActivity(
     return { ok: false, state, reason: 'Esse gato não faz parte da colônia.' };
   }
 
-  if (actor.activity) {
+  if (actor.activity || actor.expedition) {
     return { ok: false, state, reason: `${actor.name} já está ocupado com outra atividade.` };
   }
 

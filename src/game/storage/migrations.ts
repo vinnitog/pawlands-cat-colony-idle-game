@@ -6,7 +6,14 @@ import { isExpeditionZoneId } from '../data/zones.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import { isCatClass } from '../models/catClass.ts';
-import type { ActiveExpedition } from '../models/expedition.ts';
+import {
+  EXPEDITION_PULSE_CAP,
+  EXPEDITION_PULSE_MS,
+  type ActiveExpedition,
+  type ExpeditionPulseCarry,
+  type ExpeditionTimeCarry,
+  type ExpeditionZoneId,
+} from '../models/expedition.ts';
 import type { MissionState } from '../models/missions.ts';
 import type { Inventory, Resources } from '../models/resources.ts';
 import { inventoryItemKeys, resourceKeys } from '../models/resources.ts';
@@ -56,6 +63,7 @@ function buildState(
     onboarded: typeof candidate.onboarded === 'boolean' ? candidate.onboarded : false,
     cats,
     leaderId,
+    expeditionCollections: mergeExpeditionCollections(candidate.expeditionCollections),
     resources: mergeResources(candidate.resources, fallback.resources),
     inventory: mergeInventory(candidate.inventory, fallback.inventory),
     upgrades: mergeUpgrades(candidate.upgrades, fallback.upgrades),
@@ -125,6 +133,7 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
   const maxEnergy = Math.max(1, toSafeNumber(value.maxEnergy, fallback.maxEnergy));
   // v2 keeps the activity on the cat; v1 carried it top-level (legacyActivity).
   const activitySource = 'activity' in value ? value.activity : legacyActivity;
+  const activity = mergeActiveActivity(activitySource);
 
   return {
     ...fallback,
@@ -142,9 +151,55 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
       fishing: Math.max(1, toSafeNumber(stats.fishing, fallback.stats.fishing)),
       luck: Math.max(1, toSafeNumber(stats.luck, fallback.stats.luck)),
     },
-    activity: mergeActiveActivity(activitySource),
-    expedition: mergeActiveExpedition(value.expedition),
+    activity,
+    // A cat cannot perform two jobs. Preserve the established activity when a
+    // malformed or transitional save contains both states.
+    expedition: activity ? null : mergeActiveExpedition(value.expedition),
+    expeditionPulseCarry: mergeExpeditionPulseCarry(value.expeditionPulseCarry),
+    expeditionTimeCarryMs: mergeExpeditionTimeCarry(value.expeditionTimeCarryMs),
   };
+}
+
+function mergeExpeditionCollections(
+  value: unknown,
+): GameState['expeditionCollections'] {
+  const source = isObject(value) ? value : {};
+  return {
+    whisperingFields: toSafeNumber(source.whisperingFields, 0),
+    mistwood: toSafeNumber(source.mistwood, 0),
+    grimalkinRuins: toSafeNumber(source.grimalkinRuins, 0),
+  };
+}
+
+function mergeExpeditionPulseCarry(value: unknown): ExpeditionPulseCarry {
+  if (!isObject(value)) return {};
+
+  const carry: ExpeditionPulseCarry = {};
+  for (const zoneId of ['whisperingFields', 'mistwood', 'grimalkinRuins'] as ExpeditionZoneId[]) {
+    const amount = value[zoneId];
+    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0 && amount < 1) {
+      carry[zoneId] = amount;
+    }
+  }
+  return carry;
+}
+
+function mergeExpeditionTimeCarry(value: unknown): ExpeditionTimeCarry {
+  if (!isObject(value)) return {};
+
+  const carry: ExpeditionTimeCarry = {};
+  for (const zoneId of ['whisperingFields', 'mistwood', 'grimalkinRuins'] as ExpeditionZoneId[]) {
+    const amount = value[zoneId];
+    if (
+      typeof amount === 'number'
+      && Number.isFinite(amount)
+      && amount > 0
+      && amount < EXPEDITION_PULSE_MS
+    ) {
+      carry[zoneId] = Math.floor(amount);
+    }
+  }
+  return carry;
 }
 
 function mergeUpgrades(value: unknown, fallback: GameState['upgrades']): GameState['upgrades'] {
@@ -217,6 +272,9 @@ function mergeActiveExpedition(value: unknown): ActiveExpedition | null {
     zoneId: value.zoneId,
     startedAt,
     lastProgressAt: Math.max(startedAt, toSafeNumber(value.lastProgressAt, startedAt)),
-    accumulatedPulses: toSafeDecimal(value.accumulatedPulses, 0),
+    accumulatedPulses: Math.min(
+      EXPEDITION_PULSE_CAP,
+      toSafeDecimal(value.accumulatedPulses, 0),
+    ),
   };
 }

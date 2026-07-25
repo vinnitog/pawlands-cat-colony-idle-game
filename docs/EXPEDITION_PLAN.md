@@ -32,15 +32,24 @@ power(cat) = atributos + equipamento
 - Enviar um gato a uma **Zona** ocupa o gato (como uma atividade — não pode fazer
   outra coisa). Estado novo em `Cat.expedition` (separado de `Cat.activity`).
 - O gato acumula **"pulsos de caça"** ao longo do tempo:
-  `pulsos = floor(elapsedMs / PULSE_MS) * efficiency`, com teto `EXPEDITION_CAP`.
+  `basePulses = floor((timeCarryMs + elapsedMs) / PULSE_MS)` e
+  `pulsos = basePulses * efficiency`, com teto `EXPEDITION_CAP`.
 - `efficiency = clamp(power / zone.recommendedPower, 0.25, 1.5)` — fraco rende
   devagar (mín. 0.25), forte tem teto suave (1.5) para não trivializar.
 - **Coletar** a qualquer momento: converte os pulsos acumulados em recompensa
   (XP + rolagens da loot table), esvazia o saco e traz o gato para casa.
+- Frações são preservadas por gato e zona em dois carries independentes:
+  milissegundos abaixo de um pulso-base e pulsos efetivos abaixo de uma rolagem.
+  Assim, várias coletas curtas equivalem a uma coleta longa e não permitem
+  reroll. Ao atingir o teto do saco, não existe overflow oculto.
 - **Offline**: no load, avança o saco por `elapsed` (respeitando o cap). Reusa o
   arcabouço de `processOfflineProgress`.
 - **Energia**: no MVP a expedição **não** drena energia (o teto de tempo é o
-  limitador). Revisitar no balanceamento — energia como combustível é candidata.
+  limitador), mas o gato ocupado também não regenera. Revisitar no balanceamento
+  — energia como combustível é candidata.
+
+Parâmetros iniciais da E1: `PULSE_MS = 5 min` e `EXPEDITION_CAP = 96` pulsos
+efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 
 ## Zonas (tiers)
 

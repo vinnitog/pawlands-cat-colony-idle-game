@@ -1,6 +1,10 @@
 import type { ActiveActivity } from './activity.ts';
 import type { CatClass } from './catClass.ts';
-import type { ActiveExpedition } from './expedition.ts';
+import type {
+  ActiveExpedition,
+  ExpeditionPulseCarry,
+  ExpeditionTimeCarry,
+} from './expedition.ts';
 
 export type CatStats = {
   attack: number;
@@ -23,4 +27,8 @@ export type Cat = {
   activity: ActiveActivity | null;
   /** The continuous expedition this cat is assigned to, or null when home. */
   expedition: ActiveExpedition | null;
+  /** Unresolved sub-pulse progress, retained independently for each zone. */
+  expeditionPulseCarry: ExpeditionPulseCarry;
+  /** Raw time below one base pulse, retained independently for each zone. */
+  expeditionTimeCarryMs: ExpeditionTimeCarry;
 };
