@@ -1,4 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { ActivityId } from '../game/models/activity.ts';
 import type { CatClass } from '../game/models/catClass.ts';
 import type { ExpeditionZoneId } from '../game/models/expedition.ts';
@@ -40,6 +49,12 @@ import {
   type TrophySaleMode,
 } from '../game/systems/trophySystem.ts';
 import { clearGame, loadGame, saveGame } from '../game/storage/saveManager.ts';
+import {
+  detectGameFeelCues,
+  enqueueGameFeelEffects,
+  type GameFeelCue,
+  type GameFeelEffect,
+} from '../ui/gameFeel.ts';
 
 export type RewardNotice = {
   title: string;
@@ -52,6 +67,7 @@ export type RewardNotice = {
 type GameContextValue = {
   state: GameState;
   rewardNotice: RewardNotice | null;
+  gameFeelEffect: GameFeelEffect | null;
   toast: string | null;
   startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
   startExpedition(catId: string, zoneId: ExpeditionZoneId): void;
@@ -68,6 +84,7 @@ type GameContextValue = {
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
   dismissRewardNotice(): void;
+  dismissGameFeelEffect(): void;
   dismissToast(): void;
 };
 
@@ -77,6 +94,10 @@ function createBootState() {
   const now = Date.now();
   const loaded = loadGame();
   const offline = processOfflineProgress(loaded, now);
+  const gameFeelEffects = detectGameFeelCues(loaded, offline.state).map((cue, index) => ({
+    ...cue,
+    id: index + 1,
+  }));
 
   if (offline.activityCompleted) {
     saveGame(offline.state, undefined, now);
@@ -94,6 +115,8 @@ function createBootState() {
             levelCoins: offline.levelCoins,
           }
         : null,
+    gameFeelEffects,
+    nextGameFeelEffectId: gameFeelEffects.length + 1,
   };
 }
 
@@ -101,7 +124,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [boot] = useState(createBootState);
   const [state, setState] = useState<GameState>(boot.state);
   const [rewardNotice, setRewardNotice] = useState<RewardNotice | null>(boot.rewardNotice);
+  const [gameFeelEffects, setGameFeelEffects] = useState<GameFeelEffect[]>(
+    boot.gameFeelEffects,
+  );
   const [toast, setToast] = useState<string | null>(null);
+  const previousStateRef = useRef(state);
+  const nextGameFeelEffectIdRef = useRef(boot.nextGameFeelEffectId);
+  const suppressNextGameFeelRef = useRef(false);
+
+  const queueGameFeelCues = useCallback((cues: GameFeelCue[]) => {
+    if (cues.length === 0) return;
+    const effects = cues.map((cue) => ({
+      ...cue,
+      id: nextGameFeelEffectIdRef.current++,
+    }));
+    setGameFeelEffects((current) => enqueueGameFeelEffects(current, effects));
+  }, []);
+
+  const dismissGameFeelEffect = useCallback(() => {
+    setGameFeelEffects((current) => current.slice(1));
+  }, []);
+
+  useEffect(() => {
+    const previous = previousStateRef.current;
+    previousStateRef.current = state;
+
+    if (suppressNextGameFeelRef.current) {
+      suppressNextGameFeelRef.current = false;
+      return;
+    }
+
+    queueGameFeelCues(detectGameFeelCues(previous, state));
+  }, [queueGameFeelCues, state]);
 
   useEffect(() => {
     saveGame(state);
@@ -374,6 +428,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     clearGame();
     const nextState = createInitialGameState();
     saveGame(nextState);
+    suppressNextGameFeelRef.current = true;
+    setGameFeelEffects([]);
     setRewardNotice(null);
     setToast('Progresso reiniciado.');
     setState(nextState);
@@ -383,6 +439,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     () => ({
       state,
       rewardNotice,
+      gameFeelEffect: gameFeelEffects[0] ?? null,
       toast,
       startActivity,
       startExpedition,
@@ -399,6 +456,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       resetGame,
       dismissRewardNotice: () => setRewardNotice(null),
+      dismissGameFeelEffect,
       dismissToast: () => setToast(null),
     }),
     [
@@ -408,9 +466,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
       collectExpedition,
       completeOnboarding,
       equipGear,
+      gameFeelEffects,
       recruitCat,
       rewardNotice,
       resetGame,
+      dismissGameFeelEffect,
       sellTrophy,
       setLeader,
       setWorldPosition,
