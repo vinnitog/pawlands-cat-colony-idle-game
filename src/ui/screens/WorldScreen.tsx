@@ -23,6 +23,16 @@ import {
   WORLD_PLAYER_COLLISION_HALF_SIZE,
   type InteractionKind,
 } from '../../game/world/tinyTown.ts';
+import {
+  getFogPatches,
+  getPlayerAnimationFrame,
+  getWaterShimmerPhase,
+  STATIC_LIGHTS,
+  sortByDepth,
+  type DepthItem,
+  VIGNETTE_ALPHA,
+  WATER_SHIMMER_ALPHA,
+} from '../../game/world/worldVisuals.ts';
 import manifest from '../sprites/manifest.json';
 
 const ZOOM = 3;
@@ -109,14 +119,36 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     let raf = 0;
     let running = true;
     let last = performance.now();
+    const sceneStartedAt = last;
     let interactLatch = false;
     let shownPrompt: string | null = null;
+    let renderScale = ZOOM;
+    let vignette: CanvasGradient | null = null;
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = reducedMotionQuery.matches;
+    const onReducedMotionChange = (event: MediaQueryListEvent) => {
+      reducedMotion = event.matches;
+    };
+    reducedMotionQuery.addEventListener('change', onReducedMotionChange);
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      renderScale = ZOOM * dpr;
+      const innerRadius = Math.min(canvas.width, canvas.height) * 0.32;
+      const outerRadius = Math.hypot(canvas.width, canvas.height) * 0.56;
+      vignette = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        innerRadius,
+        canvas.width / 2,
+        canvas.height / 2,
+        outerRadius,
+      );
+      vignette.addColorStop(0, 'rgba(20, 14, 11, 0)');
+      vignette.addColorStop(1, `rgba(20, 14, 11, ${VIGNETTE_ALPHA})`);
     };
 
     const solidAt = (wx: number, wy: number) => {
@@ -239,7 +271,47 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       }
     }, 3000);
 
-    const render = () => {
+    const mapW = map.width * TILE;
+    const mapH = map.height * TILE;
+    const atmosphereCanvas = document.createElement('canvas');
+    atmosphereCanvas.width = mapW;
+    atmosphereCanvas.height = mapH;
+    const atmosphereCtx = atmosphereCanvas.getContext('2d');
+    if (atmosphereCtx) {
+      atmosphereCtx.globalCompositeOperation = 'screen';
+      for (const light of STATIC_LIGHTS) {
+        const x = light.tx * TILE;
+        const y = light.ty * TILE;
+        const glow = atmosphereCtx.createRadialGradient(x, y, 3, x, y, light.radius);
+        glow.addColorStop(0, `rgba(255, 213, 139, ${light.alpha})`);
+        glow.addColorStop(1, 'rgba(255, 213, 139, 0)');
+        atmosphereCtx.fillStyle = glow;
+        atmosphereCtx.fillRect(
+          x - light.radius,
+          y - light.radius,
+          light.radius * 2,
+          light.radius * 2,
+        );
+      }
+    }
+
+    const fogStamps = getFogPatches(0, true).map((patch) => {
+      const radius = Math.ceil(patch.radius * Math.max(mapW, mapH));
+      const stamp = document.createElement('canvas');
+      stamp.width = radius * 2;
+      stamp.height = radius * 2;
+      const stampCtx = stamp.getContext('2d');
+      if (stampCtx) {
+        const fog = stampCtx.createRadialGradient(radius, radius, 0, radius, radius, radius);
+        fog.addColorStop(0, `rgba(226, 234, 219, ${patch.alpha})`);
+        fog.addColorStop(1, 'rgba(226, 234, 219, 0)');
+        stampCtx.fillStyle = fog;
+        stampCtx.fillRect(0, 0, stamp.width, stamp.height);
+      }
+      return { radius, stamp };
+    });
+
+    const render = (now: number) => {
       if (!tileImg || !idleImg || !runImg) return;
       const W = canvas.width;
       const H = canvas.height;
@@ -248,14 +320,19 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       ctx.fillStyle = '#171410';
       ctx.fillRect(0, 0, W, H);
 
-      const viewW = W / ZOOM;
-      const viewH = H / ZOOM;
-      const mapW = map.width * TILE;
-      const mapH = map.height * TILE;
+      const viewW = W / renderScale;
+      const viewH = H / renderScale;
       let camX = mapW < viewW ? (mapW - viewW) / 2 : Math.max(0, Math.min(player.x - viewW / 2, mapW - viewW));
       let camY = mapH < viewH ? (mapH - viewH) / 2 : Math.max(0, Math.min(player.y - viewH / 2, mapH - viewH));
       // round the camera to whole device pixels to avoid 1px tile seams while moving
-      ctx.setTransform(ZOOM, 0, 0, ZOOM, Math.round(-camX * ZOOM), Math.round(-camY * ZOOM));
+      ctx.setTransform(
+        renderScale,
+        0,
+        0,
+        renderScale,
+        Math.round(-camX * renderScale),
+        Math.round(-camY * renderScale),
+      );
 
       const drawTile = (index: number, dx: number, dy: number) => {
         const sx = (index % TILESET_COLUMNS) * TILE;
@@ -270,72 +347,170 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       for (let y = y0; y <= y1; y += 1) {
         for (let x = x0; x <= x1; x += 1) drawTile(map.ground[y * map.width + x], x * TILE, y * TILE);
       }
+
+      const elapsedMs = now - sceneStartedAt;
+      const waterPhase = getWaterShimmerPhase(elapsedMs, reducedMotion);
+      ctx.fillStyle =
+        waterPhase === 0
+          ? `rgba(226, 249, 255, ${WATER_SHIMMER_ALPHA[0]})`
+          : `rgba(183, 226, 244, ${WATER_SHIMMER_ALPHA[1]})`;
       for (let y = y0; y <= y1; y += 1) {
         for (let x = x0; x <= x1; x += 1) {
-          const o = map.objects[y * map.width + x];
-          if (o !== null) drawTile(o, x * TILE, y * TILE);
+          const tile = map.ground[y * map.width + x];
+          if (tile < 132 || tile > 140) continue;
+          const shimmerY = y * TILE + (waterPhase === 0 ? 5 : 10);
+          ctx.fillRect(x * TILE + 3, shimmerY, 10, 1);
         }
       }
 
-      const clock = performance.now() / 1000;
-      for (const npc of map.npcs) {
+      const drawContactShadow = (x: number, y: number, width = 5) => {
+        ctx.save();
+        ctx.fillStyle = 'rgba(20, 14, 11, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(x, y - 1, width, 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      };
+
+      const depthItems: Array<DepthItem<() => void>> = [];
+      for (let y = y0; y <= y1; y += 1) {
+        for (let x = x0; x <= x1; x += 1) {
+          const tile = map.objects[y * map.width + x];
+          if (tile === null) continue;
+          depthItems.push({
+            baselineY: (y + 1) * TILE,
+            order: y * map.width + x,
+            value: () => drawTile(tile, x * TILE, y * TILE),
+          });
+        }
+      }
+
+      const clock = reducedMotion ? 0 : now / 1000;
+      map.npcs.forEach((npc, npcIndex) => {
         const img = npcImgs.get(npc.sprite);
-        if (!img) continue;
-        const nm = manifest.heroes[npc.sprite].idle;
-        const nframe = Math.floor(clock * nm.fps) % nm.frames;
-        const nx = npc.tx * TILE + TILE / 2;
-        const ny = npc.ty * TILE + TILE;
-        const face = player.x < nx ? -1 : 1;
-        ctx.save();
-        ctx.translate(nx, ny);
-        ctx.scale(face, 1);
-        ctx.drawImage(
-          img,
-          nframe * nm.frameWidth,
-          0,
-          nm.frameWidth,
-          nm.frameHeight,
-          -Math.floor(nm.frameWidth / 2),
-          -nm.frameHeight,
-          nm.frameWidth,
-          nm.frameHeight,
-        );
-        ctx.restore();
-      }
+        if (!img) return;
+        const meta = manifest.heroes[npc.sprite].idle;
+        const frame = Math.floor(clock * meta.fps) % meta.frames;
+        const x = npc.tx * TILE + TILE / 2;
+        const y = npc.ty * TILE + TILE;
+        const face = player.x < x ? -1 : 1;
+        depthItems.push({
+          baselineY: y,
+          order: map.width * map.height + npcIndex,
+          value: () => {
+            drawContactShadow(x, y);
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(face, 1);
+            ctx.drawImage(
+              img,
+              frame * meta.frameWidth,
+              0,
+              meta.frameWidth,
+              meta.frameHeight,
+              -Math.floor(meta.frameWidth / 2),
+              -meta.frameHeight,
+              meta.frameWidth,
+              meta.frameHeight,
+            );
+            ctx.restore();
+          },
+        });
+      });
 
-      for (const cat of ambient.values()) {
+      [...ambient.values()].forEach((cat, catIndex) => {
         const img = npcImgs.get(cat.catClass);
-        if (!img) continue;
-        const am = manifest.heroes[cat.catClass].idle;
-        const aframe = Math.floor(clock * am.fps) % am.frames;
+        if (!img) return;
+        const meta = manifest.heroes[cat.catClass].idle;
+        const frame = Math.floor(clock * meta.fps) % meta.frames;
+        depthItems.push({
+          baselineY: cat.y,
+          order: map.width * map.height + map.npcs.length + catIndex,
+          value: () => {
+            const x = Math.round(cat.x * renderScale) / renderScale;
+            const y = Math.round(cat.y * renderScale) / renderScale;
+            drawContactShadow(x, y, 4);
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(cat.facing, 1);
+            ctx.drawImage(
+              img,
+              frame * meta.frameWidth,
+              0,
+              meta.frameWidth,
+              meta.frameHeight,
+              -Math.floor(meta.frameWidth / 2),
+              -meta.frameHeight,
+              meta.frameWidth,
+              meta.frameHeight,
+            );
+            ctx.restore();
+          },
+        });
+      });
+
+      depthItems.push({
+        baselineY: player.y,
+        order: Number.MAX_SAFE_INTEGER,
+        value: () => {
+          const meta = player.moving ? runMeta : idleMeta;
+          const sheet = player.moving ? runImg : idleImg;
+          const frame = getPlayerAnimationFrame(
+            player.anim,
+            meta.fps,
+            meta.frames,
+            player.moving,
+            reducedMotion,
+          );
+          const x = Math.round(player.x * renderScale) / renderScale;
+          const y = Math.round(player.y * renderScale) / renderScale;
+          drawContactShadow(x, y);
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(player.facing, 1);
+          ctx.drawImage(
+            sheet as HTMLImageElement,
+            frame * meta.frameWidth,
+            0,
+            meta.frameWidth,
+            meta.frameHeight,
+            -Math.floor(meta.frameWidth / 2),
+            -meta.frameHeight,
+            meta.frameWidth,
+            meta.frameHeight,
+          );
+          ctx.restore();
+        },
+      });
+
+      for (const item of sortByDepth(depthItems)) item.value();
+
+      if (atmosphereCtx) {
         ctx.save();
-        ctx.translate(Math.round(cat.x * ZOOM) / ZOOM, Math.round(cat.y * ZOOM) / ZOOM);
-        ctx.scale(cat.facing, 1);
-        ctx.drawImage(
-          img,
-          aframe * am.frameWidth,
-          0,
-          am.frameWidth,
-          am.frameHeight,
-          -Math.floor(am.frameWidth / 2),
-          -am.frameHeight,
-          am.frameWidth,
-          am.frameHeight,
-        );
+        // [UI] Atmospheric gradients stay smooth while tiles and sprites remain pixel-perfect.
+        ctx.imageSmoothingEnabled = true;
+        ctx.globalCompositeOperation = 'screen';
+        ctx.drawImage(atmosphereCanvas, 0, 0);
         ctx.restore();
       }
 
-      const meta = player.moving ? runMeta : idleMeta;
-      const sheet = player.moving ? runImg : idleImg;
-      const fw = meta.frameWidth;
-      const fh = meta.frameHeight;
-      const frame = Math.floor(player.anim * meta.fps) % meta.frames;
       ctx.save();
-      // snap to whole device pixels so scaled sprite edges don't bleed/shimmer
-      ctx.translate(Math.round(player.x * ZOOM) / ZOOM, Math.round(player.y * ZOOM) / ZOOM);
-      ctx.scale(player.facing, 1);
-      ctx.drawImage(sheet, frame * fw, 0, fw, fh, -Math.floor(fw / 2), -fh, fw, fh);
+      ctx.imageSmoothingEnabled = true;
+      getFogPatches(elapsedMs, reducedMotion).forEach((patch, index) => {
+        const x = patch.x * mapW;
+        const y = patch.y * mapH;
+        const { radius, stamp } = fogStamps[index];
+        ctx.drawImage(stamp, x - radius, y - radius);
+      });
       ctx.restore();
+
+      if (vignette) {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+      }
     };
 
     const step = (now: number) => {
@@ -344,7 +519,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       last = now;
 
       syncAmbient();
-      stepAmbient(now, dt);
+      if (!reducedMotion) stepAmbient(now, dt);
 
       const interacting = keys.has('e') || keys.has('enter') || keys.has(' ');
       const interactEdge = interacting && !interactLatch;
@@ -353,14 +528,14 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       if (dialogRef.current) {
         if (interactEdge) advanceRef.current();
         player.moving = false;
-        render();
+        render(now);
         raf = requestAnimationFrame(step);
         return;
       }
 
       if (shopRef.current) {
         player.moving = false;
-        render();
+        render(now);
         raf = requestAnimationFrame(step);
         return;
       }
@@ -425,7 +600,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         }
       }
 
-      render();
+      render(now);
       raf = requestAnimationFrame(step);
     };
 
@@ -454,6 +629,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('resize', resize);
+      reducedMotionQuery.removeEventListener('change', onReducedMotionChange);
+      keys.clear();
       persistRef.current(Math.round(player.x), Math.round(player.y));
     };
   }, [catClass, leaderIsAway]);

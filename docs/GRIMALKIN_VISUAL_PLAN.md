@@ -69,14 +69,23 @@ Critérios:
 
 ## G2 — profundidade e atmosfera
 
-**Pendente.**
+**Entregue.**
 
-- Ordenação por profundidade (`y-sort`) entre jogador, NPCs e objetos altos.
-- Sombras de contato, movimento de água e acabamento de luz/névoa.
-- Playtest visual em desktop e mobile, preservando caminhos e interações.
+- Ordenação determinística por baseline Y entre jogador, NPCs, gatos da colônia
+  e objetos do mapa.
+- Sombras de contato nos personagens.
+- Lago com duas fases de brilho usando os tiles `132..140`, alternadas a cada
+  `600 ms`.
+- Luzes estáticas sutis na praça, forja e portão, névoa periférica em ciclo de
+  `18 s` e vignette discreta.
+- Composição limitada: água até `0,18`, névoa até `0,07`, luzes até `0,14` e
+  vignette até `0,14`, preservando a leitura do pixel art.
+- `prefers-reduced-motion` reativo: congela água, névoa, animações ociosas e
+  deslocamento dos gatos ambientes sem bloquear o movimento comandado pelo
+  jogador.
 
-Critério: ganhar profundidade e atmosfera sem reduzir leitura, desempenho ou
-acessibilidade.
+Critério atendido sem novos assets, dependências, mecânicas, colisões ou mudanças
+no schema de save.
 
 ## G3 — expansão premium
 
