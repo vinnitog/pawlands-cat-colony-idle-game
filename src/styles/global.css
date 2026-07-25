@@ -36,8 +36,6 @@
   --soft-shadow: 0 6px 16px rgba(10, 6, 2, 0.32);
   --header-h: 66px;
   --nav-w: 208px;
-  /* losango dourado dos cantos dos cards */
-  --corner-diamond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Cpath d='M4.5 0 9 4.5 4.5 9 0 4.5Z' fill='%23c8962c'/%3E%3C/svg%3E");
   /* treliça heráldica (diaper pattern) do fundo do salão */
   --keep-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23c8962c' stroke-width='1' opacity='0.11'%3E%3Cpath d='M28 0 56 28 28 56 0 28Z'/%3E%3Cpath d='M28 19 37 28 28 37 19 28Z'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -257,20 +255,37 @@ dd {
     var(--shadow);
 }
 
+/* Cantoneiras em L: duas hastes douradas por canto, abraçando a borda. */
 .panel::before,
 .item-card::before {
+  --bracket: linear-gradient(var(--gold), var(--gold));
+  --arm: 14px;
+  --thick: 2px;
   content: '';
   position: absolute;
-  inset: 0;
+  inset: 3px;
   pointer-events: none;
-  background-image: var(--corner-diamond), var(--corner-diamond), var(--corner-diamond),
-    var(--corner-diamond);
+  background-image: var(--bracket), var(--bracket), var(--bracket), var(--bracket),
+    var(--bracket), var(--bracket), var(--bracket), var(--bracket);
   background-repeat: no-repeat;
+  background-size:
+    var(--arm) var(--thick),
+    var(--thick) var(--arm),
+    var(--arm) var(--thick),
+    var(--thick) var(--arm),
+    var(--arm) var(--thick),
+    var(--thick) var(--arm),
+    var(--arm) var(--thick),
+    var(--thick) var(--arm);
   background-position:
-    3px 3px,
-    calc(100% - 3px) 3px,
-    3px calc(100% - 3px),
-    calc(100% - 3px) calc(100% - 3px);
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
 }
 
 /* [UI] Títulos de tela ficam sobre a pedra escura, não sobre pergaminho: as
