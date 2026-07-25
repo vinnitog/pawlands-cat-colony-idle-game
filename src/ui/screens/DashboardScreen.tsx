@@ -13,6 +13,19 @@ export function DashboardScreen() {
   const leader = getLeader(state);
   const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
   const remainingMs = getRemainingActivityMs(state, now);
+  const progressPercent = leader.activity
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          Math.round(
+            ((now - leader.activity.startedAt) /
+              (leader.activity.endsAt - leader.activity.startedAt)) *
+              100,
+          ),
+        ),
+      )
+    : 0;
 
   return (
     <div className="screen-stack">
@@ -32,6 +45,12 @@ export function DashboardScreen() {
             ? activeActivity.description
             : 'Escolha uma atividade para continuar juntando recursos e expandir a colônia.'}
         </p>
+
+        {activeActivity ? (
+          <div className="meter" aria-label={`Progresso: ${progressPercent}%`}>
+            <span style={{ width: `${progressPercent}%` }} />
+          </div>
+        ) : null}
       </section>
     </div>
   );

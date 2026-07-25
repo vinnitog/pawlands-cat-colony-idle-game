@@ -17,8 +17,8 @@ test('derived vecteezy art ships with the app', () => {
   }
 });
 
-test('derived UI kit pieces ship with the app (frame, divider, crest)', () => {
-  for (const file of ['ui_frame.png', 'ui_divider.png', 'ui_shield.png']) {
+test('derived UI kit pieces ship with the app (divider, rail, crest)', () => {
+  for (const file of ['ui_divider.png', 'ui_rail.png', 'ui_shield.png']) {
     assert.ok(existsSync(join(root, 'src/ui/art', file)), `missing src/ui/art/${file}`);
   }
 });
