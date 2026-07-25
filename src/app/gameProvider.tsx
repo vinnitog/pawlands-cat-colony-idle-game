@@ -25,6 +25,7 @@ import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts
 import {
   completeFinishedActivities,
   startActivity as startActivityInState,
+  type ActivityCompletionDetail,
   type StartActivityOptions,
 } from '../game/systems/activitySystem.ts';
 import {
@@ -62,6 +63,7 @@ export type RewardNotice = {
   offlineDurationMs?: number;
   levelsGained: number;
   levelCoins: number;
+  activityCompletions?: ActivityCompletionDetail[];
 };
 
 type GameContextValue = {
@@ -113,6 +115,7 @@ function createBootState() {
             offlineDurationMs: offline.offlineDurationMs,
             levelsGained: offline.levelsGained,
             levelCoins: offline.levelCoins,
+            activityCompletions: offline.completions,
           }
         : null,
     gameFeelEffects,
@@ -123,7 +126,10 @@ function createBootState() {
 export function GameProvider({ children }: { children: ReactNode }) {
   const [boot] = useState(createBootState);
   const [state, setState] = useState<GameState>(boot.state);
-  const [rewardNotice, setRewardNotice] = useState<RewardNotice | null>(boot.rewardNotice);
+  const stateRef = useRef<GameState>(boot.state);
+  const [rewardNotices, setRewardNotices] = useState<RewardNotice[]>(
+    boot.rewardNotice ? [boot.rewardNotice] : [],
+  );
   const [gameFeelEffects, setGameFeelEffects] = useState<GameFeelEffect[]>(
     boot.gameFeelEffects,
   );
@@ -131,6 +137,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const previousStateRef = useRef(state);
   const nextGameFeelEffectIdRef = useRef(boot.nextGameFeelEffectId);
   const suppressNextGameFeelRef = useRef(false);
+  const rewardNotice = rewardNotices[0] ?? null;
+
+  /**
+   * Runs transitions once against the latest state even when React batches
+   * timer and user events. Side effects inside these callbacks are therefore
+   * not exposed to StrictMode replays of React functional state updaters.
+   */
+  const updateState = useCallback((updater: (current: GameState) => GameState) => {
+    const next = updater(stateRef.current);
+    stateRef.current = next;
+    setState(next);
+  }, []);
+
+  const enqueueRewardNotice = useCallback((notice: RewardNotice) => {
+    setRewardNotices((current) => [...current, notice]);
+  }, []);
 
   const queueGameFeelCues = useCallback((cues: GameFeelCue[]) => {
     if (cues.length === 0) return;
@@ -175,11 +197,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       // Same-reference return means nothing regenerated — React skips the update.
-      setState((current) => applyEnergyRegen(current, Date.now()));
+      updateState((current) => applyEnergyRegen(current, Date.now()));
     }, 30_000);
 
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [updateState]);
 
   const hasBusyCat = state.cats.some((cat) => cat.activity !== null);
 
@@ -188,36 +210,32 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
-      let notice: RewardNotice | null = null;
-
-      setState((current) => {
+      updateState((current) => {
         const completion = completeFinishedActivities(current, now);
         if (completion.completedCount === 0) return current;
-        saveGame(completion.state, undefined, now);
 
-        notice = {
+        saveGame(completion.state, undefined, now);
+        enqueueRewardNotice({
           title:
             completion.completedCount > 1
-              ? `${completion.completedCount} gatos voltaram`
-              : 'Atividade concluída',
+              ? `${completion.completedCount} atividades concluídas`
+              : `${completion.completions[0]?.catName ?? 'Seu gato'} concluiu ${
+                  completion.completions[0]?.activityName ?? 'uma atividade'
+                }`,
           reward: completion.reward,
           levelsGained: completion.levelsGained,
           levelCoins: completion.levelCoins,
-        };
-
+          activityCompletions: completion.completions,
+        });
         return completion.state;
       });
-
-      if (notice) {
-        setRewardNotice(notice);
-      }
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [hasBusyCat]);
+  }, [enqueueRewardNotice, hasBusyCat, updateState]);
 
   const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
-    setState((current) => {
+    updateState((current) => {
       const result = startActivityInState(current, activityId, Date.now(), options);
       if (!result.ok) {
         setToast(result.reason);
@@ -235,10 +253,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       );
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const startExpedition = useCallback((catId: string, zoneId: ExpeditionZoneId) => {
-    setState((current) => {
+    updateState((current) => {
       const now = Date.now();
       const result = startExpeditionInState(current, catId, zoneId, now);
       if (!result.ok) {
@@ -262,10 +280,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`${cat?.name ?? 'Seu gato'} atravessou o Portão do Além.`);
       return nextState;
     });
-  }, []);
+  }, [updateState]);
 
   const collectExpedition = useCallback((catId: string) => {
-    setState((current) => {
+    updateState((current) => {
       const now = Date.now();
       const catName = current.cats.find((cat) => cat.id === catId)?.name ?? 'Seu gato';
       const result = collectExpeditionInState(current, catId, now);
@@ -276,7 +294,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
       saveGame(result.state, undefined, now);
       if (result.resolvedPulses > 0) {
-        setRewardNotice({
+        enqueueRewardNotice({
           title: `${catName} voltou do Além`,
           reward: result.reward,
           levelsGained: result.levelsGained,
@@ -287,10 +305,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }
       return result.state;
     });
-  }, []);
+  }, [enqueueRewardNotice, updateState]);
 
   const recruitCat = useCallback(() => {
-    setState((current) => {
+    updateState((current) => {
       const result = recruitCatInState(current, Math.random, Date.now());
       if (!result.ok) {
         setToast(result.reason);
@@ -301,10 +319,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`${result.cat.name} juntou-se à colônia!`);
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const setLeader = useCallback((catId: string) => {
-    setState((current) => {
+    updateState((current) => {
       const result = setLeaderInState(current, catId);
       if (!result.ok) {
         setToast(result.reason);
@@ -315,10 +333,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`${getLeader(result.state).name} agora lidera a colônia.`);
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const equipGear = useCallback((catId: string, slot: GearSlot, gearId: GearId) => {
-    setState((current) => {
+    updateState((current) => {
       const result = equipGearInState(current, catId, slot, gearId);
       if (!result.ok) {
         setToast(result.reason);
@@ -329,10 +347,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`${gearById[gearId].name} equipado.`);
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const unequipGear = useCallback((catId: string, slot: GearSlot) => {
-    setState((current) => {
+    updateState((current) => {
       const result = unequipGearInState(current, catId, slot);
       if (!result.ok) {
         setToast(result.reason);
@@ -343,10 +361,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast('Equipamento guardado no inventário.');
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const buyUpgrade = useCallback((upgradeId: UpgradeId) => {
-    setState((current) => {
+    updateState((current) => {
       const result = buyUpgradeInState(current, upgradeId);
       if (!result.ok) {
         setToast(result.reason);
@@ -357,10 +375,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast('Melhoria comprada.');
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const claimMission = useCallback((missionId: MissionId) => {
-    setState((current) => {
+    updateState((current) => {
       const result = claimMissionInState(current, missionId);
       if (!result.ok) {
         setToast(result.reason);
@@ -372,10 +390,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`Missão concluída: +${result.coins} moedas, +${result.xp} XP${gemText}.`);
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const buyShopItem = useCallback((itemId: ShopItemId) => {
-    setState((current) => {
+    updateState((current) => {
       const result = buyShopItemInState(current, itemId);
       if (!result.ok) {
         setToast(result.reason);
@@ -386,13 +404,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setToast(`${shopItemById[itemId].name} adquirido.`);
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const sellTrophy = useCallback((
     trophyId: ExpeditionTrophyKey,
     mode: TrophySaleMode,
   ) => {
-    setState((current) => {
+    updateState((current) => {
       const result = sellTrophyInState(current, trophyId, mode);
       if (!result.ok) {
         setToast(result.reason);
@@ -405,24 +423,24 @@ export function GameProvider({ children }: { children: ReactNode }) {
       );
       return result.state;
     });
-  }, []);
+  }, [updateState]);
 
   const setWorldPosition = useCallback((x: number, y: number) => {
-    setState((current) => {
+    updateState((current) => {
       if (current.world.x === x && current.world.y === y) return current;
       const next = { ...current, world: { x, y } };
       saveGame(next);
       return next;
     });
-  }, []);
+  }, [updateState]);
 
   const completeOnboarding = useCallback((choice: { name: string; catClass: CatClass }) => {
-    setState((current) => {
+    updateState((current) => {
       const next = applyStarterChoice(current, choice);
       saveGame(next);
       return next;
     });
-  }, []);
+  }, [updateState]);
 
   const resetGame = useCallback(() => {
     clearGame();
@@ -430,8 +448,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     saveGame(nextState);
     suppressNextGameFeelRef.current = true;
     setGameFeelEffects([]);
-    setRewardNotice(null);
+    setRewardNotices([]);
     setToast('Progresso reiniciado.');
+    stateRef.current = nextState;
     setState(nextState);
   }, []);
 
@@ -455,7 +474,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setWorldPosition,
       completeOnboarding,
       resetGame,
-      dismissRewardNotice: () => setRewardNotice(null),
+      dismissRewardNotice: () => setRewardNotices((current) => current.slice(1)),
       dismissGameFeelEffect,
       dismissToast: () => setToast(null),
     }),
@@ -465,6 +484,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       claimMission,
       collectExpedition,
       completeOnboarding,
+      enqueueRewardNotice,
       equipGear,
       gameFeelEffects,
       recruitCat,

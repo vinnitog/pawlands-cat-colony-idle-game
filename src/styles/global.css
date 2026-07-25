@@ -763,6 +763,201 @@ dd {
   color: var(--leaf);
 }
 
+.activity-assignee-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 226, 0.48), transparent),
+    var(--surface);
+  box-shadow: var(--soft-shadow);
+}
+
+.activity-assignee-panel h3 {
+  margin-top: 2px;
+}
+
+.activity-cat-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.activity-cat-option {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 62px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--ink-border);
+  border-radius: 7px;
+  background: rgba(255, 252, 240, 0.68);
+  color: var(--text);
+  text-align: left;
+}
+
+.activity-cat-option:hover:not(:disabled) {
+  border-color: rgba(200, 150, 44, 0.72);
+  background: #fff9e7;
+}
+
+.activity-cat-option.is-selected {
+  border-color: var(--gold);
+  background: #fff5d2;
+  box-shadow:
+    inset 0 0 0 1px rgba(200, 150, 44, 0.45),
+    0 2px 8px rgba(73, 48, 13, 0.18);
+}
+
+/* [UI] Seleção reconhecível sem depender apenas da cor do card. */
+.activity-cat-option.is-selected::after {
+  content: '✓';
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border: 1px solid #6d4c18;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #2d1c08;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.activity-cat-option:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.45);
+  opacity: 0.62;
+}
+
+.activity-cat-option:focus-visible {
+  outline-color: #f3c85b;
+  outline-offset: 3px;
+}
+
+.activity-cat-option .cat-sprite {
+  flex: 0 0 auto;
+}
+
+.activity-cat-option > span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  padding-right: 14px;
+}
+
+.activity-cat-option strong {
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.activity-cat-option small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.activity-no-cats {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.activity-assignee-summary {
+  padding: 9px 11px;
+  border-left: 3px solid var(--gold);
+  background: rgba(246, 223, 156, 0.34);
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.activity-assignee-summary strong {
+  color: var(--primary-dark);
+}
+
+.activity-cost {
+  margin-bottom: 0;
+}
+
+.activity-cost dd {
+  min-width: 0;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.activity-reward-catalog {
+  display: grid;
+  gap: 8px;
+}
+
+.activity-reward-catalog h4 {
+  color: var(--primary-dark);
+  font-size: 0.84rem;
+}
+
+.activity-reward-catalog ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.activity-reward-catalog li {
+  display: flex;
+  min-width: 0;
+  min-height: 50px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px;
+  border: 1px solid rgba(87, 65, 31, 0.24);
+  border-radius: 6px;
+  background: rgba(255, 252, 240, 0.5);
+}
+
+.activity-reward-catalog li.is-chance {
+  border-color: rgba(156, 90, 160, 0.42);
+  background: rgba(240, 225, 242, 0.5);
+}
+
+.activity-reward-catalog .game-icon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  color: var(--primary-dark);
+}
+
+.activity-reward-catalog li > span {
+  display: grid;
+  min-width: 0;
+}
+
+.activity-reward-catalog strong {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.activity-reward-catalog small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.activity-reward-catalog > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
 /* Daily bonus: featured activity of the day */
 .section-heading {
   flex-wrap: wrap;
@@ -1433,6 +1628,86 @@ dd {
   border: 1px solid var(--ink-border);
   border-radius: 6px;
   background: rgba(255, 252, 240, 0.6);
+}
+
+.activity-completion-list {
+  display: grid;
+  gap: 7px;
+  max-height: min(38vh, 320px);
+  padding: 0;
+  padding-right: 4px;
+  margin: 0 0 14px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  list-style: none;
+}
+
+.activity-completion-list:focus-visible {
+  outline: 3px solid rgba(200, 150, 44, 0.55);
+  outline-offset: 3px;
+}
+
+.activity-completion-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: rgba(246, 223, 156, 0.35);
+}
+
+.activity-completion-list .game-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--primary-dark);
+}
+
+.activity-completion-list span {
+  display: grid;
+  min-width: 0;
+}
+
+.activity-completion-list small {
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.activity-completion-list em {
+  color: var(--primary-dark);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.chronicle-complete {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(246, 223, 156, 0.72), rgba(255, 252, 240, 0.78)),
+    var(--surface);
+  box-shadow: var(--soft-shadow);
+}
+
+.chronicle-complete > .game-icon {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  color: var(--gold);
+}
+
+.chronicle-complete h3 {
+  margin: 2px 0 4px;
+}
+
+.chronicle-complete p:last-child {
+  color: var(--muted);
+  line-height: 1.4;
 }
 
 /* ---- Jeweler shop ------------------------------------------------------- */
@@ -2397,6 +2672,15 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* [UI] Explorar ganha largura para exibir todo o catálogo sem truncar nomes. */
+  .activities-screen .activity-card--exploreYard {
+    grid-column: 1 / -1;
+  }
+
+  .activity-card--exploreYard .activity-reward-catalog ul {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+
   .trophy-panel-heading {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
@@ -2425,6 +2709,10 @@ dd {
 @media (min-width: 980px) {
   .item-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .activities-screen .activity-card--exploreYard {
+    grid-column: span 2;
   }
 
   .item-grid.colony-grid {

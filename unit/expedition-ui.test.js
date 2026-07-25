@@ -62,7 +62,7 @@ test('expedition provider actions persist starts and show collected rewards', ()
 
   assert.match(provider, /startExpeditionInState/);
   assert.match(provider, /collectExpeditionInState/);
-  assert.match(provider, /setRewardNotice\(\{/);
+  assert.match(provider, /enqueueRewardNotice\(\{/);
   assert.match(provider, /progresso parcial foi preservado/i);
   assert.match(provider, /current\.leaderId === catId/);
   assert.match(provider, /candidate\.id !== catId && !candidate\.activity && !candidate\.expedition/);
@@ -70,7 +70,7 @@ test('expedition provider actions persist starts and show collected rewards', ()
   assert.match(provider, /saveGame\(nextState, undefined, now\)/);
   assert.match(
     provider,
-    /if \(result\.resolvedPulses > 0\) \{[\s\S]*?setRewardNotice\(\{[\s\S]*?\} else \{[\s\S]*?setToast\(/,
+    /if \(result\.resolvedPulses > 0\) \{[\s\S]*?enqueueRewardNotice\(\{[\s\S]*?\} else \{[\s\S]*?setToast\(/,
   );
 });
 
@@ -108,17 +108,17 @@ test('dashboard identifies the leader expedition and reserves the meter for time
   );
 });
 
-test('activity cards disable natively and prioritize expedition status over energy', () => {
+test('activity cards use the selected cat and prioritize expedition status over energy', () => {
   const card = read('src/ui/components/ActivityCard.tsx');
 
-  assert.match(card, /const isOnExpedition = leader\.expedition !== null/);
-  assert.match(card, /const isBusy = leader\.activity !== null \|\| isOnExpedition/);
-  assert.match(card, /disabled=\{isBusy \|\| !hasEnergy\}/);
+  assert.match(card, /const isOnExpedition = cat\?\.expedition/);
+  assert.match(card, /const isBusy =[\s\S]*?cat\?\.activity/);
+  assert.match(card, /disabled=\{!cat \|\| isBusy \|\| !hasEnergy\}/);
 
-  const expeditionStatus = card.indexOf('{isOnExpedition');
+  const expeditionStatus = card.indexOf(': isOnExpedition');
   const busyStatus = card.indexOf(': isBusy', expeditionStatus);
   const energyStatus = card.indexOf(': hasEnergy', busyStatus);
-  const noEnergyStatus = card.indexOf("'Sem energia'", energyStatus);
+  const noEnergyStatus = card.indexOf('está sem energia', energyStatus);
 
   assert.ok(expeditionStatus >= 0, 'expedition status branch is present');
   assert.ok(busyStatus > expeditionStatus, 'generic busy status follows expedition status');
@@ -126,7 +126,7 @@ test('activity cards disable natively and prioritize expedition status over ener
   assert.ok(noEnergyStatus > energyStatus, 'no-energy label stays in the final branch');
   assert.match(
     card.slice(expeditionStatus, busyStatus),
-    /leader\.name[\s\S]*?expedi/,
+    /cat\.name[\s\S]*?expedi/,
   );
 });
 

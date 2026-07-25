@@ -1,6 +1,9 @@
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
-import { completeFinishedActivities } from './activitySystem.ts';
+import {
+  completeFinishedActivities,
+  type ActivityCompletionDetail,
+} from './activitySystem.ts';
 import { applyEnergyRegen } from './energySystem.ts';
 import { advanceExpeditions } from './expeditionSystem.ts';
 
@@ -12,6 +15,7 @@ export type OfflineProgressResult = {
   completedCount: number;
   levelsGained: number;
   levelCoins: number;
+  completions: ActivityCompletionDetail[];
 };
 
 export function processOfflineProgress(
@@ -35,5 +39,6 @@ export function processOfflineProgress(
     completedCount: completion.completedCount,
     levelsGained: completion.levelsGained,
     levelCoins: completion.levelCoins,
+    completions: completion.completions,
   };
 }
