@@ -41,6 +41,8 @@ export function createInitialGameState(now = Date.now()): GameState {
       whisperingFields: 0,
       mistwood: 0,
       grimalkinRuins: 0,
+      soulMarsh: 0,
+      eclipseTower: 0,
     },
     resources,
     inventory: createEmptyInventory(),

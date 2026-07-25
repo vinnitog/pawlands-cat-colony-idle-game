@@ -19,6 +19,7 @@ import {
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { GearArt } from '../components/GearArt.tsx';
+import { TrophyArt } from '../components/TrophyArt.tsx';
 import { formatDuration, formatLongDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 
@@ -26,6 +27,8 @@ const zoneArt: Record<ExpeditionZoneId, string> = {
   whisperingFields: 'whispering-fields.png',
   mistwood: 'mistwood.png',
   grimalkinRuins: 'grimalkin-ruins.png',
+  soulMarsh: 'soul-marsh.png',
+  eclipseTower: 'eclipse-tower.png',
 };
 
 function formatPulses(value: number): string {
@@ -295,7 +298,7 @@ export function ExpeditionScreen() {
                     <ul>
                       {zone.lootTable.map((loot) => (
                         <li key={loot.item}>
-                          <GameIcon name={loot.item} />
+                          <TrophyArt trophyId={loot.item} />
                           <span>
                             <strong>{inventoryItemLabels[loot.item]}</strong>
                             <small>{(loot.chancePerPulse * 100).toLocaleString('pt-BR')}% por pulso</small>

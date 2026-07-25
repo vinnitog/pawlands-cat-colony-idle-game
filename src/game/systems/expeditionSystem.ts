@@ -1,4 +1,4 @@
-import { expeditionZoneById } from '../data/zones.ts';
+import { expeditionZoneById, isExpeditionZoneId } from '../data/zones.ts';
 import type { Cat } from '../models/cat.ts';
 import {
   EXPEDITION_PULSE_CAP,
@@ -26,8 +26,10 @@ export function getExpeditionEfficiency(cat: Cat, zoneId: ExpeditionZoneId): num
 export function isExpeditionZoneUnlocked(
   state: GameState,
   catId: string,
-  zoneId: ExpeditionZoneId,
+  zoneId: unknown,
 ): boolean {
+  if (!isExpeditionZoneId(zoneId)) return false;
+
   const cat = state.cats.find((candidate) => candidate.id === catId);
   if (!cat) return false;
 
@@ -44,9 +46,13 @@ export type StartExpeditionResult =
 export function startExpedition(
   state: GameState,
   catId: string,
-  zoneId: ExpeditionZoneId,
+  zoneId: unknown,
   now = Date.now(),
 ): StartExpeditionResult {
+  if (!isExpeditionZoneId(zoneId)) {
+    return { ok: false, state, reason: 'Essa zona de expedição não existe.' };
+  }
+
   const cat = state.cats.find((candidate) => candidate.id === catId);
   if (!cat) {
     return { ok: false, state, reason: 'Esse gato não faz parte da colônia.' };

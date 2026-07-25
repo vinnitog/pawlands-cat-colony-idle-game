@@ -76,6 +76,22 @@ test('zone unlocks use the assigned cat level and reward-bearing collection tota
   assert.equal(isExpeditionZoneUnlocked(progressed, catId, 'grimalkinRuins'), true);
 });
 
+test('unknown and prototype zone ids fail safely without mutating expedition state', () => {
+  const state = createInitialGameState(0);
+  const catId = getLeader(state).id;
+
+  for (const zoneId of ['unknownZone', '__proto__']) {
+    assert.equal(isExpeditionZoneUnlocked(state, catId, zoneId), false, zoneId);
+
+    const result = startExpedition(state, catId, zoneId, 1_000);
+    assert.equal(result.ok, false, zoneId);
+    assert.equal(result.state, state, zoneId);
+    if (!result.ok) assert.match(result.reason, /zona de expedição não existe/i);
+  }
+
+  assert.equal(getLeader(state).expedition, null);
+});
+
 test('starting an expedition occupies only that cat and never spends energy', () => {
   const state = createInitialGameState(1_000);
   const cat = getLeader(state);
@@ -433,7 +449,7 @@ test('early collection preserves raw time and matches one continuous base pulse'
   assert.deepEqual(split.reward, continuous.reward);
   assert.equal(getLeader(split.state).xp, getLeader(continuous.state).xp);
   assert.equal(splitCalls, continuousCalls);
-  assert.equal(splitCalls, 2);
+  assert.equal(splitCalls, 3);
 });
 
 test('four quarter-pulse collections equal one whole collection without rerolls', () => {
@@ -459,7 +475,7 @@ test('four quarter-pulse collections equal one whole collection without rerolls'
     state = collected.state;
 
     assert.equal(collected.resolvedPulses, cycle === 3 ? 1 : 0);
-    assert.equal(randomCalls, cycle === 3 ? 2 : 0);
+    assert.equal(randomCalls, cycle === 3 ? 3 : 0);
   }
 
   assert.equal(getLeader(state).expeditionPulseCarry.whisperingFields, undefined);
@@ -480,6 +496,8 @@ test('v3 migration defaults and sanitizes collection totals and per-zone pulse c
     whisperingFields: 0,
     mistwood: 0,
     grimalkinRuins: 0,
+    soulMarsh: 0,
+    eclipseTower: 0,
   });
   assert.deepEqual(getLeader(defaults).expeditionPulseCarry, {});
   assert.deepEqual(getLeader(defaults).expeditionTimeCarryMs, {});
@@ -513,6 +531,8 @@ test('v3 migration defaults and sanitizes collection totals and per-zone pulse c
     whisperingFields: 5,
     mistwood: 0,
     grimalkinRuins: 0,
+    soulMarsh: 0,
+    eclipseTower: 0,
   });
   assert.deepEqual(getLeader(migrated).expeditionPulseCarry, {
     whisperingFields: 0.25,
@@ -660,14 +680,19 @@ test('rare gear drops below chance and not exactly on mistwood and ruins boundar
       lastProgressAt: 0,
       accumulatedPulses: 1,
     };
-    const rolls = [0.99, gearRoll, 0.99];
+    const zone = expeditionZoneById[zoneId];
+    const rolls = [
+      ...zone.lootTable.map(() => 0.99),
+      gearRoll,
+      0.99,
+    ];
     let calls = 0;
     const result = collectExpedition(state, getLeader(state).id, 0, () => {
       const value = rolls[calls];
       calls += 1;
       return value;
     });
-    assert.equal(calls, 3);
+    assert.equal(calls, rolls.length);
     return result.reward.inventory;
   };
 
@@ -768,7 +793,7 @@ test('minimal realistic v2 save defaults every E1 expedition field', () => {
     lastSavedAt: 9_000,
   });
 
-  assert.equal(migrated.schemaVersion, 4);
+  assert.equal(migrated.schemaVersion, 5);
   assert.equal(getLeader(migrated).name, 'Bruma');
   assert.equal(getLeader(migrated).xp, 37);
   assert.equal(getLeader(migrated).expedition, null);
@@ -778,5 +803,7 @@ test('minimal realistic v2 save defaults every E1 expedition field', () => {
     whisperingFields: 0,
     mistwood: 0,
     grimalkinRuins: 0,
+    soulMarsh: 0,
+    eclipseTower: 0,
   });
 });

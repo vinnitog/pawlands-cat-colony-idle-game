@@ -244,6 +244,30 @@ function renderIcon(name: GameIconName) {
           <circle cx="47" cy="50" r="3" fill="#ffffff" opacity="0.7" />
         </>
       );
+    case 'ancientBoneCharm':
+      return (
+        <>
+          <path d="M20 13c5-7 15-7 20 0l11 16-8 21H21l-8-21 7-16Z" fill="currentColor" />
+          <circle cx="26" cy="31" r="4" fill="#ffffff" />
+          <circle cx="38" cy="31" r="4" fill="#ffffff" />
+          <path d="M27 43h10M32 37v11" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+        </>
+      );
+    case 'soulAmulet':
+      return (
+        <>
+          <path d="M15 14c9 12 25 12 34 0" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+          <path d="M32 20 49 36 32 57 15 36Z" fill="currentColor" />
+          <circle cx="32" cy="37" r="7" fill="#ffffff" opacity="0.78" />
+        </>
+      );
+    case 'eclipseShard':
+      return (
+        <>
+          <path d="M31 5 52 24 43 54H20L10 27Z" fill="currentColor" />
+          <path d="m31 5 2 49M10 27l42-3M20 54l13-30 10 30" fill="none" stroke="#ffffff" strokeWidth="3" opacity="0.72" />
+        </>
+      );
     case 'reward':
       return (
         <>

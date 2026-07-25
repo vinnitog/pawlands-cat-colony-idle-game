@@ -14,7 +14,10 @@ export type SpecialItemKey = 'rareFeather' | 'goldenSardine' | 'glowingYarn';
 export type ExpeditionTrophyKey =
   | 'spectralSardine'
   | 'phantomFur'
-  | 'grimaldeRelic';
+  | 'grimaldeRelic'
+  | 'ancientBoneCharm'
+  | 'soulAmulet'
+  | 'eclipseShard';
 
 export type InventoryItemKey = SpecialItemKey | ExpeditionTrophyKey | GearId;
 
@@ -47,6 +50,9 @@ export const trophyKeys: ExpeditionTrophyKey[] = [
   'spectralSardine',
   'phantomFur',
   'grimaldeRelic',
+  'ancientBoneCharm',
+  'soulAmulet',
+  'eclipseShard',
 ];
 
 export const gearItemKeys: GearId[] = [
@@ -82,6 +88,9 @@ export const trophyLabels: Record<ExpeditionTrophyKey, string> = {
   spectralSardine: 'Sardinha espectral',
   phantomFur: 'Pelo fantasma',
   grimaldeRelic: 'Relíquia grimalde',
+  ancientBoneCharm: 'Talismã de osso ancestral',
+  soulAmulet: 'Amuleto das almas',
+  eclipseShard: 'Fragmento do eclipse',
 };
 
 export const gearItemLabels: Record<GearId, string> = {
@@ -117,6 +126,9 @@ export function createEmptyInventory(): Inventory {
     spectralSardine: 0,
     phantomFur: 0,
     grimaldeRelic: 0,
+    ancientBoneCharm: 0,
+    soulAmulet: 0,
+    eclipseShard: 0,
     ironClaw: 0,
     guardArmor: 0,
     mistFang: 0,

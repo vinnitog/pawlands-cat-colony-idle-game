@@ -272,7 +272,7 @@ test('equipment changes reject expedition cats, strangers, and the same equipped
   assert.equal(missingUnequip.state, initial);
 });
 
-test('save v1-v4 defaults and sanitizes equipment ids and slots', () => {
+test('save v1-v5 defaults and sanitizes equipment ids and slots', () => {
   for (const schemaVersion of [1, 2, 3]) {
     const legacy = schemaVersion === 1
       ? { schemaVersion, cat: { id: 'legacy', name: 'Bruma' } }
@@ -282,7 +282,7 @@ test('save v1-v4 defaults and sanitizes equipment ids and slots', () => {
           leaderId: 'legacy',
         };
     const migrated = migrateGameSave(legacy);
-    assert.equal(migrated.schemaVersion, 4);
+    assert.equal(migrated.schemaVersion, 5);
     assert.deepEqual(getLeader(migrated).equipment, { weapon: null, armor: null });
     assert.equal(migrated.inventory.ironClaw, 0);
     assert.equal(migrated.inventory.grimaldeAegis, 0);
@@ -315,7 +315,7 @@ test('save v1-v4 defaults and sanitizes equipment ids and slots', () => {
   });
 });
 
-test('v4 round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
+test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
   const initial = createInitialGameState(1_000);
   initial.resources.gems = 10;
   const recruited = recruitCat(initial, () => 0, 2_000);
@@ -358,7 +358,7 @@ test('v4 round-trip preserves multi-cat inventory, equipment, activity, and expe
   };
 
   const loaded = migrateGameSave(JSON.parse(JSON.stringify(saved)));
-  assert.equal(loaded.schemaVersion, 4);
+  assert.equal(loaded.schemaVersion, 5);
   assert.deepEqual(
     {
       ironClaw: loaded.inventory.ironClaw,

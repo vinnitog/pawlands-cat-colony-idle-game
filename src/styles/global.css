@@ -1591,6 +1591,181 @@ dd {
   line-height: 1.35;
 }
 
+.trophy-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.trophy-panel-heading {
+  /* [UI] Mobile: título e valor empilham sem esmagar o texto em telas estreitas. */
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.trophy-panel-heading h3 {
+  margin: 0;
+}
+
+.trophy-panel-heading > strong {
+  display: inline-flex;
+  max-width: 100%;
+  min-height: 40px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: rgba(209, 168, 68, 0.16);
+  color: var(--primary-dark);
+  font-family: var(--heading-font);
+}
+
+.trophy-panel-heading .game-icon {
+  width: 20px;
+  height: 20px;
+  color: #b68520;
+}
+
+.trophy-inventory-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trophy-inventory-list > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ink-border);
+  border-radius: 8px;
+  background: rgba(255, 252, 240, 0.52);
+}
+
+.trophy-art {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid #8b7248;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #e3d3ae, #897550);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.26);
+}
+
+.trophy-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.trophy-art .game-icon {
+  width: 31px;
+  height: 31px;
+  color: #f0d28a;
+}
+
+.trophy-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.trophy-copy small {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.trophy-sale-actions {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.trophy-sale-actions button {
+  min-height: 44px;
+}
+
+.trophy-confirmation-actions {
+  /* [UI] Confirmação destrutiva fica legível antes de voltar às duas colunas. */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.trophy-sale-status {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.trophy-rarity {
+  width: fit-content;
+  padding: 3px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.trophy-rarity-common {
+  color: #625849;
+}
+
+.trophy-rarity-uncommon {
+  color: #386237;
+}
+
+.trophy-rarity-rare {
+  color: #5a3f91;
+}
+
+.trophy-rarity-legendary {
+  color: #8b4b0d;
+}
+
+.trophy-empty-state {
+  /* [UI] Estado vazio orienta o próximo passo sem renderizar linhas inertes. */
+  display: flex;
+  min-height: 104px;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px dashed rgba(122, 85, 39, 0.58);
+  border-radius: 8px;
+  background: rgba(255, 252, 240, 0.42);
+}
+
+.trophy-empty-state > .game-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--primary-dark);
+}
+
+.trophy-empty-state div {
+  display: grid;
+  gap: 4px;
+}
+
+.trophy-empty-state p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .reward-item-copy {
   display: grid;
   gap: 1px;
@@ -2211,6 +2386,24 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .trophy-panel-heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .trophy-inventory-list > li {
+    grid-template-columns: auto minmax(0, 1fr) minmax(220px, auto);
+  }
+
+  .trophy-sale-actions {
+    grid-column: auto;
+    min-width: 220px;
+  }
+
+  .trophy-confirmation-actions {
+    grid-template-columns: minmax(92px, auto) minmax(220px, 1fr);
+  }
+
   .toast {
     right: auto;
     left: calc(var(--nav-w) + (100vw - var(--nav-w)) / 2);
@@ -2614,6 +2807,11 @@ dd {
 }
 
 .expedition-loot-promise .gear-art {
+  width: 34px;
+  height: 34px;
+}
+
+.expedition-loot-promise .trophy-art {
   width: 34px;
   height: 34px;
 }

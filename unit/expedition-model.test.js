@@ -17,13 +17,15 @@ import { getLeader, recruitCat } from '../src/game/systems/colonySystem.ts';
 import { getInventoryLabel } from '../src/ui/formatters.ts';
 import { gearById } from '../src/game/data/gear.ts';
 
-test('expedition zones expose a valid catalog and lookup for the three planned tiers', () => {
+test('expedition zones expose a valid catalog and lookup for the five planned tiers', () => {
   assert.deepEqual(
     expeditionZones.map((zone) => [zone.name, zone.recommendedPower]),
     [
       ['Campos Sussurrantes', 6],
       ['Bosque das Brumas', 14],
       ['Ruínas de Grimalkin', 26],
+      ['Pântano das Almas', 40],
+      ['Limiar do Eclipse', 60],
     ],
   );
   assert.equal(expeditionZoneById.whisperingFields.unlock.kind, 'always');
@@ -32,6 +34,16 @@ test('expedition zones expose a valid catalog and lookup for the three planned t
     kind: 'zoneCollections',
     zoneId: 'whisperingFields',
     collections: 5,
+  });
+  assert.deepEqual(expeditionZoneById.soulMarsh.unlock, {
+    kind: 'zoneCollections',
+    zoneId: 'grimalkinRuins',
+    collections: 5,
+  });
+  assert.deepEqual(expeditionZoneById.eclipseTower.unlock, {
+    kind: 'zoneCollections',
+    zoneId: 'soulMarsh',
+    collections: 8,
   });
 
   assert.equal(new Set(expeditionZones.map((zone) => zone.id)).size, expeditionZones.length);
@@ -62,17 +74,40 @@ test('expedition zones expose a valid catalog and lookup for the three planned t
   assert.deepEqual(expeditionZoneById.grimalkinRuins.gearTable, [
     { item: 'grimaldeAegis', chancePerPulse: 0.001 },
   ]);
+  assert.deepEqual(expeditionZoneById.soulMarsh.gearTable, []);
+  assert.deepEqual(expeditionZoneById.eclipseTower.gearTable, []);
   assert.equal(isExpeditionZoneId('unknownZone'), false);
 });
 
 test('expedition trophies have unique ids and positive sale values', () => {
   assert.deepEqual(
     expeditionTrophies.map((trophy) => trophy.id),
-    ['spectralSardine', 'phantomFur', 'grimaldeRelic'],
+    [
+      'spectralSardine',
+      'phantomFur',
+      'grimaldeRelic',
+      'ancientBoneCharm',
+      'soulAmulet',
+      'eclipseShard',
+    ],
   );
   assert.equal(new Set(expeditionTrophies.map((trophy) => trophy.id)).size, expeditionTrophies.length);
   assert.equal(expeditionTrophies.every((trophy) => trophy.sellValue > 0), true);
   assert.equal(expeditionTrophyById.grimaldeRelic.sellValue, 45);
+  assert.equal(expeditionTrophyById.ancientBoneCharm.sellValue, 65);
+  assert.equal(expeditionTrophyById.soulAmulet.sellValue, 90);
+  assert.equal(expeditionTrophyById.eclipseShard.sellValue, 140);
+  assert.deepEqual(
+    expeditionTrophies.map((trophy) => [trophy.id, trophy.rarity]),
+    [
+      ['spectralSardine', 'common'],
+      ['phantomFur', 'common'],
+      ['grimaldeRelic', 'uncommon'],
+      ['ancientBoneCharm', 'uncommon'],
+      ['soulAmulet', 'rare'],
+      ['eclipseShard', 'legendary'],
+    ],
+  );
 });
 
 test('cat power uses attack twice, defense, level, and zero gear power in E0', () => {
@@ -94,11 +129,14 @@ test('cat power uses attack twice, defense, level, and zero gear power in E0', (
 test('fresh cats start home with an empty expedition trophy inventory', () => {
   const state = createInitialGameState(1_000);
 
-  assert.equal(state.schemaVersion, 4);
+  assert.equal(state.schemaVersion, 5);
   assert.equal(getLeader(state).expedition, null);
   assert.equal(state.inventory.spectralSardine, 0);
   assert.equal(state.inventory.phantomFur, 0);
   assert.equal(state.inventory.grimaldeRelic, 0);
+  assert.equal(state.inventory.ancientBoneCharm, 0);
+  assert.equal(state.inventory.soulAmulet, 0);
+  assert.equal(state.inventory.eclipseShard, 0);
 });
 
 test('v1 cats and new recruits default to no expedition', () => {

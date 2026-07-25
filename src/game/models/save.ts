@@ -4,7 +4,7 @@ import type { MissionId, MissionState } from './missions.ts';
 import type { Inventory, Resources } from './resources.ts';
 import type { UpgradeId, UpgradeState } from './upgrades.ts';
 
-export const saveSchemaVersion = 4;
+export const saveSchemaVersion = 5;
 
 export type GameTotals = {
   activitiesCompleted: number;

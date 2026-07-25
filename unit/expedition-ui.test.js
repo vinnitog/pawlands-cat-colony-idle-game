@@ -41,10 +41,16 @@ test('expedition screen previews progress without mutating state every second', 
   assert.match(screen, /inventoryItemLabels/);
 });
 
-test('all three audited zone backgrounds are wired through the Vite base path', () => {
+test('all five audited zone backgrounds are wired through the Vite base path', () => {
   const screen = read('src/ui/screens/ExpeditionScreen.tsx');
 
-  for (const file of ['whispering-fields.png', 'mistwood.png', 'grimalkin-ruins.png']) {
+  for (const file of [
+    'whispering-fields.png',
+    'mistwood.png',
+    'grimalkin-ruins.png',
+    'soul-marsh.png',
+    'eclipse-tower.png',
+  ]) {
     assert.match(screen, new RegExp(file.replace('.', '\\.')));
   }
   assert.match(screen, /import\.meta\.env\.BASE_URL/);
@@ -101,7 +107,14 @@ test('reward notice labels and renders every expedition trophy icon', () => {
   const icons = read('src/ui/components/GameIcon.tsx');
 
   assert.match(modal, /inventoryItemLabels/);
-  for (const trophy of ['spectralSardine', 'phantomFur', 'grimaldeRelic']) {
+  for (const trophy of [
+    'spectralSardine',
+    'phantomFur',
+    'grimaldeRelic',
+    'ancientBoneCharm',
+    'soulAmulet',
+    'eclipseShard',
+  ]) {
     assert.match(icons, new RegExp(`case '${trophy}'`));
   }
 });

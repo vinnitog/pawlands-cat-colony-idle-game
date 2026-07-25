@@ -13,6 +13,8 @@ Assets criados por Pixel-boy para a Sparklin Labs e distribuídos sob CC0 1.0.
 | `zones/whispering-fields.png` | `backgrounds/backgrounds/28.png` |
 | `zones/mistwood.png` | `backgrounds/backgrounds/24.png` |
 | `zones/grimalkin-ruins.png` | `backgrounds/backgrounds/29.png` |
+| `zones/soul-marsh.png` | `backgrounds/backgrounds/20.png` |
+| `zones/eclipse-tower.png` | `backgrounds/backgrounds/36.png` |
 | `items/spirit-amulet.png` | `medieval-fantasy/items/3.png` |
 | `items/crimson-shield.png` | `medieval-fantasy/items/4.png` |
 | `items/bone-charm.png` | `medieval-fantasy/items/5.png` |

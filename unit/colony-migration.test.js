@@ -30,7 +30,7 @@ function v1Save() {
 test('v1 save migrates into a one-cat roster without losing progress', () => {
   const migrated = migrateGameSave(v1Save());
 
-  assert.equal(migrated.schemaVersion, 4);
+  assert.equal(migrated.schemaVersion, 5);
   assert.equal(migrated.cats.length, 1);
   assert.equal(migrated.leaderId, 'milo');
 
@@ -52,7 +52,7 @@ test('v1 save migrates into a one-cat roster without losing progress', () => {
   assert.deepEqual(migrated.world, { x: 100, y: 120 });
 });
 
-test('v2 save migrates to v4 without losing colony progress', () => {
+test('v2 save migrates to v5 without losing colony progress', () => {
   const state = updateLeader(createInitialGameState(1_000), (cat) => ({
     ...cat,
     name: 'Bruma',
@@ -66,7 +66,7 @@ test('v2 save migrates to v4 without losing colony progress', () => {
 
   const migrated = migrateGameSave(v2);
 
-  assert.equal(migrated.schemaVersion, 4);
+  assert.equal(migrated.schemaVersion, 5);
   assert.equal(migrated.cats.length, 1);
   assert.equal(getLeader(migrated).name, 'Bruma');
   assert.equal(getLeader(migrated).level, 3);

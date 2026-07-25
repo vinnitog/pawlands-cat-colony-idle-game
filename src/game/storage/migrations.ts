@@ -2,7 +2,7 @@ import { activityById } from '../data/activities.ts';
 import { createInitialGameState } from '../data/initialGameState.ts';
 import { missions } from '../data/missions.ts';
 import { upgrades } from '../data/upgrades.ts';
-import { isExpeditionZoneId } from '../data/zones.ts';
+import { expeditionZoneIds, isExpeditionZoneId } from '../data/zones.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import { isCatClass } from '../models/catClass.ts';
@@ -13,7 +13,6 @@ import {
   type ActiveExpedition,
   type ExpeditionPulseCarry,
   type ExpeditionTimeCarry,
-  type ExpeditionZoneId,
 } from '../models/expedition.ts';
 import type { MissionState } from '../models/missions.ts';
 import type { CatEquipment, GearSlot } from '../models/gear.ts';
@@ -44,6 +43,7 @@ export function migrateGameSave(value: unknown): GameState {
     if (
       candidate.schemaVersion === 2
       || candidate.schemaVersion === 3
+      || candidate.schemaVersion === 4
       || candidate.schemaVersion === saveSchemaVersion
     ) {
       const cats = mergeCats(candidate.cats, fallback.cats);
@@ -99,7 +99,9 @@ function resolveLeaderId(value: unknown, cats: Cat[]): string {
 }
 
 function toSafeNumber(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  const normalized = Math.max(0, Math.floor(value));
+  return Number.isSafeInteger(normalized) ? normalized : fallback;
 }
 
 function toSafeDecimal(value: unknown, fallback: number): number {
@@ -184,18 +186,16 @@ function mergeExpeditionCollections(
   value: unknown,
 ): GameState['expeditionCollections'] {
   const source = isObject(value) ? value : {};
-  return {
-    whisperingFields: toSafeNumber(source.whisperingFields, 0),
-    mistwood: toSafeNumber(source.mistwood, 0),
-    grimalkinRuins: toSafeNumber(source.grimalkinRuins, 0),
-  };
+  return Object.fromEntries(
+    expeditionZoneIds.map((zoneId) => [zoneId, toSafeNumber(source[zoneId], 0)]),
+  ) as GameState['expeditionCollections'];
 }
 
 function mergeExpeditionPulseCarry(value: unknown): ExpeditionPulseCarry {
   if (!isObject(value)) return {};
 
   const carry: ExpeditionPulseCarry = {};
-  for (const zoneId of ['whisperingFields', 'mistwood', 'grimalkinRuins'] as ExpeditionZoneId[]) {
+  for (const zoneId of expeditionZoneIds) {
     const amount = value[zoneId];
     if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0 && amount < 1) {
       carry[zoneId] = amount;
@@ -208,7 +208,7 @@ function mergeExpeditionTimeCarry(value: unknown): ExpeditionTimeCarry {
   if (!isObject(value)) return {};
 
   const carry: ExpeditionTimeCarry = {};
-  for (const zoneId of ['whisperingFields', 'mistwood', 'grimalkinRuins'] as ExpeditionZoneId[]) {
+  for (const zoneId of expeditionZoneIds) {
     const amount = value[zoneId];
     if (
       typeof amount === 'number'

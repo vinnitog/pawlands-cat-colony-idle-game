@@ -67,3 +67,23 @@ cenários, loot e equipamento onde o pixel art ajuda a integrar o mundo e a UI.
 - `backgrounds/29.png` recebe véu azulado para ler como ruína assombrada.
 - `items/5.png` foi nomeado `bone-charm`, pois sua silhueta pequena não comunica
   elmo com segurança.
+
+## Expansão E4
+
+Os dois fundos adicionais foram inspecionados no catálogo `backgrounds` do
+mesmo repositório e do mesmo commit auditado
+`e8674a03ab4456802f71f848c4df79eccca23f7a`. Ambos permanecem cobertos pela
+licença local CC0 1.0:
+
+- `backgrounds/backgrounds/20.png` foi importado como
+  `zones/soul-marsh.png`. A vegetação úmida, o musgo pendente e o corredor
+  central escuro sustentam a leitura de Pântano das Almas sem introduzir
+  arquitetura ou tecnologia fora da fantasia medieval.
+- `backgrounds/backgrounds/36.png` foi importado como
+  `zones/eclipse-tower.png`. A lua dominante, o céu noturno em camadas e o
+  horizonte em silhueta entregam a leitura de eclipse; a composição reserva
+  espaço suficiente para título, valores e véu da futura carta de zona.
+
+Os arquivos têm a mesma proporção `137:89` dos três fundos anteriores. Devem
+usar o mesmo tratamento de pixel art, sem interpolação, com véu específico de
+zona para reforçar umidade no pântano e contraste lunar na torre.

@@ -59,7 +59,9 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 |---|---|---|---|
 | Campos Sussurrantes | 6 | inicial | ratos-fantasma, sardinhas espectrais |
 | Bosque das Brumas | 14 | nível 4 de um gato | penas do Além |
-| Ruínas de Grimalkin | 26 | 1ª zona "limpa" (N coletas) | relíquias, gema rara |
+| Ruínas de Grimalkin | 26 | 5 coletas nos Campos | relíquias, gema rara |
+| Pântano das Almas | 40 | 5 coletas nas Ruínas | amuletos e ossos antigos |
+| Limiar do Eclipse | 60 | 8 coletas no Pântano | fragmentos do eclipse |
 
 - Zona tem `recommendedPower`, `unlock`, `lootTable`, `xpPerPulse`.
 - Loot table = lista de `{ item, chancePorPulso, quantidade }` + `gemChance`.
@@ -70,6 +72,24 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
   no `Inventory`/`SpecialItemKey`, vendidos por moedas (nova ação de venda, ou
   o joalheiro compra). Bump de schema para o inventário estendido.
 - Chance rara de **gema** e, a partir da E3, chance rara de **peça de gear**.
+
+### Loot rico e venda (E4)
+
+| Zona | Troféus por pulso | XP/pulso | Gema/pulso |
+|---|---|---:|---:|
+| Campos Sussurrantes | Sardinha Espectral 18% (1–2) | 2 | 0,2% |
+| Bosque das Brumas | Pelo Fantasma 14% (1–2); Sardinha 3,5% | 4 | 0,4% |
+| Ruínas de Grimalkin | Relíquia 10%; Pelo 4,5%; Talismã de Osso 1,8% | 7 | 0,8% |
+| Pântano das Almas | Amuleto de Alma 7,5%; Talismã 3,5%; Relíquia 2,5% | 10 | 1,0% |
+| Limiar do Eclipse | Fragmento do Eclipse 5,5%; Amuleto 3%; Talismã 2% | 14 | 1,2% |
+
+- Troféus podem ser vendidos individualmente ou em lote no inventário.
+- A venda aceita apenas IDs de troféu, nunca gear ou itens especiais, atualiza
+  moedas/totais/missões e falha sem mutar o estado quando a quantidade é zero.
+- Valores unitários: Sardinha 8, Pelo 18, Relíquia 45, Talismã 65, Amuleto 90
+  e Fragmento do Eclipse 140 moedas.
+- As peças raras da E3 continuam exclusivas do Bosque e das Ruínas; as duas
+  zonas novas não adicionam gear nesta fase.
 
 ## Equipamento (E3 — satisfaz "poder inclui equipamento")
 
@@ -110,7 +130,29 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 | **E1** | Motor da caçada contínua: acúmulo por tempo, eficiência por poder, coleta, offline cap. Testado headless. | Não |
 | **E2** | Tela Expedição pelo Portão do Além: escolher zona, enviar gato, ver progresso/saco, coletar. Arte medieval. | Sim |
 | **E3** | Equipamento: gear, equipar, ferreiro vende, poder inclui equip, drop raro de gear. | Sim |
-| **E4** | Loot tables ricas + venda de troféus + balanceamento; mais zonas. | Sim |
+| **E4** | Loot tables ricas + venda de troféus + balanceamento; Pântano das Almas e Limiar do Eclipse. | Sim |
+
+E0→E4 está entregue. A E4 preserva `PULSE_MS = 5 min`, cap de 96 pulsos e a
+eficiência entre 0,25 e 1,5; portanto não reabre as decisões travadas do loop.
+
+## Balanço da E4
+
+Na eficiência nominal 1,0 (12 pulsos/h), o valor esperado dos troféus e o XP
+ficam:
+
+| Zona | Moedas esperadas/h | XP/h |
+|---|---:|---:|
+| Campos Sussurrantes | 25,9 | 24 |
+| Bosque das Brumas | 48,7 | 48 |
+| Ruínas de Grimalkin | 77,8 | 84 |
+| Pântano das Almas | 121,8 | 120 |
+| Limiar do Eclipse | 140,4 | 168 |
+
+O cap nominal permanece em 8 horas. Esses números são uma **hipótese inicial de
+playtest**, não uma promessa de economia final: medir tempo até desbloqueio,
+frequência de coleta, valor efetivo por poder e sensação dos drops raros.
+Também observar a escala multi-gato e o endgame, pois expedições paralelas podem
+ampliar a renda total mesmo com o teto individual.
 
 > **Menor risco primeiro:** E0/E1 são pura lógica com a suíte de testes como
 > rede (como foi a C0 da colônia). UI só na E2.
@@ -123,10 +165,10 @@ efetivos, equivalentes a 8 horas na eficiência nominal `1.0`.
 
 ## Riscos
 - **Escopo:** épico grande. Mitigado pelo fatiamento E0→E4, cada fase num commit.
-- **Balanceamento:** renda contínua + paralela (N gatos em N zonas) escala rápido
-  — a E4 revê `PULSE_MS`, cap e loot. Reaproveita a régua da 1ª passada de balanço.
-- **Save:** os novos campos em `Cat` e `Inventory` usam schema v4, com migração
-  testada de v1/v2/v3 e sanitização de IDs/slots.
+- **Balanceamento:** renda contínua + paralela (N gatos em N zonas) escala rápido.
+  A E4 manteve pulso/cap, enriqueceu o loot e registrou a régua para playtest.
+- **Save:** o estado atual usa schema **v5**, com migrações testadas de
+  v1/v2/v3/v4, coleções/carries das cinco zonas e sanitização de IDs/slots.
 
 ## Fora de escopo (segue Fase 3)
 Bosses, prestígio/rebirth, multiplayer. Combate detalhado (turnos/animação) fica

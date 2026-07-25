@@ -4,7 +4,7 @@ import type { CatClass } from '../game/models/catClass.ts';
 import type { ExpeditionZoneId } from '../game/models/expedition.ts';
 import type { GearId, GearSlot } from '../game/models/gear.ts';
 import type { MissionId } from '../game/models/missions.ts';
-import type { RewardBundle } from '../game/models/resources.ts';
+import type { ExpeditionTrophyKey, RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
 import type { ShopItemId } from '../game/models/shop.ts';
@@ -35,6 +35,10 @@ import {
   startExpedition as startExpeditionInState,
 } from '../game/systems/expeditionSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
+import {
+  sellTrophy as sellTrophyInState,
+  type TrophySaleMode,
+} from '../game/systems/trophySystem.ts';
 import { clearGame, loadGame, saveGame } from '../game/storage/saveManager.ts';
 
 export type RewardNotice = {
@@ -59,6 +63,7 @@ type GameContextValue = {
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
+  sellTrophy(trophyId: ExpeditionTrophyKey, mode: TrophySaleMode): void;
   setWorldPosition(x: number, y: number): void;
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
@@ -329,6 +334,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const sellTrophy = useCallback((
+    trophyId: ExpeditionTrophyKey,
+    mode: TrophySaleMode,
+  ) => {
+    setState((current) => {
+      const result = sellTrophyInState(current, trophyId, mode);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(
+        `${result.quantity} ${result.quantity === 1 ? 'troféu vendido' : 'troféus vendidos'} por ${result.coins} moedas.`,
+      );
+      return result.state;
+    });
+  }, []);
+
   const setWorldPosition = useCallback((x: number, y: number) => {
     setState((current) => {
       if (current.world.x === x && current.world.y === y) return current;
@@ -370,6 +394,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyUpgrade,
       claimMission,
       buyShopItem,
+      sellTrophy,
       setWorldPosition,
       completeOnboarding,
       resetGame,
@@ -386,6 +411,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       recruitCat,
       rewardNotice,
       resetGame,
+      sellTrophy,
       setLeader,
       setWorldPosition,
       startActivity,

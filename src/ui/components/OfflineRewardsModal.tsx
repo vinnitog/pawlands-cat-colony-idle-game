@@ -2,6 +2,11 @@ import { useEffect, useRef } from 'react';
 import type { RewardNotice } from '../../app/gameProvider.tsx';
 import { inventoryItemLabels, resourceLabels } from '../../game/models/resources.ts';
 import { gearById, gearTierLabels, isGearId } from '../../game/data/gear.ts';
+import {
+  expeditionTrophyById,
+  expeditionTrophyRarityLabels,
+  isExpeditionTrophyKey,
+} from '../../game/data/trophies.ts';
 import { formatLongDuration } from '../formatters.ts';
 import { getFocusTrapTarget } from '../focusTrap.ts';
 import { GameIcon, type GameIconName } from './GameIcon.tsx';
@@ -105,13 +110,17 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
           ) : null}
           {itemEntries.map(([key, amount]) => {
             const gearItem = isGearId(key) ? gearById[key] : null;
+            const trophyItem = isExpeditionTrophyKey(key) ? expeditionTrophyById[key] : null;
             return (
-              <li key={key}>
+              <li key={key} data-rarity={trophyItem?.rarity}>
                 <span>
                   <GameIcon name={key as GameIconName} />
                   <span className="reward-item-copy">
                     {inventoryItemLabels[key as keyof typeof inventoryItemLabels]}
                     {gearItem ? <small>{gearTierLabels[gearItem.tier]}</small> : null}
+                    {trophyItem ? (
+                      <small>{expeditionTrophyRarityLabels[trophyItem.rarity]}</small>
+                    ) : null}
                   </span>
                 </span>
                 <strong>+{amount}</strong>

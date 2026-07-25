@@ -4,7 +4,9 @@ import type { GearId } from './gear.ts';
 export type ExpeditionZoneId =
   | 'whisperingFields'
   | 'mistwood'
-  | 'grimalkinRuins';
+  | 'grimalkinRuins'
+  | 'soulMarsh'
+  | 'eclipseTower';
 
 export type ActiveExpedition = {
   zoneId: ExpeditionZoneId;
