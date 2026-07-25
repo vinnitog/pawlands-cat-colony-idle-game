@@ -1,4 +1,5 @@
 import type { ActivityDefinition } from '../models/activity.ts';
+import { getRuntimeDurationMs } from '../config/runtimeTiming.ts';
 
 const minute = 60 * 1000;
 
@@ -7,7 +8,7 @@ export const activities: ActivityDefinition[] = [
     id: 'huntMice',
     name: 'Caçar Ratinhos',
     description: 'Fareja cantinhos suspeitos e volta orgulhoso.',
-    durationMs: 5 * minute,
+    durationMs: getRuntimeDurationMs(5 * minute),
     energyCost: 5,
     relatedStat: 'hunting',
     rewards: {
@@ -19,7 +20,7 @@ export const activities: ActivityDefinition[] = [
     id: 'fishPond',
     name: 'Pescar',
     description: 'Uma pescaria calma, com bigodes em modo antena.',
-    durationMs: 8 * minute,
+    durationMs: getRuntimeDurationMs(8 * minute),
     energyCost: 8,
     relatedStat: 'fishing',
     rewards: {
@@ -31,7 +32,7 @@ export const activities: ActivityDefinition[] = [
     id: 'searchYarn',
     name: 'Procurar Novelos',
     description: 'Investiga cestos, almofadas e lugares improváveis.',
-    durationMs: 3 * minute,
+    durationMs: getRuntimeDurationMs(3 * minute),
     energyCost: 3,
     relatedStat: 'luck',
     rewards: {
@@ -43,7 +44,7 @@ export const activities: ActivityDefinition[] = [
     id: 'sleep',
     name: 'Dormir',
     description: 'Um cochilo estratégico recupera energia para novas aventuras.',
-    durationMs: 15 * minute,
+    durationMs: getRuntimeDurationMs(15 * minute),
     energyCost: 0,
     rewards: {
       energy: [28, 34],
@@ -53,7 +54,7 @@ export const activities: ActivityDefinition[] = [
     id: 'exploreYard',
     name: 'Explorar o Quintal',
     description: 'Aventura leve com chance de encontrar uma relíquia felina.',
-    durationMs: 20 * minute,
+    durationMs: getRuntimeDurationMs(20 * minute),
     energyCost: 10,
     relatedStat: 'luck',
     rewards: {

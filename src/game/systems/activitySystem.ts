@@ -1,5 +1,5 @@
 import { activityById } from '../data/activities.ts';
-import type { ActivityId, RewardRange } from '../models/activity.ts';
+import type { ActiveActivity, ActivityId, RewardRange } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
@@ -38,6 +38,11 @@ export type ActivityCompletionResult = {
   levelsGained: number;
   levelCoins: number;
 };
+
+export function getEffectiveActivityEndsAt(activity: ActiveActivity): number {
+  const runtimeDurationMs = activityById[activity.activityId].durationMs;
+  return Math.min(activity.endsAt, activity.startedAt + runtimeDurationMs);
+}
 
 function rollRange(range: RewardRange, random: () => number): number {
   const [min, max] = range;
@@ -158,7 +163,7 @@ export function completeCatActivity(
 ): ActivityCompletionResult {
   const actor = state.cats.find((cat) => cat.id === catId);
   const activity = actor?.activity;
-  if (!actor || !activity || activity.endsAt > now) {
+  if (!actor || !activity || getEffectiveActivityEndsAt(activity) > now) {
     return {
       completed: false,
       state,
@@ -250,5 +255,5 @@ export function completeFinishedActivities(
 export function getRemainingActivityMs(state: GameState, now = Date.now()): number {
   const activity = getLeader(state).activity;
   if (!activity) return 0;
-  return Math.max(0, activity.endsAt - now);
+  return Math.max(0, getEffectiveActivityEndsAt(activity) - now);
 }

@@ -1,5 +1,6 @@
 import type { ExpeditionTrophyKey } from './resources.ts';
 import type { GearId } from './gear.ts';
+import { getRuntimeDurationMs } from '../config/runtimeTiming.ts';
 
 export type ExpeditionZoneId =
   | 'whisperingFields'
@@ -18,8 +19,10 @@ export type ActiveExpedition = {
 export type ExpeditionPulseCarry = Partial<Record<ExpeditionZoneId, number>>;
 export type ExpeditionTimeCarry = Partial<Record<ExpeditionZoneId, number>>;
 
-/** One base hunting opportunity every five minutes. */
-export const EXPEDITION_PULSE_MS = 5 * 60 * 1000;
+/** Balanced interval used by production, tests and save validation. */
+export const OFFICIAL_EXPEDITION_PULSE_MS = 5 * 60 * 1000;
+/** One base hunting opportunity per runtime interval. */
+export const EXPEDITION_PULSE_MS = getRuntimeDurationMs(OFFICIAL_EXPEDITION_PULSE_MS);
 /** Eight hours of effective hunting at the nominal 1.0 efficiency. */
 export const EXPEDITION_PULSE_CAP = 96;
 

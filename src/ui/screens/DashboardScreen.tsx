@@ -1,6 +1,9 @@
 import { activityById } from '../../game/data/activities.ts';
 import { expeditionZoneById } from '../../game/data/zones.ts';
-import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
+import {
+  getEffectiveActivityEndsAt,
+  getRemainingActivityMs,
+} from '../../game/systems/activitySystem.ts';
 import { getLeader } from '../../game/systems/colonySystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatStatus } from '../components/CatStatus.tsx';
@@ -17,6 +20,12 @@ export function DashboardScreen() {
     ? expeditionZoneById[leader.expedition.zoneId]
     : null;
   const remainingMs = getRemainingActivityMs(state, now);
+  const activityEndsAt = leader.activity
+    ? getEffectiveActivityEndsAt(leader.activity)
+    : 0;
+  const activityDurationMs = leader.activity
+    ? Math.max(1, activityEndsAt - leader.activity.startedAt)
+    : 1;
   const progressPercent = leader.activity
     ? Math.min(
         100,
@@ -24,7 +33,7 @@ export function DashboardScreen() {
           0,
           Math.round(
             ((now - leader.activity.startedAt) /
-              (leader.activity.endsAt - leader.activity.startedAt)) *
+              activityDurationMs) *
               100,
           ),
         ),
