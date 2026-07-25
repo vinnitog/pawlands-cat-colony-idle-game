@@ -14,7 +14,8 @@ type ActivityCardProps = {
 
 export function ActivityCard({ activity, state, isDailyBonus = false, onStart }: ActivityCardProps) {
   const leader = getLeader(state);
-  const isBusy = Boolean(leader.activity);
+  const isOnExpedition = leader.expedition !== null;
+  const isBusy = leader.activity !== null || isOnExpedition;
   const hasEnergy = leader.energy >= activity.energyCost;
   const xpRange = activity.rewards.xp;
   const xpMultiplier = isDailyBonus ? 2 : 1;
@@ -73,7 +74,13 @@ export function ActivityCard({ activity, state, isDailyBonus = false, onStart }:
       ) : null}
 
       <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
-        {isBusy ? `${leader.name} está ocupado` : hasEnergy ? 'Iniciar' : 'Sem energia'}
+        {isOnExpedition
+          ? `${leader.name} está em expedição`
+          : isBusy
+            ? `${leader.name} está ocupado`
+            : hasEnergy
+              ? 'Iniciar'
+              : 'Sem energia'}
       </button>
     </article>
   );

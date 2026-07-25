@@ -1,4 +1,5 @@
 import { activityById } from '../../game/data/activities.ts';
+import { expeditionZoneById } from '../../game/data/zones.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
 import { getLeader } from '../../game/systems/colonySystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
@@ -12,6 +13,9 @@ export function DashboardScreen() {
   const now = useNow();
   const leader = getLeader(state);
   const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
+  const activeExpedition = leader.expedition
+    ? expeditionZoneById[leader.expedition.zoneId]
+    : null;
   const remainingMs = getRemainingActivityMs(state, now);
   const progressPercent = leader.activity
     ? Math.min(
@@ -36,14 +40,24 @@ export function DashboardScreen() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Atividade atual</p>
-            <h2>{activeActivity ? activeActivity.name : `${leader.name} está disponível`}</h2>
+            <h2>
+              {activeActivity
+                ? activeActivity.name
+                : activeExpedition
+                  ? `${leader.name} está em expedição`
+                  : `${leader.name} está disponível`}
+            </h2>
           </div>
-          <strong>{activeActivity ? formatDuration(remainingMs) : 'Livre'}</strong>
+          <strong>
+            {activeActivity ? formatDuration(remainingMs) : activeExpedition ? 'Expedição' : 'Livre'}
+          </strong>
         </div>
         <p className="muted-text">
           {activeActivity
             ? activeActivity.description
-            : 'Escolha uma atividade para continuar juntando recursos e expandir a colônia.'}
+            : activeExpedition
+              ? `Caçando em ${activeExpedition.name}. O saque acumula até você coletá-lo no Portão do Além.`
+              : 'Escolha uma atividade para continuar juntando recursos e expandir a colônia.'}
         </p>
 
         {activeActivity ? (

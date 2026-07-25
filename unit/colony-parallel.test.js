@@ -5,7 +5,8 @@ import {
   completeFinishedActivities,
   startActivity,
 } from '../src/game/systems/activitySystem.ts';
-import { getLeader, recruitCat } from '../src/game/systems/colonySystem.ts';
+import { getLeader, recruitCat, setLeader } from '../src/game/systems/colonySystem.ts';
+import { startExpedition } from '../src/game/systems/expeditionSystem.ts';
 import { processOfflineProgress } from '../src/game/systems/offlineSystem.ts';
 
 const MIN = 60_000;
@@ -36,6 +37,51 @@ test('two cats can run activities in parallel', () => {
   // A busy leader no longer blocks a free recruit (and vice versa).
   const third = startActivity(recruitStart.state, 'fishPond', 1000, { catId: recruitId });
   assert.equal(third.ok, false);
+});
+
+test('a free leader can start an activity while another cat is on expedition', () => {
+  const { state, recruitId } = twoCatColony();
+  const leaderBefore = getLeader(state);
+  const sent = startExpedition(state, recruitId, 'whisperingFields', 3_000);
+
+  assert.equal(sent.ok, true);
+  if (!sent.ok) return;
+  assert.equal(getLeader(sent.state).id, leaderBefore.id);
+  assert.equal(getLeader(sent.state).expedition, null);
+
+  const started = startActivity(sent.state, 'huntMice', 4_000);
+
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+  assert.equal(getLeader(started.state).activity?.activityId, 'huntMice');
+  assert.equal(
+    started.state.cats.find((cat) => cat.id === recruitId)?.expedition?.zoneId,
+    'whisperingFields',
+  );
+});
+
+test('switching leadership away from an expedition cat keeps activities available', () => {
+  const { state, recruitId } = twoCatColony();
+  const expeditionCatId = getLeader(state).id;
+  const sent = startExpedition(state, expeditionCatId, 'whisperingFields', 5_000);
+
+  assert.equal(sent.ok, true);
+  if (!sent.ok) return;
+  const switched = setLeader(sent.state, recruitId);
+  assert.equal(switched.ok, true);
+  if (!switched.ok) return;
+  assert.equal(getLeader(switched.state).id, recruitId);
+  assert.equal(getLeader(switched.state).expedition, null);
+
+  const started = startActivity(switched.state, 'searchYarn', 6_000);
+
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+  assert.equal(getLeader(started.state).activity?.activityId, 'searchYarn');
+  assert.equal(
+    started.state.cats.find((cat) => cat.id === expeditionCatId)?.expedition?.zoneId,
+    'whisperingFields',
+  );
 });
 
 test('completing the colony harvests every finished activity at once', () => {

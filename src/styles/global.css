@@ -1196,6 +1196,17 @@ dd {
   box-shadow: 0 2px 0 #3a2410;
 }
 
+/* [UI] Atividades indisponíveis preservam contraste e explicam o bloqueio pelo texto. */
+.activity-action:disabled {
+  padding-block: 10px;
+  border: 1px dashed #736348;
+  background: #d8d0bc;
+  color: #514530;
+  line-height: 1.25;
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 252, 240, 0.45);
+}
+
 .danger-action {
   margin-top: 16px;
   border: 1px solid #3a1010;
