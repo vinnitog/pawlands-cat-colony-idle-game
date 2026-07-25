@@ -6,6 +6,7 @@ import {
   startActivity,
 } from '../src/game/systems/activitySystem.ts';
 import { getLeader, recruitCat, setLeader } from '../src/game/systems/colonySystem.ts';
+import { createEmptyRewardBundle } from '../src/game/models/resources.ts';
 import { startExpedition } from '../src/game/systems/expeditionSystem.ts';
 import { processOfflineProgress } from '../src/game/systems/offlineSystem.ts';
 
@@ -18,6 +19,44 @@ function twoCatColony() {
   const recruited = recruitCat(state, () => 0, 2000);
   assert.equal(recruited.ok, true);
   return { state: recruited.state, recruitId: recruited.cat.id };
+}
+
+function threeCatColony() {
+  const state = createInitialGameState(1000);
+  state.resources.gems = 100;
+
+  const first = recruitCat(state, () => 0, 2000);
+  assert.equal(first.ok, true);
+  if (!first.ok) throw new Error(first.reason);
+
+  const second = recruitCat(first.state, () => 0, 3000);
+  assert.equal(second.ok, true);
+  if (!second.ok) throw new Error(second.reason);
+
+  return {
+    state: second.state,
+    firstRecruitId: first.cat.id,
+    secondRecruitId: second.cat.id,
+  };
+}
+
+function sumCompletionRewards(completions) {
+  const total = createEmptyRewardBundle();
+
+  for (const { reward } of completions) {
+    total.xp += reward.xp;
+    total.energy += reward.energy;
+
+    for (const [key, amount] of Object.entries(reward.resources)) {
+      total.resources[key] = (total.resources[key] ?? 0) + amount;
+    }
+
+    for (const [key, amount] of Object.entries(reward.inventory)) {
+      total.inventory[key] = (total.inventory[key] ?? 0) + amount;
+    }
+  }
+
+  return total;
 }
 
 test('two cats can run activities in parallel', () => {
@@ -98,6 +137,28 @@ test('completing the colony harvests every finished activity at once', () => {
   assert.ok((harvest.reward.resources.mice ?? 0) > 0);
   assert.ok((harvest.reward.resources.yarn ?? 0) > 0);
   assert.equal(harvest.state.cats.every((cat) => cat.activity === null), true);
+  assert.deepEqual(
+    harvest.completions.map(({ catId, catName, activityId, activityName }) => ({
+      catId,
+      catName,
+      activityId,
+      activityName,
+    })),
+    [
+      {
+        catId: 'milo',
+        catName: 'Milo',
+        activityId: 'huntMice',
+        activityName: 'Caçar Ratinhos',
+      },
+      {
+        catId: recruitId,
+        catName: harvest.state.cats.find((cat) => cat.id === recruitId)?.name,
+        activityId: 'searchYarn',
+        activityName: 'Procurar Novelos',
+      },
+    ],
+  );
 });
 
 test('each cat earns its own XP and rolls with its own stats', () => {
@@ -135,6 +196,9 @@ test('offline progress completes multiple cats and reports the merged reward', (
   assert.ok((offline.reward.resources.mice ?? 0) > 0);
   assert.ok((offline.reward.resources.yarn ?? 0) > 0);
   assert.equal(offline.state.totals.activitiesCompleted, 2);
+  assert.equal(offline.completions.length, 2);
+  assert.equal(offline.completions[0].catName, 'Milo');
+  assert.equal(offline.completions[1].activityName, 'Procurar Novelos');
 });
 
 test('unfinished activities stay put while finished ones are harvested', () => {
@@ -149,4 +213,32 @@ test('unfinished activities stay put while finished ones are harvested', () => {
   assert.equal(getLeader(harvest.state).activity, null);
   const recruit = harvest.state.cats.find((cat) => cat.id === recruitId);
   assert.equal(recruit.activity?.activityId, 'exploreYard');
+});
+
+test('aggregate reward exactly matches finished cats and excludes unfinished work', () => {
+  const { state, firstRecruitId, secondRecruitId } = threeCatColony();
+  const startedAt = 24 * 60 * MIN + 1000;
+
+  let current = startActivity(state, 'huntMice', startedAt).state;
+  current = startActivity(current, 'searchYarn', startedAt, {
+    catId: firstRecruitId,
+  }).state;
+  current = startActivity(current, 'exploreYard', startedAt, {
+    catId: secondRecruitId,
+  }).state;
+
+  const harvest = completeFinishedActivities(current, startedAt + 6 * MIN, () => 0);
+
+  assert.equal(harvest.completedCount, 2);
+  assert.deepEqual(
+    harvest.completions.map((completion) => completion.catId),
+    ['milo', firstRecruitId],
+  );
+  assert.deepEqual(harvest.reward, sumCompletionRewards(harvest.completions));
+  assert.deepEqual(harvest.reward.inventory, {});
+  assert.equal(harvest.reward.resources.gems ?? 0, 0);
+  assert.equal(
+    harvest.state.cats.find((cat) => cat.id === secondRecruitId)?.activity?.activityId,
+    'exploreYard',
+  );
 });

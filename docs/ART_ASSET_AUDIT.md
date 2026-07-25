@@ -59,6 +59,28 @@ cenários, loot e equipamento onde o pixel art ajuda a integrar o mundo e a UI.
 - Fundos modernos, espaciais e de deserto: não servem às três zonas iniciais.
 - Game Icons em massa: tamanho e custo de atribuição desnecessários para o MVP.
 
+## Referências de efeitos mágicos
+
+Três vetores gratuitos do Vecteezy foram auditados como direção visual para
+feedback de jogo:
+
+- círculos amarelos de portal (referência para subida de nível):
+  https://pt.vecteezy.com/arte-vetorial/16962661
+- plataformas circulares verde/ciano (referência para regeneração de Energia):
+  https://pt.vecteezy.com/arte-vetorial/16962009
+- vórtice azul (referência para travessia do Portão do Além):
+  https://pt.vecteezy.com/arte-vetorial/16914526
+
+As páginas identificam os trabalhos como vetores gratuitos de Yuliya
+Pauliukevich e exigem atribuição, mas o download dos arquivos-fonte depende do
+fluxo de conta/upsell do provedor. Nenhum desses arquivos foi importado.
+
+Para evitar dependência externa e manter os efeitos leves e responsivos, o jogo
+usa composições originais em SVG/CSS baseadas apenas nas funções cromáticas das
+referências: dourado para progressão, verde/ciano para Energia e azul para
+teleporte. Como não há cópia nem derivado dos vetores, os créditos existentes
+do Vecteezy continuam cobrindo somente as ilustrações medievais já importadas.
+
 ## Ajustes após inspeção individual
 
 - `backgrounds/28.png` foi escolhido para Campos Sussurrantes; o fundo recebe

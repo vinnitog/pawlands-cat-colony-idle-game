@@ -67,3 +67,14 @@ primeiro**. Ver `docs/PHASE2_PLAN.md`.
 ## Bifurcação
 O jogo hoje é um idle single-player sólido com mundo caminhável. Maior valor
 imediato = **Colônia de vários gatos**. Combate e multiplayer vêm depois.
+
+## Conclusão da crônica atual
+
+Ao reivindicar todas as missões e levar todas as melhorias ao nível máximo,
+o jogador conclui a **crônica atual**. O MVP reconhece esse marco nas telas de
+Missões e Melhorias, sem resetar o save, conceder recompensa adicional ou
+interromper atividades e expedições.
+
+Um capstone narrativo jogável deve chegar junto de uma expansão de conteúdo.
+Prestígio/rebirth permanece adiado até existirem combate, curva de endgame e
+recompensa permanente suficientes para justificar um reset voluntário.

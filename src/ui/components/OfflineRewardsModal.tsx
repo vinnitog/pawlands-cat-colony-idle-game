@@ -80,6 +80,30 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
         </p>
         <h2 id="reward-title">{notice.title}</h2>
 
+        {notice.activityCompletions && notice.activityCompletions.length > 0 ? (
+          <ul
+            className="activity-completion-list"
+            aria-label="Atividades concluídas"
+            tabIndex={notice.activityCompletions.length > 4 ? 0 : undefined}
+          >
+            {notice.activityCompletions.map((completion) => (
+              <li key={`${completion.catId}-${completion.activityId}`}>
+                <GameIcon name={completion.activityId} />
+                <span>
+                  <strong>{completion.catName}</strong>
+                  <small>{completion.activityName}</small>
+                </span>
+                {completion.levelsGained > 0 ? (
+                  <em>
+                    +{completion.levelsGained}{' '}
+                    {completion.levelsGained === 1 ? 'nível' : 'níveis'}
+                  </em>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         <ul className="reward-list">
           {resourceEntries.map(([key, amount]) => (
             <li key={key}>

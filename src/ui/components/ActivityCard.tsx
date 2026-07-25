@@ -1,39 +1,38 @@
 import type { ActivityDefinition } from '../../game/models/activity.ts';
-import type { GameState } from '../../game/models/save.ts';
-import { resourceLabels, type ResourceKey } from '../../game/models/resources.ts';
-import { getLeader } from '../../game/systems/colonySystem.ts';
+import type { Cat } from '../../game/models/cat.ts';
+import {
+  resourceLabels,
+  specialItemLabels,
+  type ResourceKey,
+} from '../../game/models/resources.ts';
+import { DAILY_BONUS_GEM_CHANCE } from '../../game/systems/dailyBonusSystem.ts';
 import { formatDuration } from '../formatters.ts';
-import { GameIcon } from './GameIcon.tsx';
+import { GameIcon, type GameIconName } from './GameIcon.tsx';
 
 type ActivityCardProps = {
   activity: ActivityDefinition;
-  state: GameState;
+  cat?: Cat;
   isDailyBonus?: boolean;
   onStart(): void;
 };
 
-export function ActivityCard({ activity, state, isDailyBonus = false, onStart }: ActivityCardProps) {
-  const leader = getLeader(state);
-  const isOnExpedition = leader.expedition !== null;
-  const isBusy = leader.activity !== null || isOnExpedition;
-  const hasEnergy = leader.energy >= activity.energyCost;
+function formatChance(chance: number): string {
+  return `${(chance * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`;
+}
+
+export function ActivityCard({ activity, cat, isDailyBonus = false, onStart }: ActivityCardProps) {
+  const isOnExpedition = cat?.expedition !== null && cat?.expedition !== undefined;
+  const isBusy =
+    (cat?.activity !== null && cat?.activity !== undefined) || isOnExpedition;
+  const hasEnergy = Boolean(cat && cat.energy >= activity.energyCost);
   const xpRange = activity.rewards.xp;
   const xpMultiplier = isDailyBonus ? 2 : 1;
   const xpPerMin = xpRange
     ? Math.round(((xpRange[0] + xpRange[1]) / 2) * xpMultiplier / (activity.durationMs / 60000))
     : null;
-  const resourceEntries = activity.rewards.resources
-    ? Object.entries(activity.rewards.resources)
-    : [];
-  const rewardText =
-    resourceEntries.length > 0
-      ? resourceEntries
-          .slice(0, 3)
-          .map(([key, range]) => `${range?.[0]}-${range?.[1]} ${resourceLabels[key as ResourceKey]}`)
-          .join(', ') + (resourceEntries.length > 3 ? ` +${resourceEntries.length - 3}` : '')
-      : activity.rewards.energy
-        ? 'Energia'
-        : 'Recompensa';
+  const resourceEntries = Object.entries(activity.rewards.resources ?? {}) as Array<
+    [ResourceKey, [number, number]]
+  >;
 
   return (
     <article
@@ -53,7 +52,7 @@ export function ActivityCard({ activity, state, isDailyBonus = false, onStart }:
         <span>{formatDuration(activity.durationMs)}</span>
       </div>
 
-      <dl className="inline-facts">
+      <dl className="inline-facts activity-cost">
         <div>
           <dt>Energia</dt>
           <dd>
@@ -62,10 +61,80 @@ export function ActivityCard({ activity, state, isDailyBonus = false, onStart }:
           </dd>
         </div>
         <div>
-          <dt>Ganha</dt>
-          <dd>{rewardText || 'XP'}</dd>
+          <dt>Responsável</dt>
+          <dd>{cat?.name ?? 'Nenhum gato livre'}</dd>
         </div>
       </dl>
+
+      <section className="activity-reward-catalog" aria-label={`Possíveis recompensas de ${activity.name}`}>
+        <h4>Possíveis recompensas</h4>
+        <ul>
+          {resourceEntries.map(([key, range]) => (
+            <li key={key}>
+              <GameIcon name={key} />
+              <span>
+                <strong>{resourceLabels[key]}</strong>
+                <small>{range[0]}–{range[1]}</small>
+              </span>
+            </li>
+          ))}
+          {activity.rewards.xp ? (
+            <li>
+              <GameIcon name="xp" />
+              <span>
+                <strong>XP</strong>
+                <small>
+                  {activity.rewards.xp[0] * xpMultiplier}–
+                  {activity.rewards.xp[1] * xpMultiplier}
+                </small>
+              </span>
+            </li>
+          ) : null}
+          {activity.rewards.energy ? (
+            <li>
+              <GameIcon name="energy" />
+              <span>
+                <strong>Energia</strong>
+                <small>{activity.rewards.energy[0]}–{activity.rewards.energy[1]}</small>
+              </span>
+            </li>
+          ) : null}
+          {activity.rewards.gemDrop ? (
+            <li className="is-chance">
+              <GameIcon name="gems" />
+              <span>
+                <strong>Gemas</strong>
+                <small>
+                  {activity.rewards.gemDrop.amount[0]}–{activity.rewards.gemDrop.amount[1]}
+                  {' · '}
+                  {formatChance(activity.rewards.gemDrop.chance)}
+                </small>
+              </span>
+            </li>
+          ) : null}
+          {isDailyBonus ? (
+            <li className="is-chance">
+              <GameIcon name="gems" />
+              <span>
+                <strong>{activity.rewards.gemDrop ? 'Gema bônus do dia' : 'Gemas'}</strong>
+                <small>1 · {formatChance(DAILY_BONUS_GEM_CHANCE)}</small>
+              </span>
+            </li>
+          ) : null}
+          {(activity.rewards.rareItems ?? []).map((rare) => (
+            <li className="is-chance" key={rare.item}>
+              <GameIcon name={rare.item as GameIconName} />
+              <span>
+                <strong>{specialItemLabels[rare.item]}</strong>
+                <small>{formatChance(rare.chance)}</small>
+              </span>
+            </li>
+          ))}
+        </ul>
+        {activity.rewards.rareItems?.length || activity.rewards.gemDrop ? (
+          <p>Sorte e melhorias aumentam as chances dos achados raros.</p>
+        ) : null}
+      </section>
 
       {xpPerMin ? <p className="cost-line">≈ {xpPerMin} XP/min</p> : null}
 
@@ -73,14 +142,21 @@ export function ActivityCard({ activity, state, isDailyBonus = false, onStart }:
         <p className="daily-bonus-note">Hoje: XP em dobro e chance extra de gema.</p>
       ) : null}
 
-      <button className="primary-action activity-action" type="button" disabled={isBusy || !hasEnergy} onClick={onStart}>
-        {isOnExpedition
-          ? `${leader.name} está em expedição`
-          : isBusy
-            ? `${leader.name} está ocupado`
-            : hasEnergy
-              ? 'Iniciar'
-              : 'Sem energia'}
+      <button
+        className="primary-action activity-action"
+        type="button"
+        disabled={!cat || isBusy || !hasEnergy}
+        onClick={onStart}
+      >
+        {!cat
+          ? 'Nenhum gato livre'
+          : isOnExpedition
+            ? `${cat.name} está em expedição`
+            : isBusy
+              ? `${cat.name} está ocupado`
+              : hasEnergy
+                ? `Iniciar com ${cat.name}`
+                : `${cat.name} está sem energia`}
       </button>
     </article>
   );

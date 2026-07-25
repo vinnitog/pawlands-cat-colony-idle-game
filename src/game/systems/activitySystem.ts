@@ -39,6 +39,16 @@ export type ActivityCompletionResult = {
   levelCoins: number;
 };
 
+export type ActivityCompletionDetail = {
+  catId: string;
+  catName: string;
+  activityId: ActivityId;
+  activityName: string;
+  reward: RewardBundle;
+  levelsGained: number;
+  levelCoins: number;
+};
+
 export function getEffectiveActivityEndsAt(activity: ActiveActivity): number {
   const runtimeDurationMs = activityById[activity.activityId].durationMs;
   return Math.min(activity.endsAt, activity.startedAt + runtimeDurationMs);
@@ -225,6 +235,7 @@ export type ColonyCompletionResult = {
   reward: RewardBundle;
   levelsGained: number;
   levelCoins: number;
+  completions: ActivityCompletionDetail[];
 };
 
 /** Harvest every finished activity across the colony in one pass. */
@@ -238,8 +249,10 @@ export function completeFinishedActivities(
   let completedCount = 0;
   let levelsGained = 0;
   let levelCoins = 0;
+  const completions: ActivityCompletionDetail[] = [];
 
   for (const cat of state.cats) {
+    const activeActivity = current.cats.find((candidate) => candidate.id === cat.id)?.activity;
     const result = completeCatActivity(current, cat.id, now, random);
     if (!result.completed) continue;
     current = result.state;
@@ -247,9 +260,27 @@ export function completeFinishedActivities(
     completedCount += 1;
     levelsGained += result.levelsGained;
     levelCoins += result.levelCoins;
+    if (activeActivity) {
+      completions.push({
+        catId: cat.id,
+        catName: cat.name,
+        activityId: activeActivity.activityId,
+        activityName: activityById[activeActivity.activityId].name,
+        reward: result.reward,
+        levelsGained: result.levelsGained,
+        levelCoins: result.levelCoins,
+      });
+    }
   }
 
-  return { completedCount, state: current, reward, levelsGained, levelCoins };
+  return {
+    completedCount,
+    state: current,
+    reward,
+    levelsGained,
+    levelCoins,
+    completions,
+  };
 }
 
 export function getRemainingActivityMs(state: GameState, now = Date.now()): number {

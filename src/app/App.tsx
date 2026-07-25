@@ -12,6 +12,7 @@ import { SettingsScreen } from '../ui/screens/SettingsScreen.tsx';
 import { OfflineRewardsModal } from '../ui/components/OfflineRewardsModal.tsx';
 import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
+import { GameFeelEffectLayer } from '../ui/components/GameFeelEffectLayer.tsx';
 import { getLeader } from '../game/systems/colonySystem.ts';
 import { getPendingMissionCount } from '../game/systems/missionSystem.ts';
 import shieldCrest from '../ui/art/ui_shield.png';
@@ -41,8 +42,16 @@ const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
 
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('dashboard');
-  const { state, rewardNotice, toast, completeOnboarding, dismissRewardNotice, dismissToast } =
-    useGame();
+  const {
+    state,
+    rewardNotice,
+    gameFeelEffect,
+    toast,
+    completeOnboarding,
+    dismissRewardNotice,
+    dismissGameFeelEffect,
+    dismissToast,
+  } = useGame();
   const pendingMissions = getPendingMissionCount(state);
 
   if (!state.onboarded) {
@@ -114,6 +123,13 @@ export function App() {
       ) : null}
 
       {rewardNotice ? <OfflineRewardsModal notice={rewardNotice} onClose={dismissRewardNotice} /> : null}
+      {gameFeelEffect && !rewardNotice ? (
+        <GameFeelEffectLayer
+          key={gameFeelEffect.id}
+          effect={gameFeelEffect}
+          onComplete={dismissGameFeelEffect}
+        />
+      ) : null}
     </div>
   );
 }
