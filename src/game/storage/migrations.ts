@@ -9,7 +9,7 @@ import { isCatClass } from '../models/catClass.ts';
 import { gearById, isGearId } from '../data/gear.ts';
 import {
   EXPEDITION_PULSE_CAP,
-  EXPEDITION_PULSE_MS,
+  OFFICIAL_EXPEDITION_PULSE_MS,
   type ActiveExpedition,
   type ExpeditionPulseCarry,
   type ExpeditionTimeCarry,
@@ -214,7 +214,7 @@ function mergeExpeditionTimeCarry(value: unknown): ExpeditionTimeCarry {
       typeof amount === 'number'
       && Number.isFinite(amount)
       && amount > 0
-      && amount < EXPEDITION_PULSE_MS
+      && amount < OFFICIAL_EXPEDITION_PULSE_MS
     ) {
       carry[zoneId] = Math.floor(amount);
     }

@@ -6,6 +6,7 @@ import type { Cat } from '../../game/models/cat.ts';
 import { catClassById } from '../../game/models/catClass.ts';
 import type { GearId, GearSlot } from '../../game/models/gear.ts';
 import type { GameState } from '../../game/models/save.ts';
+import { getEffectiveActivityEndsAt } from '../../game/systems/activitySystem.ts';
 import { getRecruitCost, MAX_COLONY_SIZE } from '../../game/systems/colonySystem.ts';
 import { getDailyBonusActivityId } from '../../game/systems/dailyBonusSystem.ts';
 import {
@@ -288,7 +289,9 @@ export function ColonyScreen() {
           const activity = cat.activity ? activityById[cat.activity.activityId] : null;
           const expedition = cat.expedition ? expeditionZoneById[cat.expedition.zoneId] : null;
           const isBusy = activity !== null || expedition !== null;
-          const remainingMs = cat.activity ? Math.max(0, cat.activity.endsAt - now) : 0;
+          const remainingMs = cat.activity
+            ? Math.max(0, getEffectiveActivityEndsAt(cat.activity) - now)
+            : 0;
           const energyPct = Math.min(100, Math.floor((cat.energy / cat.maxEnergy) * 100));
 
           return (

@@ -90,6 +90,46 @@ test('activity assignment and ambient wandering treat expeditions as occupied', 
   assert.match(world, /goTo\('expedition'\)/);
 });
 
+test('dashboard identifies the leader expedition and reserves the meter for timed activities', () => {
+  const dashboard = read('src/ui/screens/DashboardScreen.tsx');
+
+  assert.match(dashboard, /const activeExpedition = leader\.expedition/);
+  assert.match(dashboard, /expeditionZoneById\[leader\.expedition\.zoneId\]/);
+  assert.match(dashboard, /activeExpedition[\s\S]*?leader\.name[\s\S]*?expedi/);
+  assert.match(dashboard, /activeExpedition\.name/);
+  assert.match(dashboard, /saque acumula/);
+  assert.match(
+    dashboard,
+    /\{activeActivity \? \([\s\S]*?<div className="meter"[\s\S]*?\) : null\}/,
+  );
+  assert.doesNotMatch(
+    dashboard,
+    /activeExpedition \? \([\s\S]*?<div className="meter"/,
+  );
+});
+
+test('activity cards disable natively and prioritize expedition status over energy', () => {
+  const card = read('src/ui/components/ActivityCard.tsx');
+
+  assert.match(card, /const isOnExpedition = leader\.expedition !== null/);
+  assert.match(card, /const isBusy = leader\.activity !== null \|\| isOnExpedition/);
+  assert.match(card, /disabled=\{isBusy \|\| !hasEnergy\}/);
+
+  const expeditionStatus = card.indexOf('{isOnExpedition');
+  const busyStatus = card.indexOf(': isBusy', expeditionStatus);
+  const energyStatus = card.indexOf(': hasEnergy', busyStatus);
+  const noEnergyStatus = card.indexOf("'Sem energia'", energyStatus);
+
+  assert.ok(expeditionStatus >= 0, 'expedition status branch is present');
+  assert.ok(busyStatus > expeditionStatus, 'generic busy status follows expedition status');
+  assert.ok(energyStatus > busyStatus, 'energy branch follows both busy branches');
+  assert.ok(noEnergyStatus > energyStatus, 'no-energy label stays in the final branch');
+  assert.match(
+    card.slice(expeditionStatus, busyStatus),
+    /leader\.name[\s\S]*?expedi/,
+  );
+});
+
 test('expedition controls are touch friendly and zone art keeps pixel rendering', () => {
   const css = read('src/styles/global.css');
 
