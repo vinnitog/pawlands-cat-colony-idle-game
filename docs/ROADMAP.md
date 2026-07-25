@@ -36,10 +36,12 @@
    gemas (curva 10→115), atividades paralelas por gato, gatos ociosos
    perambulando por Grimalkin e tela Colônia com arte medieval.
 2. **Expedição idle no Além** ⭐ (inspirado no auto-hunt do Baiak Idle) — pelo
-   portão, o gato caça sozinho ao longo do tempo e traz XP + loot. Dá uso ao
-   ataque/defesa das classes. Zonas em tiers (fáceis→difíceis), gated por gear.
-3. **Equipamento equipável** — arma/armadura com stats, de loot/loja/boss
-   (não só +stat permanente). Ferreiro/joalheiro forjam/vendem gear.
+   portão, o gato caça sozinho e acumula XP + loot. 📋 Plano em
+   `docs/EXPEDITION_PLAN.md` (decisões: caçada contínua, rendimento por
+   poder sem punir, loot = troféus vendáveis + gemas). Fases E0→E4. **Inclui o
+   equipamento (E3)** — o poder do gato passa a somar atributos + gear.
+3. **Equipamento equipável** — absorvido pela Expedição (fase E3): arma/armadura
+   com `power`, vendidas pelo ferreiro e dropadas em expedições.
 4. **Loot tables** — expedições/atividades dropando itens variados pra vender.
 5. **Mais mundo** — novas zonas/mapas além do pátio.
 
