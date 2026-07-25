@@ -658,16 +658,8 @@ dd {
     var(--surface);
 }
 
-.activity-current-panel::after {
-  content: "";
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  width: 88px;
-  height: 28px;
-  border-radius: 999px;
-  background: rgba(122, 85, 39, 0.16);
-}
+/* (a pílula decorativa vazia daqui saiu: o espaço agora mostra o progresso
+   real da atividade, renderizado como .meter pelo DashboardScreen) */
 
 .item-grid {
   display: grid;
