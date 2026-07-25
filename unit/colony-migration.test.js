@@ -30,7 +30,7 @@ function v1Save() {
 test('v1 save migrates into a one-cat roster without losing progress', () => {
   const migrated = migrateGameSave(v1Save());
 
-  assert.equal(migrated.schemaVersion, 2);
+  assert.equal(migrated.schemaVersion, 5);
   assert.equal(migrated.cats.length, 1);
   assert.equal(migrated.leaderId, 'milo');
 
@@ -52,17 +52,28 @@ test('v1 save migrates into a one-cat roster without losing progress', () => {
   assert.deepEqual(migrated.world, { x: 100, y: 120 });
 });
 
-test('v2 save round-trips through migration untouched', () => {
+test('v2 save migrates to v5 without losing colony progress', () => {
   const state = updateLeader(createInitialGameState(1_000), (cat) => ({
     ...cat,
     name: 'Bruma',
     level: 3,
   }));
-  const migrated = migrateGameSave(JSON.parse(JSON.stringify(state)));
+  const v2 = JSON.parse(JSON.stringify({ ...state, schemaVersion: 2 }));
+  for (const cat of v2.cats) delete cat.expedition;
+  delete v2.inventory.spectralSardine;
+  delete v2.inventory.phantomFur;
+  delete v2.inventory.grimaldeRelic;
 
+  const migrated = migrateGameSave(v2);
+
+  assert.equal(migrated.schemaVersion, 5);
   assert.equal(migrated.cats.length, 1);
   assert.equal(getLeader(migrated).name, 'Bruma');
   assert.equal(getLeader(migrated).level, 3);
+  assert.equal(getLeader(migrated).expedition, null);
+  assert.equal(migrated.inventory.spectralSardine, 0);
+  assert.equal(migrated.inventory.phantomFur, 0);
+  assert.equal(migrated.inventory.grimaldeRelic, 0);
 });
 
 test('a stale leaderId falls back to the first cat', () => {

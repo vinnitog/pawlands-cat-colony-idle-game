@@ -1,6 +1,7 @@
 import { recruitNames } from '../data/catNames.ts';
 import type { Cat } from '../models/cat.ts';
 import { catClasses } from '../models/catClass.ts';
+import { createEmptyEquipment } from '../models/gear.ts';
 import type { GameState } from '../models/save.ts';
 import { subtractResourcesFromState } from './economySystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
@@ -75,7 +76,11 @@ export function recruitCat(state: GameState, random = Math.random, now = Date.no
     energy: 40,
     maxEnergy: 40,
     stats: { ...classDef.stats },
+    equipment: createEmptyEquipment(),
     activity: null,
+    expedition: null,
+    expeditionPulseCarry: {},
+    expeditionTimeCarryMs: {},
   };
 
   const nextState = {
@@ -94,8 +99,13 @@ export type SetLeaderResult =
   | { ok: false; state: GameState; reason: string };
 
 export function setLeader(state: GameState, catId: string): SetLeaderResult {
-  if (!state.cats.some((cat) => cat.id === catId)) {
+  const cat = state.cats.find((candidate) => candidate.id === catId);
+  if (!cat) {
     return { ok: false, state, reason: 'Esse gato não faz parte da colônia.' };
+  }
+
+  if (cat.expedition) {
+    return { ok: false, state, reason: `${cat.name} está no Além e não pode liderar agora.` };
   }
 
   if (state.leaderId === catId) {

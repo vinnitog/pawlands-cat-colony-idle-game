@@ -1,6 +1,6 @@
 import type { GameState } from '../models/save.ts';
 import type { Inventory, Resources, RewardBundle } from '../models/resources.ts';
-import { createEmptyRewardBundle, resourceKeys, specialItemKeys } from '../models/resources.ts';
+import { createEmptyRewardBundle, inventoryItemKeys, resourceKeys } from '../models/resources.ts';
 
 export function hasResources(current: Resources, cost: Partial<Resources>): boolean {
   return resourceKeys.every((key) => (current[key] ?? 0) >= (cost[key] ?? 0));
@@ -45,7 +45,7 @@ export function subtractResourcesFromState(state: GameState, cost: Partial<Resou
 export function addInventoryToState(state: GameState, gains: Partial<Inventory>): GameState {
   const inventory = { ...state.inventory };
 
-  for (const key of specialItemKeys) {
+  for (const key of inventoryItemKeys) {
     const amount = gains[key] ?? 0;
     if (amount <= 0) continue;
     inventory[key] += amount;
@@ -67,7 +67,7 @@ export function mergeRewardBundles(a: RewardBundle, b: RewardBundle): RewardBund
     if (amount > 0) merged.resources[key] = amount;
   }
 
-  for (const key of specialItemKeys) {
+  for (const key of inventoryItemKeys) {
     const amount = (a.inventory[key] ?? 0) + (b.inventory[key] ?? 0);
     if (amount > 0) merged.inventory[key] = amount;
   }

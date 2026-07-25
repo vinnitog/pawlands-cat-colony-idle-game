@@ -1,4 +1,9 @@
-import { resourceLabels, specialItemLabels, type Inventory, type Resources } from '../game/models/resources.ts';
+import {
+  inventoryItemLabels,
+  resourceLabels,
+  type Inventory,
+  type Resources,
+} from '../game/models/resources.ts';
 
 export function formatDuration(ms: number): string {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
@@ -28,5 +33,5 @@ export function formatResourceList(resources: Partial<Resources>): string {
 }
 
 export function getInventoryLabel(key: keyof Inventory): string {
-  return specialItemLabels[key];
+  return inventoryItemLabels[key];
 }

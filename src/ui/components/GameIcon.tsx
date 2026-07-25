@@ -1,13 +1,14 @@
 import type { ActivityId } from '../../game/models/activity.ts';
-import type { ResourceKey, SpecialItemKey } from '../../game/models/resources.ts';
+import type { InventoryItemKey, ResourceKey } from '../../game/models/resources.ts';
 
 export type GameIconName =
   | ResourceKey
-  | SpecialItemKey
+  | InventoryItemKey
   | ActivityId
   | 'home'
   | 'world'
   | 'colony'
+  | 'expedition'
   | 'shield'
   | 'upgrades'
   | 'missions'
@@ -36,6 +37,7 @@ function renderIcon(name: GameIconName) {
     case 'fish':
     case 'fishPond':
     case 'goldenSardine':
+    case 'spectralSardine':
       return (
         <>
           <path d="M8 32c11-14 28-17 43-4 2 2 2 6 0 8-15 13-32 10-43-4Z" fill="currentColor" />
@@ -151,6 +153,15 @@ function renderIcon(name: GameIconName) {
           <path d="M28 47h8l-4 5Z" fill="#ffffff" />
         </>
       );
+    case 'expedition':
+      return (
+        <>
+          <path d="M12 56V22L32 7l20 15v34H12Z" fill="currentColor" />
+          <path d="M22 56V31c0-8 20-8 20 0v25" fill="#1f2f36" />
+          <path d="M32 20v12M26 26h12" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+          <path d="M8 56h48" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+        </>
+      );
     case 'upgrades':
       return (
         <>
@@ -198,6 +209,63 @@ function renderIcon(name: GameIconName) {
         <>
           <path d="M47 8C26 10 14 25 14 52c20-7 34-24 33-44Z" fill="currentColor" />
           <path d="M18 50c9-11 18-20 29-32" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'ironClaw':
+    case 'mistFang':
+      return (
+        <>
+          <path d="M12 48 43 17l5 5-31 31H12v-5Z" fill="currentColor" />
+          <path d="m37 14 6-6 13 13-6 6Z" fill="currentColor" opacity="0.72" />
+          <path d="m20 39 5 5" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'guardArmor':
+    case 'grimaldeAegis':
+      return (
+        <>
+          <path d="M32 6 53 14v17c0 14-8 23-21 28C19 54 11 45 11 31V14Z" fill="currentColor" />
+          <path d="M32 13v37M19 25h26" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'phantomFur':
+      return (
+        <>
+          <path d="M13 50c0-12 5-21 12-27l-2-13 11 8 11-8-2 14c6 7 9 15 8 26H13Z" fill="currentColor" />
+          <path d="M22 39c7-7 14-8 22 0M25 48c5-4 10-4 15 0" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+        </>
+      );
+    case 'grimaldeRelic':
+      return (
+        <>
+          <path d="M17 9h30l6 45H11L17 9Z" fill="currentColor" />
+          <path d="M25 21h14M22 32h20M27 43h10" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="17" cy="50" r="3" fill="#ffffff" opacity="0.7" />
+          <circle cx="47" cy="50" r="3" fill="#ffffff" opacity="0.7" />
+        </>
+      );
+    case 'ancientBoneCharm':
+      return (
+        <>
+          <path d="M20 13c5-7 15-7 20 0l11 16-8 21H21l-8-21 7-16Z" fill="currentColor" />
+          <circle cx="26" cy="31" r="4" fill="#ffffff" />
+          <circle cx="38" cy="31" r="4" fill="#ffffff" />
+          <path d="M27 43h10M32 37v11" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+        </>
+      );
+    case 'soulAmulet':
+      return (
+        <>
+          <path d="M15 14c9 12 25 12 34 0" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+          <path d="M32 20 49 36 32 57 15 36Z" fill="currentColor" />
+          <circle cx="32" cy="37" r="7" fill="#ffffff" opacity="0.78" />
+        </>
+      );
+    case 'eclipseShard':
+      return (
+        <>
+          <path d="M31 5 52 24 43 54H20L10 27Z" fill="currentColor" />
+          <path d="m31 5 2 49M10 27l42-3M20 54l13-30 10 30" fill="none" stroke="#ffffff" strokeWidth="3" opacity="0.72" />
         </>
       );
     case 'reward':

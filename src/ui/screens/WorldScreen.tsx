@@ -3,6 +3,7 @@ import { useGame } from '../../app/gameProvider.tsx';
 import { catClassById, type CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
 import { activityById } from '../../game/data/activities.ts';
+import { expeditionZoneById } from '../../game/data/zones.ts';
 import type { MissionId } from '../../game/models/missions.ts';
 import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
 import { getLeader } from '../../game/systems/colonySystem.ts';
@@ -45,6 +46,10 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const now = useNow();
   const catDef = catClassById[catClass];
   const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
+  const activeExpedition = leader.expedition
+    ? expeditionZoneById[leader.expedition.zoneId]
+    : null;
+  const leaderIsAway = activeExpedition !== null;
   const remainingMs = getRemainingActivityMs(state, now);
   const nextXp = xpForNextLevel(leader.level);
   const xpPct = Math.min(100, Math.floor((leader.xp / nextXp) * 100));
@@ -74,6 +79,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   };
 
   useEffect(() => {
+    if (leaderIsAway) return undefined;
+
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return undefined;
@@ -141,7 +148,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const current = gameStateRef.current;
       const leaderId =
         current.cats.find((cat) => cat.id === current.leaderId)?.id ?? current.cats[0]?.id;
-      const idleMates = current.cats.filter((cat) => cat.id !== leaderId && !cat.activity);
+      const idleMates = current.cats.filter(
+        (cat) => cat.id !== leaderId && !cat.activity && !cat.expedition,
+      );
 
       for (const id of [...ambient.keys()]) {
         if (!idleMates.some((cat) => cat.id === id)) ambient.delete(id);
@@ -442,7 +451,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       window.removeEventListener('resize', resize);
       persistRef.current(Math.round(player.x), Math.round(player.y));
     };
-  }, [catClass]);
+  }, [catClass, leaderIsAway]);
 
   const hold = (key: string) => {
     const press = (e: ReactPointerEvent) => {
@@ -457,6 +466,23 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       onPointerCancel: release,
     };
   };
+
+  if (activeExpedition) {
+    return (
+      <section className="world-away-state" aria-labelledby="world-away-title">
+        <GameIcon name="expedition" />
+        <p className="eyebrow">Grimalkin aguarda</p>
+        <h2 id="world-away-title">{leader.name} está no Além</h2>
+        <p>
+          O líder da colônia está caçando em {activeExpedition.name}. Traga-o de volta
+          antes de explorar ou interagir no mundo.
+        </p>
+        <button className="primary-action" type="button" onClick={() => goTo('expedition')}>
+          Ir para Expedição
+        </button>
+      </section>
+    );
+  }
 
   return (
     <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>

@@ -1,12 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ActivityId } from '../game/models/activity.ts';
 import type { CatClass } from '../game/models/catClass.ts';
+import type { ExpeditionZoneId } from '../game/models/expedition.ts';
+import type { GearId, GearSlot } from '../game/models/gear.ts';
 import type { MissionId } from '../game/models/missions.ts';
-import type { RewardBundle } from '../game/models/resources.ts';
+import type { ExpeditionTrophyKey, RewardBundle } from '../game/models/resources.ts';
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
 import type { ShopItemId } from '../game/models/shop.ts';
 import { createInitialGameState } from '../game/data/initialGameState.ts';
+import { gearById } from '../game/data/gear.ts';
 import { shopItemById } from '../game/data/shop.ts';
 import { applyStarterChoice } from '../game/systems/onboardingSystem.ts';
 import { buyShopItem as buyShopItemInState } from '../game/systems/shopSystem.ts';
@@ -21,9 +24,21 @@ import {
   setLeader as setLeaderInState,
 } from '../game/systems/colonySystem.ts';
 import { applyEnergyRegen } from '../game/systems/energySystem.ts';
+import {
+  equipGear as equipGearInState,
+  unequipGear as unequipGearInState,
+} from '../game/systems/equipmentSystem.ts';
 import { claimMission as claimMissionInState } from '../game/systems/missionSystem.ts';
 import { processOfflineProgress } from '../game/systems/offlineSystem.ts';
+import {
+  collectExpedition as collectExpeditionInState,
+  startExpedition as startExpeditionInState,
+} from '../game/systems/expeditionSystem.ts';
 import { buyUpgrade as buyUpgradeInState } from '../game/systems/upgradeSystem.ts';
+import {
+  sellTrophy as sellTrophyInState,
+  type TrophySaleMode,
+} from '../game/systems/trophySystem.ts';
 import { clearGame, loadGame, saveGame } from '../game/storage/saveManager.ts';
 
 export type RewardNotice = {
@@ -39,11 +54,16 @@ type GameContextValue = {
   rewardNotice: RewardNotice | null;
   toast: string | null;
   startActivity(activityId: ActivityId, options?: StartActivityOptions): void;
+  startExpedition(catId: string, zoneId: ExpeditionZoneId): void;
+  collectExpedition(catId: string): void;
   recruitCat(): void;
   setLeader(catId: string): void;
+  equipGear(catId: string, slot: GearSlot, gearId: GearId): void;
+  unequipGear(catId: string, slot: GearSlot): void;
   buyUpgrade(upgradeId: UpgradeId): void;
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
+  sellTrophy(trophyId: ExpeditionTrophyKey, mode: TrophySaleMode): void;
   setWorldPosition(x: number, y: number): void;
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
@@ -163,6 +183,58 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const startExpedition = useCallback((catId: string, zoneId: ExpeditionZoneId) => {
+    setState((current) => {
+      const now = Date.now();
+      const result = startExpeditionInState(current, catId, zoneId, now);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      const replacement =
+        current.leaderId === catId
+          ? result.state.cats.find(
+              (candidate) =>
+                candidate.id !== catId && !candidate.activity && !candidate.expedition,
+            )
+          : undefined;
+      const nextState = replacement
+        ? setLeaderInState(result.state, replacement.id).state
+        : result.state;
+
+      saveGame(nextState, undefined, now);
+      const cat = nextState.cats.find((candidate) => candidate.id === catId);
+      setToast(`${cat?.name ?? 'Seu gato'} atravessou o Portão do Além.`);
+      return nextState;
+    });
+  }, []);
+
+  const collectExpedition = useCallback((catId: string) => {
+    setState((current) => {
+      const now = Date.now();
+      const catName = current.cats.find((cat) => cat.id === catId)?.name ?? 'Seu gato';
+      const result = collectExpeditionInState(current, catId, now);
+      if (!result.collected) {
+        setToast('Esse gato não está em uma expedição.');
+        return current;
+      }
+
+      saveGame(result.state, undefined, now);
+      if (result.resolvedPulses > 0) {
+        setRewardNotice({
+          title: `${catName} voltou do Além`,
+          reward: result.reward,
+          levelsGained: result.levelsGained,
+          levelCoins: result.levelCoins,
+        });
+      } else {
+        setToast(`${catName} voltou. O progresso parcial foi preservado.`);
+      }
+      return result.state;
+    });
+  }, []);
+
   const recruitCat = useCallback(() => {
     setState((current) => {
       const result = recruitCatInState(current, Math.random, Date.now());
@@ -187,6 +259,34 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
       saveGame(result.state);
       setToast(`${getLeader(result.state).name} agora lidera a colônia.`);
+      return result.state;
+    });
+  }, []);
+
+  const equipGear = useCallback((catId: string, slot: GearSlot, gearId: GearId) => {
+    setState((current) => {
+      const result = equipGearInState(current, catId, slot, gearId);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(`${gearById[gearId].name} equipado.`);
+      return result.state;
+    });
+  }, []);
+
+  const unequipGear = useCallback((catId: string, slot: GearSlot) => {
+    setState((current) => {
+      const result = unequipGearInState(current, catId, slot);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast('Equipamento guardado no inventário.');
       return result.state;
     });
   }, []);
@@ -234,6 +334,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const sellTrophy = useCallback((
+    trophyId: ExpeditionTrophyKey,
+    mode: TrophySaleMode,
+  ) => {
+    setState((current) => {
+      const result = sellTrophyInState(current, trophyId, mode);
+      if (!result.ok) {
+        setToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      setToast(
+        `${result.quantity} ${result.quantity === 1 ? 'troféu vendido' : 'troféus vendidos'} por ${result.coins} moedas.`,
+      );
+      return result.state;
+    });
+  }, []);
+
   const setWorldPosition = useCallback((x: number, y: number) => {
     setState((current) => {
       if (current.world.x === x && current.world.y === y) return current;
@@ -266,11 +385,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
       rewardNotice,
       toast,
       startActivity,
+      startExpedition,
+      collectExpedition,
       recruitCat,
       setLeader,
+      equipGear,
+      unequipGear,
       buyUpgrade,
       claimMission,
       buyShopItem,
+      sellTrophy,
       setWorldPosition,
       completeOnboarding,
       resetGame,
@@ -281,15 +405,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
       buyShopItem,
       buyUpgrade,
       claimMission,
+      collectExpedition,
       completeOnboarding,
+      equipGear,
       recruitCat,
       rewardNotice,
       resetGame,
+      sellTrophy,
       setLeader,
       setWorldPosition,
       startActivity,
+      startExpedition,
       state,
       toast,
+      unequipGear,
     ],
   );
 

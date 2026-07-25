@@ -2,12 +2,22 @@ import { activityById } from '../data/activities.ts';
 import { createInitialGameState } from '../data/initialGameState.ts';
 import { missions } from '../data/missions.ts';
 import { upgrades } from '../data/upgrades.ts';
+import { expeditionZoneIds, isExpeditionZoneId } from '../data/zones.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import { isCatClass } from '../models/catClass.ts';
+import { gearById, isGearId } from '../data/gear.ts';
+import {
+  EXPEDITION_PULSE_CAP,
+  EXPEDITION_PULSE_MS,
+  type ActiveExpedition,
+  type ExpeditionPulseCarry,
+  type ExpeditionTimeCarry,
+} from '../models/expedition.ts';
 import type { MissionState } from '../models/missions.ts';
+import type { CatEquipment, GearSlot } from '../models/gear.ts';
 import type { Inventory, Resources } from '../models/resources.ts';
-import { resourceKeys, specialItemKeys } from '../models/resources.ts';
+import { inventoryItemKeys, resourceKeys } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
 import type { UpgradeState } from '../models/upgrades.ts';
 import { refreshMissionProgress } from '../systems/missionSystem.ts';
@@ -30,7 +40,12 @@ export function migrateGameSave(value: unknown): GameState {
       return buildState(candidate, fallback, [leader], leader.id);
     }
 
-    if (candidate.schemaVersion === saveSchemaVersion) {
+    if (
+      candidate.schemaVersion === 2
+      || candidate.schemaVersion === 3
+      || candidate.schemaVersion === 4
+      || candidate.schemaVersion === saveSchemaVersion
+    ) {
       const cats = mergeCats(candidate.cats, fallback.cats);
       return buildState(candidate, fallback, cats, resolveLeaderId(candidate.leaderId, cats));
     }
@@ -54,6 +69,7 @@ function buildState(
     onboarded: typeof candidate.onboarded === 'boolean' ? candidate.onboarded : false,
     cats,
     leaderId,
+    expeditionCollections: mergeExpeditionCollections(candidate.expeditionCollections),
     resources: mergeResources(candidate.resources, fallback.resources),
     inventory: mergeInventory(candidate.inventory, fallback.inventory),
     upgrades: mergeUpgrades(candidate.upgrades, fallback.upgrades),
@@ -83,7 +99,13 @@ function resolveLeaderId(value: unknown, cats: Cat[]): string {
 }
 
 function toSafeNumber(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  const normalized = Math.max(0, Math.floor(value));
+  return Number.isSafeInteger(normalized) ? normalized : fallback;
+}
+
+function toSafeDecimal(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : fallback;
 }
 
 function mergeResources(value: unknown, fallback: Resources): Resources {
@@ -103,7 +125,7 @@ function mergeInventory(value: unknown, fallback: Inventory): Inventory {
 
   if (!isObject(value)) return result;
 
-  for (const key of specialItemKeys) {
+  for (const key of inventoryItemKeys) {
     result[key] = toSafeNumber(value[key], fallback[key]);
   }
 
@@ -119,6 +141,7 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
   const maxEnergy = Math.max(1, toSafeNumber(value.maxEnergy, fallback.maxEnergy));
   // v2 keeps the activity on the cat; v1 carried it top-level (legacyActivity).
   const activitySource = 'activity' in value ? value.activity : legacyActivity;
+  const activity = mergeActiveActivity(activitySource);
 
   return {
     ...fallback,
@@ -136,8 +159,67 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
       fishing: Math.max(1, toSafeNumber(stats.fishing, fallback.stats.fishing)),
       luck: Math.max(1, toSafeNumber(stats.luck, fallback.stats.luck)),
     },
-    activity: mergeActiveActivity(activitySource),
+    equipment: mergeEquipment(value.equipment),
+    activity,
+    // A cat cannot perform two jobs. Preserve the established activity when a
+    // malformed or transitional save contains both states.
+    expedition: activity ? null : mergeActiveExpedition(value.expedition),
+    expeditionPulseCarry: mergeExpeditionPulseCarry(value.expeditionPulseCarry),
+    expeditionTimeCarryMs: mergeExpeditionTimeCarry(value.expeditionTimeCarryMs),
   };
+}
+
+function mergeEquipment(value: unknown): CatEquipment {
+  const source = isObject(value) ? value : {};
+  const readSlot = (slot: GearSlot) => {
+    if (!Object.hasOwn(source, slot)) return null;
+    const gearId = source[slot];
+    return isGearId(gearId) && gearById[gearId].slot === slot ? gearId : null;
+  };
+  return {
+    weapon: readSlot('weapon'),
+    armor: readSlot('armor'),
+  };
+}
+
+function mergeExpeditionCollections(
+  value: unknown,
+): GameState['expeditionCollections'] {
+  const source = isObject(value) ? value : {};
+  return Object.fromEntries(
+    expeditionZoneIds.map((zoneId) => [zoneId, toSafeNumber(source[zoneId], 0)]),
+  ) as GameState['expeditionCollections'];
+}
+
+function mergeExpeditionPulseCarry(value: unknown): ExpeditionPulseCarry {
+  if (!isObject(value)) return {};
+
+  const carry: ExpeditionPulseCarry = {};
+  for (const zoneId of expeditionZoneIds) {
+    const amount = value[zoneId];
+    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0 && amount < 1) {
+      carry[zoneId] = amount;
+    }
+  }
+  return carry;
+}
+
+function mergeExpeditionTimeCarry(value: unknown): ExpeditionTimeCarry {
+  if (!isObject(value)) return {};
+
+  const carry: ExpeditionTimeCarry = {};
+  for (const zoneId of expeditionZoneIds) {
+    const amount = value[zoneId];
+    if (
+      typeof amount === 'number'
+      && Number.isFinite(amount)
+      && amount > 0
+      && amount < EXPEDITION_PULSE_MS
+    ) {
+      carry[zoneId] = Math.floor(amount);
+    }
+  }
+  return carry;
 }
 
 function mergeUpgrades(value: unknown, fallback: GameState['upgrades']): GameState['upgrades'] {
@@ -199,4 +281,20 @@ function mergeActiveActivity(value: unknown): ActiveActivity | null {
   if (value.atLake === true) active.atLake = true;
 
   return active;
+}
+
+function mergeActiveExpedition(value: unknown): ActiveExpedition | null {
+  if (!isObject(value) || !isExpeditionZoneId(value.zoneId)) return null;
+
+  const startedAt = toSafeNumber(value.startedAt, 0);
+
+  return {
+    zoneId: value.zoneId,
+    startedAt,
+    lastProgressAt: Math.max(startedAt, toSafeNumber(value.lastProgressAt, startedAt)),
+    accumulatedPulses: Math.min(
+      EXPEDITION_PULSE_CAP,
+      toSafeDecimal(value.accumulatedPulses, 0),
+    ),
+  };
 }

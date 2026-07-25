@@ -1,6 +1,7 @@
 import { missions } from './missions.ts';
 import { upgrades } from './upgrades.ts';
 import type { Cat } from '../models/cat.ts';
+import { createEmptyEquipment } from '../models/gear.ts';
 import { createEmptyInventory, createEmptyResources } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
 
@@ -24,7 +25,11 @@ export function createInitialGameState(now = Date.now()): GameState {
       fishing: 2,
       luck: 2,
     },
+    equipment: createEmptyEquipment(),
     activity: null,
+    expedition: null,
+    expeditionPulseCarry: {},
+    expeditionTimeCarryMs: {},
   };
 
   return {
@@ -32,6 +37,13 @@ export function createInitialGameState(now = Date.now()): GameState {
     onboarded: false,
     cats: [leader],
     leaderId: leader.id,
+    expeditionCollections: {
+      whisperingFields: 0,
+      mistwood: 0,
+      grimalkinRuins: 0,
+      soulMarsh: 0,
+      eclipseTower: 0,
+    },
     resources,
     inventory: createEmptyInventory(),
     upgrades: Object.fromEntries(

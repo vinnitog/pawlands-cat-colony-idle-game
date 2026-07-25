@@ -35,12 +35,17 @@
    `docs/COLONY_PLAN.md`): roster + migração, regen passiva, recrutamento por
    gemas (curva 10→115), atividades paralelas por gato, gatos ociosos
    perambulando por Grimalkin e tela Colônia com arte medieval.
-2. **Expedição idle no Além** ⭐ (inspirado no auto-hunt do Baiak Idle) — pelo
-   portão, o gato caça sozinho ao longo do tempo e traz XP + loot. Dá uso ao
-   ataque/defesa das classes. Zonas em tiers (fáceis→difíceis), gated por gear.
-3. **Equipamento equipável** — arma/armadura com stats, de loot/loja/boss
-   (não só +stat permanente). Ferreiro/joalheiro forjam/vendem gear.
-4. **Loot tables** — expedições/atividades dropando itens variados pra vender.
+2. ✅ **Expedição idle no Além — ENTREGUE (E0→E4)** ⭐ — pelo portão, o gato
+   caça sozinho e acumula XP + loot. Cinco zonas, progresso offline com cap,
+   rendimento por poder sem punição, troféus vendáveis, gemas e arte própria.
+   📋 Plano em
+   `docs/EXPEDITION_PLAN.md` (decisões: caçada contínua, rendimento por
+   poder sem punir, loot = troféus vendáveis + gemas). **Inclui o equipamento
+   (E3)** — o poder do gato soma atributos + gear.
+3. ✅ **Equipamento equipável — ENTREGUE (E3)** — arma/armadura
+   com `power`, vendidas pelo ferreiro e dropadas em expedições.
+4. ✅ **Loot tables de expedição — ENTREGUE (E4)** — seis troféus com
+   probabilidades por zona e venda individual/em lote no inventário.
 5. **Mais mundo** — novas zonas/mapas além do pátio.
 
 ## 💡 Ideias emprestadas do Baiak Idle (idle-RPG auto-hunt)

@@ -6,6 +6,7 @@ import { startActivity } from '../src/game/systems/activitySystem.ts';
 import { processOfflineProgress } from '../src/game/systems/offlineSystem.ts';
 import { migrateGameSave } from '../src/game/storage/migrations.ts';
 import { getLeader } from '../src/game/systems/colonySystem.ts';
+import { startExpedition } from '../src/game/systems/expeditionSystem.ts';
 
 const MIN = 60_000;
 
@@ -54,6 +55,22 @@ test('busy cat misses ticks and cannot bank regen for later', () => {
   const freed = { ...during, cats: during.cats.map((cat) => ({ ...cat, activity: null })) };
   const after = applyEnergyRegen(freed, 10 * MIN);
   assert.equal(getLeader(after).energy, busyEnergy);
+});
+
+test('expedition cat does not regenerate energy online or offline', () => {
+  const state = tiredState(0, 10);
+  const catId = getLeader(state).id;
+  const started = startExpedition(state, catId, 'whisperingFields', 0);
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+
+  const online = applyEnergyRegen(started.state, 10 * MIN);
+  assert.equal(getLeader(online).energy, 10);
+  assert.equal(online.lastEnergyRegenAt, 10 * MIN);
+
+  const offline = processOfflineProgress(started.state, 30 * MIN, () => 0.99);
+  assert.equal(getLeader(offline.state).energy, 10);
+  assert.equal(offline.state.lastEnergyRegenAt, 30 * MIN);
 });
 
 test('offline progress applies regen with and without an activity', () => {

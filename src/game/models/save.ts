@@ -1,9 +1,10 @@
 import type { Cat } from './cat.ts';
+import type { ExpeditionZoneId } from './expedition.ts';
 import type { MissionId, MissionState } from './missions.ts';
 import type { Inventory, Resources } from './resources.ts';
 import type { UpgradeId, UpgradeState } from './upgrades.ts';
 
-export const saveSchemaVersion = 2;
+export const saveSchemaVersion = 5;
 
 export type GameTotals = {
   activitiesCompleted: number;
@@ -19,6 +20,8 @@ export type GameState = {
   cats: Cat[];
   /** Id of the cat who walks the world and fronts the game. */
   leaderId: string;
+  /** Reward-bearing collections completed in each expedition zone. */
+  expeditionCollections: Record<ExpeditionZoneId, number>;
   resources: Resources;
   inventory: Inventory;
   upgrades: Record<UpgradeId, UpgradeState>;
