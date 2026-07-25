@@ -11,7 +11,14 @@ export type Resources = Record<ResourceKey, number>;
 
 export type SpecialItemKey = 'rareFeather' | 'goldenSardine' | 'glowingYarn';
 
-export type Inventory = Record<SpecialItemKey, number>;
+export type ExpeditionTrophyKey =
+  | 'spectralSardine'
+  | 'phantomFur'
+  | 'grimaldeRelic';
+
+export type InventoryItemKey = SpecialItemKey | ExpeditionTrophyKey;
+
+export type Inventory = Record<InventoryItemKey, number>;
 
 export type RewardBundle = {
   resources: Partial<Resources>;
@@ -36,6 +43,17 @@ export const specialItemKeys: SpecialItemKey[] = [
   'glowingYarn',
 ];
 
+export const trophyKeys: ExpeditionTrophyKey[] = [
+  'spectralSardine',
+  'phantomFur',
+  'grimaldeRelic',
+];
+
+export const inventoryItemKeys: InventoryItemKey[] = [
+  ...specialItemKeys,
+  ...trophyKeys,
+];
+
 export const resourceLabels: Record<ResourceKey, string> = {
   fish: 'Peixes',
   mice: 'Ratinhos',
@@ -50,6 +68,17 @@ export const specialItemLabels: Record<SpecialItemKey, string> = {
   rareFeather: 'Pena rara',
   goldenSardine: 'Sardinha dourada',
   glowingYarn: 'Novelo brilhante',
+};
+
+export const trophyLabels: Record<ExpeditionTrophyKey, string> = {
+  spectralSardine: 'Sardinha espectral',
+  phantomFur: 'Pelo fantasma',
+  grimaldeRelic: 'Relíquia grimalde',
+};
+
+export const inventoryItemLabels: Record<InventoryItemKey, string> = {
+  ...specialItemLabels,
+  ...trophyLabels,
 };
 
 export function createEmptyResources(): Resources {
@@ -69,6 +98,9 @@ export function createEmptyInventory(): Inventory {
     rareFeather: 0,
     goldenSardine: 0,
     glowingYarn: 0,
+    spectralSardine: 0,
+    phantomFur: 0,
+    grimaldeRelic: 0,
   };
 }
 

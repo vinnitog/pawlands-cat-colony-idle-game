@@ -76,6 +76,7 @@ export function recruitCat(state: GameState, random = Math.random, now = Date.no
     maxEnergy: 40,
     stats: { ...classDef.stats },
     activity: null,
+    expedition: null,
   };
 
   const nextState = {

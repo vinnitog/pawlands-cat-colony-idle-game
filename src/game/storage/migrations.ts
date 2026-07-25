@@ -2,12 +2,14 @@ import { activityById } from '../data/activities.ts';
 import { createInitialGameState } from '../data/initialGameState.ts';
 import { missions } from '../data/missions.ts';
 import { upgrades } from '../data/upgrades.ts';
+import { isExpeditionZoneId } from '../data/zones.ts';
 import type { ActiveActivity } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import { isCatClass } from '../models/catClass.ts';
+import type { ActiveExpedition } from '../models/expedition.ts';
 import type { MissionState } from '../models/missions.ts';
 import type { Inventory, Resources } from '../models/resources.ts';
-import { resourceKeys, specialItemKeys } from '../models/resources.ts';
+import { inventoryItemKeys, resourceKeys } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
 import type { UpgradeState } from '../models/upgrades.ts';
 import { refreshMissionProgress } from '../systems/missionSystem.ts';
@@ -30,7 +32,7 @@ export function migrateGameSave(value: unknown): GameState {
       return buildState(candidate, fallback, [leader], leader.id);
     }
 
-    if (candidate.schemaVersion === saveSchemaVersion) {
+    if (candidate.schemaVersion === 2 || candidate.schemaVersion === saveSchemaVersion) {
       const cats = mergeCats(candidate.cats, fallback.cats);
       return buildState(candidate, fallback, cats, resolveLeaderId(candidate.leaderId, cats));
     }
@@ -86,6 +88,10 @@ function toSafeNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
 }
 
+function toSafeDecimal(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : fallback;
+}
+
 function mergeResources(value: unknown, fallback: Resources): Resources {
   const result = { ...fallback };
 
@@ -103,7 +109,7 @@ function mergeInventory(value: unknown, fallback: Inventory): Inventory {
 
   if (!isObject(value)) return result;
 
-  for (const key of specialItemKeys) {
+  for (const key of inventoryItemKeys) {
     result[key] = toSafeNumber(value[key], fallback[key]);
   }
 
@@ -137,6 +143,7 @@ function mergeCat(value: unknown, fallback: Cat, legacyActivity?: unknown): Cat 
       luck: Math.max(1, toSafeNumber(stats.luck, fallback.stats.luck)),
     },
     activity: mergeActiveActivity(activitySource),
+    expedition: mergeActiveExpedition(value.expedition),
   };
 }
 
@@ -199,4 +206,17 @@ function mergeActiveActivity(value: unknown): ActiveActivity | null {
   if (value.atLake === true) active.atLake = true;
 
   return active;
+}
+
+function mergeActiveExpedition(value: unknown): ActiveExpedition | null {
+  if (!isObject(value) || !isExpeditionZoneId(value.zoneId)) return null;
+
+  const startedAt = toSafeNumber(value.startedAt, 0);
+
+  return {
+    zoneId: value.zoneId,
+    startedAt,
+    lastProgressAt: Math.max(startedAt, toSafeNumber(value.lastProgressAt, startedAt)),
+    accumulatedPulses: toSafeDecimal(value.accumulatedPulses, 0),
+  };
 }

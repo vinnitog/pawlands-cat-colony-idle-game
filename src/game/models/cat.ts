@@ -1,5 +1,6 @@
 import type { ActiveActivity } from './activity.ts';
 import type { CatClass } from './catClass.ts';
+import type { ActiveExpedition } from './expedition.ts';
 
 export type CatStats = {
   attack: number;
@@ -20,4 +21,6 @@ export type Cat = {
   stats: CatStats;
   /** The activity this cat is currently busy with, or null when free. */
   activity: ActiveActivity | null;
+  /** The continuous expedition this cat is assigned to, or null when home. */
+  expedition: ActiveExpedition | null;
 };

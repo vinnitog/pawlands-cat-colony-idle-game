@@ -25,6 +25,7 @@ export function createInitialGameState(now = Date.now()): GameState {
       luck: 2,
     },
     activity: null,
+    expedition: null,
   };
 
   return {
