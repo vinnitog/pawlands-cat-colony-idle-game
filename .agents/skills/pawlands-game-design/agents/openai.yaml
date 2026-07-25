@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pawlands Game Design"
+  short_description: "Projeta progressão idle e economia do Pawlands"
+  default_prompt: "Use $pawlands-game-design para avaliar esta mecânica e propor um design balanceado antes da implementação."

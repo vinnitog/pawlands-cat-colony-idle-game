@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT.md - pawlands-cat-colony-idle
 
 Gerado em: 2026-07-06 19:53:45
-Atualizado em: 2026-07-06
+Atualizado em: 2026-07-25
 
 ## Descricao
 
@@ -53,13 +53,14 @@ O `code-reviewer` deve apontar risco de stack inadequada, excesso de complexidad
 
 ## Workflow Padrao
 
-1. `senior-dev`
-2. `ui-ux-expert`, quando houver front-end
-3. `code-reviewer`
-4. `qa-senior`
-5. `qa-automate`
-6. Validacao final com testes e diff
-7. Commit/push em `develop` e PR `develop -> main`
+1. `pawlands-game-design`, quando houver impacto em mecanicas, progressao, economia, balanceamento, offline ou persistencia
+2. `senior-dev`
+3. `ui-ux-expert`, quando houver front-end
+4. `code-reviewer`
+5. `qa-senior`
+6. `qa-automate`
+7. Validacao final com testes e diff
+8. Commit/push em `develop` e PR `develop -> main`
 
 ## Comandos De Validacao
 

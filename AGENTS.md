@@ -36,34 +36,39 @@ Antes da primeira feature real, o `senior-dev` deve confirmar se essa stack aind
 
 Toda mudanca de desenvolvimento deve seguir esta ordem:
 
-1. `senior-dev`
+1. `pawlands-game-design`, quando houver impacto de game design
+   - Usar antes da implementacao para mecanicas, core loop, progressao, economia, recompensas, loot, atributos, equipamento, balanceamento, offline ou save schema.
+   - Define regras mensuraveis, calcula cenarios e preserva decisoes travadas.
+   - Nao substitui o `senior-dev`; entrega a ele o brief de design quando houver codigo.
+
+2. `senior-dev`
    - Sempre usar para ajustes, melhorias, bugs, ideias novas, funcionalidades novas e qualquer trabalho de desenvolvimento.
    - Implementa a mudanca com escopo pequeno, sem over-engineering e seguindo o padrao existente.
 
-2. `ui-ux-expert`, quando houver front-end
+3. `ui-ux-expert`, quando houver front-end
    - Para este projeto, qualquer ajuste de front-end deve acionar `ui-ux-expert`, mesmo sem `/ui-ux`.
    - Valida aparencia, usabilidade, responsividade, hierarquia visual e consistencia.
 
-3. `code-reviewer`
+4. `code-reviewer`
    - Entra logo apos o `senior-dev`, ou logo apos o `ui-ux-expert` quando houver front-end.
    - Faz revisao minuciosa das alteracoes, procurando regressao, bug, risco, quebra de fluxo e ausencia de cobertura.
    - Corrige o que for necessario antes de passar para QA.
 
-4. `qa-senior`
+5. `qa-senior`
    - Faz analise de impacto da mudanca.
    - Define casos de teste manuais, regressivos e automatizados conforme o impacto.
    - Se a mudanca toca algo existente, testes regressivos sao obrigatorios.
 
-5. `qa-automate`
+6. `qa-automate`
    - Cria ou ajusta testes automatizados a partir dos casos definidos pelo `qa-senior`.
    - Mantem os testes simples, executaveis localmente e alinhados ao app.
 
-6. Validacao final
+7. Validacao final
    - Rodar testes automatizados.
    - Revisar `git diff`.
    - Confirmar que nao entrou alteracao fora do escopo.
 
-7. Git
+8. Git
    - Trabalhar sempre a partir de `develop`.
    - Nunca fazer push direto para `main`.
    - Fazer staging apenas dos arquivos revisados e pertencentes ao escopo.
