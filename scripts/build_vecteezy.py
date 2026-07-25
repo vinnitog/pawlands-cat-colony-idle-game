@@ -174,6 +174,11 @@ def build_ui_kit() -> None:
     divider.save(UI_DIR / "ui_divider.png", optimize=True)
     print(f"  ui_divider.png: {divider.size[0]}x{divider.size[1]}")
 
+    # Mesmo ornamento na vertical: trilho decorativo da borda do menu lateral.
+    rail = divider.rotate(90, expand=True)
+    rail.save(UI_DIR / "ui_rail.png", optimize=True)
+    print(f"  ui_rail.png: {rail.size[0]}x{rail.size[1]}")
+
     # Nota: uma moldura 9-slice foi testada e descartada — esticada em cards
     # pequenos as linhas duplas do original desalinhavam e sumiam na tela.
     # A borda dos cards hoje e CSS (fio de ouro + losangos nos cantos).

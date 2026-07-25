@@ -38,8 +38,6 @@
   --nav-w: 208px;
   /* losango dourado dos cantos dos cards */
   --corner-diamond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Cpath d='M4.5 0 9 4.5 4.5 9 0 4.5Z' fill='%23c8962c'/%3E%3C/svg%3E");
-  /* corrente de elos entrelaçados da borda do menu */
-  --chain-links: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='22'%3E%3Cg fill='none' stroke='%23c8962c' stroke-width='1.7'%3E%3Cellipse cx='7' cy='5.5' rx='3.6' ry='6.5'/%3E%3Cellipse cx='7' cy='16.5' rx='5.4' ry='5'/%3E%3C/g%3E%3C/svg%3E");
   /* treliça heráldica (diaper pattern) do fundo do salão */
   --keep-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23c8962c' stroke-width='1' opacity='0.11'%3E%3Cpath d='M28 0 56 28 28 56 0 28Z'/%3E%3Cpath d='M28 19 37 28 28 37 19 28Z'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -275,14 +273,42 @@ dd {
     calc(100% - 3px) calc(100% - 3px);
 }
 
-/* [UI] Divisor ornamental (losango + hastes) sob os títulos de seção */
+/* [UI] Títulos de tela ficam sobre a pedra escura, não sobre pergaminho: as
+   cores marrons padrão sumiam no fundo. Só os cabeçalhos de nível de tela
+   (filhos diretos de .screen-stack) viram texto claro. */
+.screen-stack > .section-heading h2 {
+  color: #f7e8cb;
+}
+
+.screen-stack > .section-heading .eyebrow {
+  color: #d9ac52;
+}
+
+.screen-stack > .section-heading .daily-bonus-headline {
+  color: #e6d5ad;
+}
+
+.screen-stack > .section-heading .daily-bonus-headline strong {
+  color: #f2ca6c;
+}
+
+/* [UI] Régua ornamental sob os títulos: fio de ouro atravessando a largura com
+   o ornamento do kit apoiado no centro (solto, o ornamento parecia perdido). */
 .section-heading::after {
   content: '';
   flex-basis: 100%;
   order: 99;
-  height: 12px;
-  background: url('../ui/art/ui_divider.png') center / auto 100% no-repeat;
-  opacity: 0.75;
+  height: 14px;
+  background:
+    url('../ui/art/ui_divider.png') center center / auto 14px no-repeat,
+    linear-gradient(
+        90deg,
+        transparent,
+        rgba(160, 120, 40, 0.55) 8%,
+        rgba(160, 120, 40, 0.55) 92%,
+        transparent
+      )
+      center center / 100% 1px no-repeat;
 }
 
 .cat-portrait {
@@ -1017,21 +1043,22 @@ dd {
   width: var(--nav-w);
   height: 100dvh;
   padding: 16px 14px 16px 10px;
-  border-right: 2px solid var(--gold);
   background: linear-gradient(180deg, #2a2620, #17140f);
   box-shadow: 8px 0 24px rgba(10, 6, 2, 0.45);
 }
 
-/* [UI] Corrente de elos entrelaçados descendo a borda interna do menu */
+/* [UI] Trilho ornamental do kit (mesmo divisor, na vertical) marcando a borda
+   do menu — sem linha dourada reta, só a peça decorativa. */
 .side-nav::after {
   content: '';
   position: absolute;
-  top: 0;
-  right: 3px;
-  bottom: 0;
-  width: 14px;
-  background: var(--chain-links) repeat-y center top;
-  opacity: 0.8;
+  top: 50%;
+  right: 6px;
+  width: 16px;
+  height: min(70%, 420px);
+  translate: 0 -50%;
+  background: url('../ui/art/ui_rail.png') center / contain no-repeat;
+  opacity: 0.85;
   pointer-events: none;
 }
 
