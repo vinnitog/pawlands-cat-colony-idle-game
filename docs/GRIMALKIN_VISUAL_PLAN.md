@@ -99,7 +99,7 @@ Contrato comum a todas as etapas G3:
 - nenhum loot, bônus, missão, preço, produção ou desbloqueio depende de abrir ou
   percorrer o Mundo;
 - sinais do cenário apenas leem estado autoritativo já existente;
-- `SAVE_VERSION`, economia, recompensas, timers, RNG, progresso offline,
+- `saveSchemaVersion`, economia, recompensas, timers, RNG, progresso offline,
   colisões e coordenadas funcionais permanecem inalterados;
 - mapa-base continua com `24 × 16` tiles de `16 px`, preservando G1 e G2;
 - Tiny Town permanece disponível como fallback;
@@ -122,7 +122,7 @@ semânticos candidatos antes de qualquer alteração no runtime.
 
 ### G3.1 — importação mínima e catálogo
 
-**Pendente.**
+**Entregue.**
 
 - Importar somente um atlas Tiny Dungeon necessário ao runtime e seu arquivo de
   licença/proveniência.
@@ -130,8 +130,9 @@ semânticos candidatos antes de qualquer alteração no runtime.
   passe; índices crus novos não podem se espalhar pelo mapa ou renderer.
 - Preservar Tiny Town como fallback se o atlas complementar falhar.
 
-Critérios: dimensões, transparência e índices validados; no máximo uma nova
-requisição de imagem no Mundo; zero dependências; `SAVE_VERSION` intacta.
+Critérios atendidos: atlas `192 × 176 px`, transparência, licença, hashes e 24
+índices validados; uma nova requisição opcional no Mundo; `details` ainda vazio;
+zero dependências e `saveSchemaVersion` intacta.
 
 ### G3.2 — passe visual seletivo
 

@@ -24,6 +24,11 @@ import {
   type InteractionKind,
 } from '../../game/world/tinyTown.ts';
 import {
+  loadOptionalAsset,
+  TINY_DUNGEON_TILESET_COLUMNS,
+  tinyDungeonTilesetSrc,
+} from '../../game/world/tinyDungeon.ts';
+import {
   getFogPatches,
   getPlayerAnimationFrame,
   getWaterShimmerPhase,
@@ -111,6 +116,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
     const player = { x: start.x, y: start.y, facing: 1, anim: 0, moving: false };
     let dirty = false;
     let tileImg: HTMLImageElement | null = null;
+    let detailImg: HTMLImageElement | null = null;
     let idleImg: HTMLImageElement | null = null;
     let runImg: HTMLImageElement | null = null;
     const npcImgs = new Map<CatClass, HTMLImageElement>();
@@ -339,6 +345,12 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         const sy = Math.floor(index / TILESET_COLUMNS) * TILE;
         ctx.drawImage(tileImg as HTMLImageElement, sx, sy, TILE, TILE, dx, dy, TILE, TILE);
       };
+      const drawDetailTile = (index: number, dx: number, dy: number) => {
+        if (!detailImg) return;
+        const sx = (index % TINY_DUNGEON_TILESET_COLUMNS) * TILE;
+        const sy = Math.floor(index / TINY_DUNGEON_TILESET_COLUMNS) * TILE;
+        ctx.drawImage(detailImg, sx, sy, TILE, TILE, dx, dy, TILE, TILE);
+      };
 
       const x0 = Math.max(0, Math.floor(camX / TILE));
       const x1 = Math.min(map.width - 1, Math.floor((camX + viewW) / TILE));
@@ -373,6 +385,19 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       };
 
       const depthItems: Array<DepthItem<() => void>> = [];
+      if (detailImg) {
+        map.details.forEach((detail, detailIndex) => {
+          if (detail.tx < x0 || detail.tx > x1 || detail.ty < y0 || detail.ty > y1) return;
+          depthItems.push({
+            baselineY: (detail.ty + 1) * TILE,
+            order:
+              detail.ty * map.width
+              + detail.tx
+              + (detailIndex + 1) / (map.details.length + 1),
+            value: () => drawDetailTile(detail.tile, detail.tx * TILE, detail.ty * TILE),
+          });
+        });
+      }
       for (let y = y0; y <= y1; y += 1) {
         for (let x = x0; x <= x1; x += 1) {
           const tile = map.objects[y * map.width + x];
@@ -621,6 +646,10 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         raf = requestAnimationFrame(step);
       })
       .catch(() => {});
+
+    loadOptionalAsset(() => loadImage(base + tinyDungeonTilesetSrc)).then((image) => {
+      if (running) detailImg = image;
+    });
 
     return () => {
       running = false;

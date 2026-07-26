@@ -91,7 +91,9 @@ registro acima. O primeiro passe pode usar no máximo 12 destes 24 papéis.
 
 ## Gate para G3.1
 
-A importação só pode prosseguir quando:
+**Gate atendido em 2026-07-26.**
+
+A importação foi autorizada após:
 
 1. o arquivo obtido da origem oficial corresponder ao SHA-256 registrado;
 2. a licença CC0 acompanhar o asset no repositório;
@@ -100,8 +102,19 @@ A importação só pode prosseguir quando:
    aceitáveis junto ao Tiny Town; os três recortes no mapa pertencem à G3.2;
 5. o plano de fallback carregar Grimalkin apenas com Tiny Town se o atlas
    complementar falhar;
-6. nenhuma mudança em `SAVE_VERSION`, colisões, economia ou dependências for
+6. nenhuma mudança em `saveSchemaVersion`, colisões, economia ou dependências for
    necessária.
+
+Resultado importado:
+
+- `public/tiles/tiny_dungeon.png`, extraído de
+  `Tilemap/tilemap_packed.png`, com SHA-256
+  `D24E60A41E4AC7A745C0304DFDE121143688557F40215F23221C29CFE683825F`;
+- `public/tiles/tiny_dungeon.license.txt` e
+  `public/tiles/tiny_dungeon.source.txt`;
+- catálogo central com 24 índices conferidos contra os PNGs individuais;
+- camada complementar opcional e vazia, com Tiny Town preservado quando o
+  carregamento falha.
 
 ## Riscos conhecidos
 
