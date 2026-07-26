@@ -1,6 +1,7 @@
 import type { CatClass } from '../models/catClass.ts';
 import type { MissionId } from '../models/missions.ts';
 import type { ShopId } from '../models/shop.ts';
+import { DUNGEON_TILES, type DungeonTile } from './tinyDungeon.ts';
 
 // Kenney Tiny Town (CC0), already published at public/tiles/tiny_town.png.
 // The atlas is a 12 × 12 grid of 16 px tiles; valid indices are 0..143.
@@ -56,11 +57,18 @@ export type Npc = {
   questId?: MissionId;
 };
 
+export type WorldDetail = {
+  tx: number;
+  ty: number;
+  tile: DungeonTile;
+};
+
 export type WorldMap = {
   width: number;
   height: number;
   ground: number[];
   objects: (number | null)[];
+  details: WorldDetail[];
   solid: boolean[];
   interactions: Interaction[];
   npcs: Npc[];
@@ -68,6 +76,13 @@ export type WorldMap = {
 };
 
 export type WorldPosition = { x: number; y: number };
+
+const GRIMALKIN_DETAILS: readonly WorldDetail[] = [
+  // Tiny Dungeon remains limited to small props. Architectural silhouettes use
+  // Tiny Town only, avoiding the broken double-arch language of mixed atlases.
+  { tx: 18, ty: 3, tile: DUNGEON_TILES.wallFlame },
+  { tx: 17, ty: 4, tile: DUNGEON_TILES.masonryRubble },
+];
 
 function isFreeTile(map: WorldMap, tx: number, ty: number): boolean {
   return (
@@ -333,6 +348,7 @@ export function createGrimalkin(): WorldMap {
     height,
     ground,
     objects,
+    details: GRIMALKIN_DETAILS.map((detail) => ({ ...detail })),
     solid,
     interactions,
     npcs,

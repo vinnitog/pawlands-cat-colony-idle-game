@@ -1,0 +1,11 @@
+Asset: Kenney Tiny Dungeon
+Version: 1.0
+Source: https://kenney.nl/assets/tiny-dungeon
+Downloaded: 2026-07-26
+Original archive: kenney_tiny-dungeon.zip
+Original archive SHA-256: C109438AB06F65FD80F9B2686A4CF9C7C11DC64444B47333EC71D602F8BB5FC7
+Imported file: Tilemap/tilemap_packed.png
+Imported file SHA-256: D24E60A41E4AC7A745C0304DFDE121143688557F40215F23221C29CFE683825F
+Dimensions: 192x176 px
+Grid: 12 columns x 11 rows, 16x16 px per tile
+License: Creative Commons Zero 1.0 (see tiny_dungeon.license.txt)

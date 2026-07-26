@@ -90,22 +90,20 @@ test('activity assignment and ambient wandering treat expeditions as occupied', 
   assert.match(world, /goTo\('expedition'\)/);
 });
 
-test('dashboard identifies the leader expedition and reserves the meter for timed activities', () => {
-  const dashboard = read('src/ui/screens/DashboardScreen.tsx');
+test('global activity status covers the full roster after the dashboard removal', () => {
+  const status = read('src/ui/components/GlobalActivityStatus.tsx');
+  const app = read('src/app/App.tsx');
 
-  assert.match(dashboard, /const activeExpedition = leader\.expedition/);
-  assert.match(dashboard, /expeditionZoneById\[leader\.expedition\.zoneId\]/);
-  assert.match(dashboard, /activeExpedition[\s\S]*?leader\.name[\s\S]*?expedi/);
-  assert.match(dashboard, /activeExpedition\.name/);
-  assert.match(dashboard, /saque acumula/);
-  assert.match(
-    dashboard,
-    /\{activeActivity \? \([\s\S]*?<div className="meter"[\s\S]*?\) : null\}/,
-  );
-  assert.doesNotMatch(
-    dashboard,
-    /activeExpedition \? \([\s\S]*?<div className="meter"/,
-  );
+  assert.match(status, /state\.cats/);
+  assert.match(status, /cat\.activity/);
+  assert.match(status, /cat\.expedition/);
+  assert.match(status, /expeditionZoneById\[cat\.expedition\.zoneId\]/);
+  assert.match(status, /getEffectiveActivityEndsAt\(cat\.activity\)/);
+  assert.match(status, /state\.cats\.map\(\(cat\)/);
+  assert.match(status, /Ver Atividades/);
+  assert.match(status, /Ver Além/);
+  assert.doesNotMatch(app, /DashboardScreen|dashboard|label: 'Início'/);
+  assert.match(app, /useState<ScreenId>\('world'\)/);
 });
 
 test('activity cards use the selected cat and prioritize expedition status over energy', () => {

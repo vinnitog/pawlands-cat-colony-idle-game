@@ -7,11 +7,18 @@ import {
 type GameFeelEffectLayerProps = {
   effect: GameFeelEffect;
   onComplete(): void;
+  placement?: 'viewport' | 'crest';
 };
+
+function getEffectLabel(effect: GameFeelEffect): string {
+  if (effect.kind === 'levelUp') return `LEVEL UP · ${effect.catName}`;
+  if (effect.kind === 'energyRegen') return `ENERGY +${effect.amount ?? ''} · ${effect.catName}`;
+  return `BLINKING · ${effect.catName}`;
+}
 
 function LevelUpEffect() {
   return (
-    <svg className="game-feel-svg" viewBox="0 0 240 240">
+    <svg className="game-feel-svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id="level-up-glow">
           <stop offset="0" stopColor="#fff9bb" stopOpacity="0.9" />
@@ -40,7 +47,7 @@ function LevelUpEffect() {
 
 function EnergyRegenEffect() {
   return (
-    <svg className="game-feel-svg" viewBox="0 0 240 240">
+    <svg className="game-feel-svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id="energy-glow">
           <stop offset="0" stopColor="#d8ffb8" stopOpacity="0.92" />
@@ -66,7 +73,7 @@ function EnergyRegenEffect() {
 
 function TeleportEffect() {
   return (
-    <svg className="game-feel-svg" viewBox="0 0 240 240">
+    <svg className="game-feel-svg" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
       <defs>
         <radialGradient id="teleport-core">
           <stop offset="0" stopColor="#f1fdff" stopOpacity="0.98" />
@@ -86,7 +93,12 @@ function TeleportEffect() {
   );
 }
 
-export function GameFeelEffectLayer({ effect, onComplete }: GameFeelEffectLayerProps) {
+export function GameFeelEffectLayer({
+  effect,
+  onComplete,
+  placement = 'viewport',
+}: GameFeelEffectLayerProps) {
+  const label = getEffectLabel(effect);
   useEffect(() => {
     const timeoutId = window.setTimeout(
       onComplete,
@@ -99,13 +111,14 @@ export function GameFeelEffectLayer({ effect, onComplete }: GameFeelEffectLayerP
     <div
       className={`game-feel-effect game-feel-effect--${effect.kind}${
         effect.direction ? ` game-feel-effect--${effect.direction}` : ''
-      }`}
+      } game-feel-effect--${placement}`}
       style={
         {
           '--game-feel-duration': `${GAME_FEEL_DURATION_MS[effect.kind]}ms`,
         } as CSSProperties
       }
-      aria-hidden="true"
+      role="status"
+      aria-label={label}
       onAnimationEnd={(event) => {
         if (event.target === event.currentTarget) onComplete();
       }}
@@ -113,6 +126,11 @@ export function GameFeelEffectLayer({ effect, onComplete }: GameFeelEffectLayerP
       {effect.kind === 'levelUp' ? <LevelUpEffect /> : null}
       {effect.kind === 'energyRegen' ? <EnergyRegenEffect /> : null}
       {effect.kind === 'teleport' ? <TeleportEffect /> : null}
+      {placement === 'crest' ? (
+        <strong className="game-feel-label" aria-hidden="true">
+          {label}
+        </strong>
+      ) : null}
     </div>
   );
 }

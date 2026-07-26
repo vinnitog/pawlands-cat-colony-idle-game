@@ -12,16 +12,12 @@ import { updateCat } from './colonySystem.ts';
 import { addInventoryToState, addResourcesToState } from './economySystem.ts';
 import { addXpToCat } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
-import { getCatAttributePower, getEquipmentPower } from './equipmentSystem.ts';
+import { getExpeditionEfficiency } from '../rules/expeditionRules.ts';
 
-export function getCatPower(cat: Cat): number {
-  return getCatAttributePower(cat) + getEquipmentPower(cat);
-}
-
-export function getExpeditionEfficiency(cat: Cat, zoneId: ExpeditionZoneId): number {
-  const efficiency = getCatPower(cat) / expeditionZoneById[zoneId].recommendedPower;
-  return Math.min(1.5, Math.max(0.25, efficiency));
-}
+export {
+  getCatPower,
+  getExpeditionEfficiency,
+} from '../rules/expeditionRules.ts';
 
 export function isExpeditionZoneUnlocked(
   state: GameState,

@@ -85,7 +85,7 @@ recompensa permanente suficientes para justificar um reset voluntário.
       documentados em `docs/GRIMALKIN_VISUAL_PLAN.md`.
 - [x] **G1 — cidade-fortaleza Tiny Town:** mapa 24×16 recomposto com muralhas,
       portão sul, eixo cívico, distritos, casas, caminhos e posição salva segura.
-- [ ] **G2 — profundidade e atmosfera:** y-sort, sombras, água, luz e névoa,
+- [x] **G2 — profundidade e atmosfera:** y-sort, sombras, água, luz e névoa,
       seguidos de playtest visual.
 - [ ] **G3 — expansão premium:** avaliar Elthen, personagens em quatro direções,
       interiores e novos distritos/mapas.

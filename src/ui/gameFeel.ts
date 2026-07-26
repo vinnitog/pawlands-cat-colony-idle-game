@@ -6,6 +6,9 @@ export type TeleportDirection = 'depart' | 'return';
 export type GameFeelCue = {
   kind: GameFeelEffectKind;
   direction?: TeleportDirection;
+  catId: string;
+  catName: string;
+  amount?: number;
 };
 
 export type GameFeelEffect = GameFeelCue & {
@@ -49,28 +52,45 @@ export function enqueueGameFeelEffects(
 export function detectGameFeelCues(previous: GameState, current: GameState): GameFeelCue[] {
   const previousCats = new Map(previous.cats.map((cat) => [cat.id, cat]));
   const cues: GameFeelCue[] = [];
-  let levelsGained = 0;
-  let energyGained = 0;
 
   for (const cat of current.cats) {
     const previousCat = previousCats.get(cat.id);
     if (!previousCat) continue;
 
     if (!previousCat.expedition && cat.expedition) {
-      cues.push({ kind: 'teleport', direction: 'depart' });
+      cues.push({
+        kind: 'teleport',
+        direction: 'depart',
+        catId: cat.id,
+        catName: cat.name,
+      });
     } else if (previousCat.expedition && !cat.expedition) {
-      cues.push({ kind: 'teleport', direction: 'return' });
+      cues.push({
+        kind: 'teleport',
+        direction: 'return',
+        catId: cat.id,
+        catName: cat.name,
+      });
     }
 
-    levelsGained += Math.max(0, cat.level - previousCat.level);
-    energyGained += Math.max(0, cat.energy - previousCat.energy);
-  }
-
-  if (levelsGained > 0) {
-    cues.push({ kind: 'levelUp' });
-  } else if (energyGained > 0) {
-    // Level-up already communicates its own energy refill, avoiding stacked noise.
-    cues.push({ kind: 'energyRegen' });
+    const levelsGained = Math.max(0, cat.level - previousCat.level);
+    const energyGained = Math.max(0, cat.energy - previousCat.energy);
+    if (levelsGained > 0) {
+      cues.push({
+        kind: 'levelUp',
+        catId: cat.id,
+        catName: cat.name,
+        amount: levelsGained,
+      });
+    } else if (energyGained > 0) {
+      // Level-up already communicates its own energy refill, avoiding stacked noise.
+      cues.push({
+        kind: 'energyRegen',
+        catId: cat.id,
+        catName: cat.name,
+        amount: energyGained,
+      });
+    }
   }
 
   return cues;
