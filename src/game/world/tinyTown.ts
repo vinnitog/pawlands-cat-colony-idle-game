@@ -1,7 +1,7 @@
 import type { CatClass } from '../models/catClass.ts';
 import type { MissionId } from '../models/missions.ts';
 import type { ShopId } from '../models/shop.ts';
-import type { DungeonTile } from './tinyDungeon.ts';
+import { DUNGEON_TILES, type DungeonTile } from './tinyDungeon.ts';
 
 // Kenney Tiny Town (CC0), already published at public/tiles/tiny_town.png.
 // The atlas is a 12 × 12 grid of 16 px tiles; valid indices are 0..143.
@@ -76,6 +76,22 @@ export type WorldMap = {
 };
 
 export type WorldPosition = { x: number; y: number };
+
+const GRIMALKIN_DETAILS: readonly WorldDetail[] = [
+  // Royal reliefs ornament the existing solid keep without widening its footprint.
+  { tx: 11, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
+  { tx: 11, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
+  { tx: 13, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
+  { tx: 13, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
+  // A wall flame and repaired masonry identify the forge without hiding its door.
+  { tx: 18, ty: 3, tile: DUNGEON_TILES.wallFlame },
+  { tx: 17, ty: 4, tile: DUNGEON_TILES.masonryRubble },
+  // The complementary arch follows the existing passable south gate opening.
+  { tx: 11, ty: 14, tile: DUNGEON_TILES.gatewayTopLeft },
+  { tx: 12, ty: 14, tile: DUNGEON_TILES.gatewayTopRight },
+  { tx: 11, ty: 15, tile: DUNGEON_TILES.gatewaySideLeft },
+  { tx: 12, ty: 15, tile: DUNGEON_TILES.gatewaySideRight },
+];
 
 function isFreeTile(map: WorldMap, tx: number, ty: number): boolean {
   return (
@@ -341,7 +357,7 @@ export function createGrimalkin(): WorldMap {
     height,
     ground,
     objects,
-    details: [],
+    details: GRIMALKIN_DETAILS.map((detail) => ({ ...detail })),
     solid,
     interactions,
     npcs,

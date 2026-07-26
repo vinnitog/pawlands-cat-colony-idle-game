@@ -136,16 +136,22 @@ zero dependências e `saveSchemaVersion` intacta.
 
 ### G3.2 — passe visual seletivo
 
-**Pendente.**
+**Entregue.**
 
-- Prototipar três recortes: núcleo real, forja e Portão do Além.
-- Usar Tiny Dungeon apenas onde melhorar simultaneamente a leitura funcional e
-  a coerência de paleta/escala; não substituir todo o mapa por obrigação.
-- Preservar colisões, spawn, NPCs, câmera, y-sort, atmosfera e interações.
+- Dez tiles do Tiny Dungeon compõem três recortes: dois relevos verticais no
+  núcleo real, uma chama mural com alvenaria discreta na fachada da forja e um
+  arco `2 × 2` sobre a abertura existente do Portão do Além.
+- Cada composição complementa um objeto-base deliberado; nenhum detalhe foi
+  usado como piso, decal estrutural ou novo obstáculo.
+- O passe preserva integralmente `ground`, `objects`, `solid`, spawn, NPCs,
+  câmera, y-sort, atmosfera e interações. Se o atlas opcional falhar, todas as
+  estruturas Tiny Town continuam presentes.
 
-Critérios: camadas continuam com 384 entradas; collision layer idêntica ao
-baseline; cada interação e NPC mantém ao menos duas aproximações livres e
-alcançáveis; nenhum índice inválido ou objeto sobreposto silenciosamente.
+Critérios atendidos: camadas continuam com 384 entradas; hashes de `ground`,
+`objects` e `solid` permanecem no baseline G1; cada interação e NPC mantém ao
+menos duas aproximações livres e alcançáveis; os dez índices estão no catálogo
+auditado, as coordenadas são únicas e cada sobreposição possui objeto-base
+verificado.
 
 ### G3.3 — cidade viva idle
 

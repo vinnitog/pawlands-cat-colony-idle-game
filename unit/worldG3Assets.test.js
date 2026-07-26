@@ -84,11 +84,11 @@ test('G3.1 keeps raw Tiny Dungeon indices centralized and in atlas bounds', () =
   });
 });
 
-test('G3.1 wires an empty optional detail layer without changing the base map', () => {
+test('G3.1 wires an optional detail layer without coupling it to collision', () => {
   const map = createGrimalkin();
   const solidBeforeDecoration = [...map.solid];
 
-  assert.deepEqual(map.details, []);
+  assert.ok(Array.isArray(map.details));
   assert.equal(map.ground.length, map.width * map.height);
   assert.equal(map.objects.length, map.width * map.height);
   assert.equal(map.solid.length, map.width * map.height);
