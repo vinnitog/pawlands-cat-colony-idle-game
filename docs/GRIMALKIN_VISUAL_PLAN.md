@@ -1,4 +1,4 @@
-# Grimalkin — plano visual G0→G3
+# Grimalkin — plano visual G0→G3.4
 
 ## Contrato preservado
 
@@ -87,13 +87,99 @@ Critérios:
 Critério atendido sem novos assets, dependências, mecânicas, colisões ou mudanças
 no schema de save.
 
-## G3 — expansão premium
+## G3 — identidade visual idle-first
+
+O mundo é uma representação viva da colônia, não uma camada obrigatória de
+exploração. Movimento manual permanece cosmético e opcional: atividades,
+expedições, lojas, coleta e progressão devem continuar acessíveis pela interface
+em no máximo duas ações, sem caminhar até um NPC ou edifício.
+
+Contrato comum a todas as etapas G3:
+
+- nenhum loot, bônus, missão, preço, produção ou desbloqueio depende de abrir ou
+  percorrer o Mundo;
+- sinais do cenário apenas leem estado autoritativo já existente;
+- `SAVE_VERSION`, economia, recompensas, timers, RNG, progresso offline,
+  colisões e coordenadas funcionais permanecem inalterados;
+- mapa-base continua com `24 × 16` tiles de `16 px`, preservando G1 e G2;
+- Tiny Town permanece disponível como fallback;
+- nenhum asset pago ou nova dependência de runtime entra nesta sequência.
+
+### G3.0 — auditoria de assets gratuitos
+
+**Entregue.**
+
+- Tiny Dungeon v1.0 selecionado como candidato para alvenaria, ruínas e props
+  medievais.
+- Tiny Battle v1.0 rejeitado nesta etapa por sua linguagem militar/moderna e
+  pelo baixo ganho de importar um segundo atlas apenas para água ou bandeiras.
+- Origem, licença CC0, hashes, compatibilidade e shortlist semântica registrados
+  em [`G3_ASSET_AUDIT.md`](G3_ASSET_AUDIT.md).
+- Nenhum binário importado.
+
+Critério: proveniência verificável, decisão registrada e no máximo 24 papéis
+semânticos candidatos antes de qualquer alteração no runtime.
+
+### G3.1 — importação mínima e catálogo
 
 **Pendente.**
 
-- Avaliar e licenciar o tileset premium do Elthen.
-- Migrar personagens para quatro direções, se houver sprites compatíveis.
-- Planejar interiores e novos distritos/mapas sem descartar o G1.
+- Importar somente um atlas Tiny Dungeon necessário ao runtime e seu arquivo de
+  licença/proveniência.
+- Centralizar no máximo 24 entradas semânticas e usar no máximo 12 no primeiro
+  passe; índices crus novos não podem se espalhar pelo mapa ou renderer.
+- Preservar Tiny Town como fallback se o atlas complementar falhar.
 
-Critério: auditoria de licença, integração e custo aprovada antes de importar
-qualquer asset pago ou ampliar o schema do mundo.
+Critérios: dimensões, transparência e índices validados; no máximo uma nova
+requisição de imagem no Mundo; zero dependências; `SAVE_VERSION` intacta.
+
+### G3.2 — passe visual seletivo
+
+**Pendente.**
+
+- Prototipar três recortes: núcleo real, forja e Portão do Além.
+- Usar Tiny Dungeon apenas onde melhorar simultaneamente a leitura funcional e
+  a coerência de paleta/escala; não substituir todo o mapa por obrigação.
+- Preservar colisões, spawn, NPCs, câmera, y-sort, atmosfera e interações.
+
+Critérios: camadas continuam com 384 entradas; collision layer idêntica ao
+baseline; cada interação e NPC mantém ao menos duas aproximações livres e
+alcançáveis; nenhum índice inválido ou objeto sobreposto silenciosamente.
+
+### G3.3 — cidade viva idle
+
+**Pendente.**
+
+- Expedição ativa aparece no portão e identifica o gato responsável.
+- Atividades em andamento geram sinais ambientais discretos nos locais
+  compatíveis.
+- Saco cheio ou coleta disponível recebe destaque informativo, sem interromper
+  o loop.
+- Melhorias concluídas alteram detalhes do cenário a partir do nível já salvo.
+- Hotspots podem abrir as mesmas telas existentes, mantendo o menu como rota
+  principal.
+
+Critérios: expedição cobre estados ausente, ativo e coleta disponível;
+atividades cobrem ausente e ativa; melhorias refletem os níveis já salvos. Todo
+sinal atualiza no próximo render do estado, não chama funções econômicas nem
+RNG; progresso offline é idêntico sem abrir o Mundo; movimento reduzido preserva
+a informação.
+
+### G3.4 — distrito-diorama opcional
+
+**Pendente.**
+
+- Validar no máximo um piloto, preferencialmente os arredores do Portão do
+  Além, acessado instantaneamente por seletor ou transição cosmética.
+- Representar desbloqueios existentes e oferecer atalhos às telas atuais, sem
+  loot exclusivo, moeda, produção ou caminhada obrigatória.
+- Não persistir `mapId`: reload e saves antigos retornam com segurança a
+  Grimalkin.
+
+Critérios: entrada e saída em no máximo duas ações; saída e menu global sempre
+visíveis; nenhum campo novo no save; desempenho e movimento reduzido equivalem
+ao mapa-base.
+
+Quatro direções, interiores navegáveis, novos mapas caminháveis e recompensas
+por exploração ficam fora do G3. Só devem voltar ao roadmap após playtests
+demonstrarem valor mensurável para o loop idle.
