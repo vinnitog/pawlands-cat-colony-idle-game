@@ -188,18 +188,41 @@ o contrato global de movimento reduzido preservam a informação.
 
 ### G3.4 — distrito-diorama opcional
 
-**Pendente.**
+**Adiado após gate idle-first.**
 
-- Validar no máximo um piloto, preferencialmente os arredores do Portão do
-  Além, acessado instantaneamente por seletor ou transição cosmética.
-- Representar desbloqueios existentes e oferecer atalhos às telas atuais, sem
-  loot exclusivo, moeda, produção ou caminhada obrigatória.
-- Não persistir `mapId`: reload e saves antigos retornam com segurança a
-  Grimalkin.
+G3.3 já comunica progresso e responsáveis e oferece atalhos sem movimento. Um
+distrito-diorama agora repetiria informações de Grimalkin e da tela do Além,
+acrescentando custo de arte, navegação, responsividade, acessibilidade, bundle e
+QA sem valor idle validado.
 
-Critérios: entrada e saída em no máximo duas ações; saída e menu global sempre
-visíveis; nenhum campo novo no save; desempenho e movimento reduzido equivalem
-ao mapa-base.
+Autorizar um piloto somente quando todos os critérios de entrada forem
+atendidos:
+
+- playtest estruturado com ao menos cinco jogadores, incluindo no mínimo dois
+  em mobile e dois em desktop;
+- pelo menos três dos cinco abrem Grimalkin sem instrução na segunda sessão e
+  colocam uma nova região visual entre as duas melhorias que mais desejam;
+- a cena responde a uma pergunta idle não coberta por Grimalkin ou Além e
+  representa ao menos três estados derivados úteis;
+- o piloto reutiliza os atlases e o runtime existentes, sem nova economia,
+  recompensa, timer, campo de save ou dependência;
+- entrada e saída em até duas ações, menu global sempre disponível e movimento
+  reduzido preservado.
+
+Mesmo autorizado, o piloto só pode ser aceito quando:
+
+- o JavaScript produzido cresce no máximo `10 KB` gzip em relação ao commit
+  anterior ao piloto;
+- em uma execução repetível no mesmo dispositivo e resolução, o custo mediano
+  de render fica até `5%` acima de Grimalkin;
+- cenários pareados, partindo do mesmo save e horário, confirmam estado
+  persistido, progresso offline e recompensas idênticos com a cena nunca aberta
+  ou visitada repetidamente;
+- testes de regressão confirmam que todas as funções continuam acessíveis pela
+  interface em no máximo duas ações.
+
+O marco G3 encerra em G3.3 sem lacuna mecânica. G3.4 permanece uma hipótese
+pós-playtest, não uma dívida obrigatória.
 
 Quatro direções, interiores navegáveis, novos mapas caminháveis e recompensas
 por exploração ficam fora do G3. Só devem voltar ao roadmap após playtests
