@@ -1,18 +1,21 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { useGame } from '../../app/gameProvider.tsx';
 import { catClassById, type CatClass } from '../../game/models/catClass.ts';
 import type { ShopId } from '../../game/models/shop.ts';
-import { activityById } from '../../game/data/activities.ts';
 import { expeditionZoneById } from '../../game/data/zones.ts';
 import type { MissionId } from '../../game/models/missions.ts';
-import { getRemainingActivityMs } from '../../game/systems/activitySystem.ts';
 import { getLeader } from '../../game/systems/colonySystem.ts';
 import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { xpForNextLevel } from '../../game/systems/levelSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { Shop } from '../components/Shop.tsx';
-import { formatDuration } from '../formatters.ts';
 import { useNow } from '../useNow.ts';
 import {
   createGrimalkin,
@@ -42,6 +45,10 @@ import {
   getWorldIdleSignals,
   type WorldIdleSignals,
 } from '../../game/world/worldIdleSignals.ts';
+import {
+  GAME_FEEL_DURATION_MS,
+  type GameFeelEffect,
+} from '../gameFeel.ts';
 import manifest from '../sprites/manifest.json';
 
 const ZOOM = 3;
@@ -49,7 +56,21 @@ const SPEED = 72; // world px per second
 
 type WorldScreenProps = {
   goTo(kind: Exclude<InteractionKind, 'fish'>): void;
+  gameFeelEffect: GameFeelEffect | null;
+  onGameFeelComplete(): void;
 };
+
+type WorldPanelState = 'closed' | 'open' | 'minimized';
+type WorldPanelId = 'bulletin';
+type WorldPanelStates = Record<WorldPanelId, WorldPanelState>;
+
+const WORLD_PANEL_OPTIONS: ReadonlyArray<{
+  id: WorldPanelId;
+  label: string;
+  icon: 'missions';
+}> = [
+  { id: 'bulletin', label: 'Boletim', icon: 'missions' },
+];
 
 const expeditionSignalLabels = {
   quiet: 'Portão silencioso',
@@ -81,7 +102,7 @@ function WorldColonyBulletin({
   const completedUpgrades = signals.upgrades.filter((upgrade) => upgrade.phase === 'complete');
 
   return (
-    <aside className="world-bulletin" aria-labelledby="world-bulletin-title">
+    <section className="world-bulletin" aria-labelledby="world-bulletin-title">
       <header>
         <p className="eyebrow">Cidade viva</p>
         <h2 id="world-bulletin-title">Boletim da colônia</h2>
@@ -166,8 +187,186 @@ function WorldColonyBulletin({
         </span>
         <span className="world-bulletin-action">Ver Melhorias <span aria-hidden="true">→</span></span>
       </button>
-    </aside>
+    </section>
   );
+}
+
+function WorldPanelLayer({
+  panelStates,
+  onPanelStateChange,
+  signals,
+  goTo,
+}: {
+  panelStates: WorldPanelStates;
+  onPanelStateChange(id: WorldPanelId, state: WorldPanelState): void;
+  signals: WorldIdleSignals;
+  goTo: WorldScreenProps['goTo'];
+}) {
+  const bulletinState = panelStates.bulletin;
+  const openerRef = useRef<HTMLButtonElement>(null);
+  const windowRef = useRef<HTMLElement>(null);
+  const dockButtonRef = useRef<HTMLButtonElement>(null);
+  const previousStateRef = useRef(bulletinState);
+
+  useEffect(() => {
+    const previous = previousStateRef.current;
+    previousStateRef.current = bulletinState;
+    if (bulletinState === 'open' && previous !== 'open') {
+      windowRef.current?.focus();
+    } else if (previous === 'open' && bulletinState === 'minimized') {
+      dockButtonRef.current?.focus();
+    } else if (previous === 'open' && bulletinState === 'closed') {
+      openerRef.current?.focus();
+    }
+  }, [bulletinState]);
+
+  useEffect(() => {
+    if (bulletinState !== 'open') return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      onPanelStateChange('bulletin', 'closed');
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [bulletinState, onPanelStateChange]);
+
+  return (
+    <>
+      <nav className="world-options-menu" aria-label="Opções de Grimalkin">
+        {WORLD_PANEL_OPTIONS.map((panel) => (
+          <button
+            ref={panel.id === 'bulletin' ? openerRef : undefined}
+            key={panel.id}
+            type="button"
+            onClick={() => onPanelStateChange(panel.id, 'open')}
+          >
+            <GameIcon name={panel.icon} />
+            <span>{panel.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {bulletinState === 'open' ? (
+        <section
+          ref={windowRef}
+          className="world-panel-window"
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="world-panel-bulletin-title"
+          tabIndex={-1}
+        >
+          <header className="world-panel-titlebar">
+            <span>
+              <GameIcon name="missions" />
+              <strong id="world-panel-bulletin-title">Boletim</strong>
+            </span>
+            <span className="world-panel-actions">
+              <button
+                type="button"
+                onClick={() => onPanelStateChange('bulletin', 'minimized')}
+                aria-label="Minimizar Boletim"
+                title="Minimizar"
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onPanelStateChange('bulletin', 'closed')}
+                aria-label="Fechar Boletim"
+                title="Fechar"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </span>
+          </header>
+          <div className="world-panel-content">
+            <WorldColonyBulletin signals={signals} goTo={goTo} />
+          </div>
+        </section>
+      ) : null}
+
+      {WORLD_PANEL_OPTIONS.some((panel) => panelStates[panel.id] === 'minimized') ? (
+        <div className="world-panel-dock" aria-label="Janelas minimizadas">
+          {WORLD_PANEL_OPTIONS
+            .filter((panel) => panelStates[panel.id] === 'minimized')
+            .map((panel) => (
+              <button
+                ref={panel.id === 'bulletin' ? dockButtonRef : undefined}
+                key={panel.id}
+                type="button"
+                onClick={() => onPanelStateChange(panel.id, 'open')}
+              >
+                <GameIcon name={panel.icon} />
+                <span>{panel.label}</span>
+              </button>
+            ))}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function drawWorldGameFeelAura(
+  ctx: CanvasRenderingContext2D,
+  effect: GameFeelEffect,
+  elapsedMs: number,
+  x: number,
+  y: number,
+  reducedMotion: boolean,
+) {
+  const duration = GAME_FEEL_DURATION_MS[effect.kind];
+  const progress = reducedMotion ? 0.55 : Math.min(1, Math.max(0, elapsedMs / duration));
+  const pulse = reducedMotion ? 0.72 : Math.sin(progress * Math.PI);
+  const palette = effect.kind === 'levelUp'
+    ? { inner: '#fff4a6', outer: '#e4a21e' }
+    : effect.kind === 'energyRegen'
+      ? { inner: '#d9ffb8', outer: '#43d5b4' }
+      : { inner: '#dffbff', outer: '#3e83ff' };
+  const radius = 13 + progress * (effect.kind === 'teleport' ? 13 : 8);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.globalAlpha = Math.max(0.2, pulse);
+  ctx.strokeStyle = palette.outer;
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = palette.outer;
+  ctx.shadowBlur = 7;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 10, radius, Math.max(9, radius * 0.72), progress * 0.8, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.globalAlpha *= 0.8;
+  ctx.strokeStyle = palette.inner;
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y - 8,
+    Math.max(7, radius * 0.66),
+    Math.max(5, radius * 0.42),
+    -progress,
+    0,
+    Math.PI * 2,
+  );
+  ctx.stroke();
+
+  if (effect.kind === 'levelUp') {
+    for (let index = 0; index < 8; index += 1) {
+      const angle = (Math.PI * 2 * index) / 8;
+      const innerRadius = radius + 2;
+      const outerRadius = radius + 5 + pulse * 3;
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(angle) * innerRadius, y - 10 + Math.sin(angle) * innerRadius);
+      ctx.lineTo(x + Math.cos(angle) * outerRadius, y - 10 + Math.sin(angle) * outerRadius);
+      ctx.stroke();
+    }
+  } else if (effect.kind === 'energyRegen') {
+    ctx.fillStyle = palette.inner;
+    for (let index = 0; index < 4; index += 1) {
+      const offset = (progress * 20 + index * 7) % 24;
+      ctx.fillRect(x - 10 + index * 7, y - 3 - offset, 1.5, 3);
+    }
+  }
+  ctx.restore();
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -179,19 +378,21 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-export function WorldScreen({ goTo }: WorldScreenProps) {
+export function WorldScreen({
+  goTo,
+  gameFeelEffect,
+  onGameFeelComplete,
+}: WorldScreenProps) {
   const { state, setWorldPosition, startActivity } = useGame();
   const leader = getLeader(state);
   const catClass = leader.catClass as CatClass;
   const now = useNow();
   const catDef = catClassById[catClass];
-  const activeActivity = leader.activity ? activityById[leader.activity.activityId] : null;
   const activeExpedition = leader.expedition
     ? expeditionZoneById[leader.expedition.zoneId]
     : null;
   const idleSignals = getWorldIdleSignals(state, now);
   const leaderIsAway = activeExpedition !== null;
-  const remainingMs = getRemainingActivityMs(state, now);
   const nextXp = xpForNextLevel(leader.level);
   const xpPct = Math.min(100, Math.floor((leader.xp / nextXp) * 100));
   const persistRef = useRef(setWorldPosition);
@@ -203,6 +404,12 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const goToRef = useRef(goTo);
   goToRef.current = goTo;
   const [prompt, setPrompt] = useState<string | null>(null);
+  const [panelStates, setPanelStates] = useState<WorldPanelStates>({ bulletin: 'closed' });
+  const setPanelState = useCallback((id: WorldPanelId, nextState: WorldPanelState) => {
+    setPanelStates((current) => ({ ...current, [id]: nextState }));
+  }, []);
+  const panelStatesRef = useRef(panelStates);
+  panelStatesRef.current = panelStates;
   const [dialog, setDialog] = useState<{ name: string; lines: string[]; index: number } | null>(null);
   const dialogRef = useRef(false);
   dialogRef.current = dialog !== null;
@@ -214,10 +421,30 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   // Read current mission state inside the render loop (effect closes over catClass only).
   const gameStateRef = useRef(state);
   gameStateRef.current = state;
+  const gameFeelEffectRef = useRef(gameFeelEffect);
+  const gameFeelStartedAtRef = useRef(performance.now());
+  const gameFeelCompleteRef = useRef(onGameFeelComplete);
+  gameFeelCompleteRef.current = onGameFeelComplete;
   const advanceRef = useRef<() => void>(() => {});
   advanceRef.current = () => {
     setDialog((d) => (d && d.index < d.lines.length - 1 ? { ...d, index: d.index + 1 } : null));
   };
+
+  useEffect(() => {
+    if (panelStates.bulletin === 'open') keysRef.current.clear();
+  }, [panelStates.bulletin]);
+
+  useEffect(() => {
+    gameFeelEffectRef.current = gameFeelEffect;
+    if (!gameFeelEffect) return undefined;
+
+    gameFeelStartedAtRef.current = performance.now();
+    const timeoutId = window.setTimeout(
+      () => gameFeelCompleteRef.current(),
+      GAME_FEEL_DURATION_MS[gameFeelEffect.kind] + 100,
+    );
+    return () => window.clearTimeout(timeoutId);
+  }, [gameFeelEffect?.id, gameFeelEffect?.kind]);
 
   useEffect(() => {
     if (leaderIsAway) return undefined;
@@ -228,6 +455,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
 
     const base = import.meta.env.BASE_URL;
     const map = createGrimalkin();
+    const mapW = map.width * TILE;
+    const mapH = map.height * TILE;
     const anims = manifest.heroes[catClass];
     const idleMeta = anims.idle;
     const runMeta = anims.run;
@@ -266,7 +495,8 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      renderScale = ZOOM * dpr;
+      const coverScale = Math.max(ZOOM, rect.width / mapW, rect.height / mapH);
+      renderScale = coverScale * dpr;
       const innerRadius = Math.min(canvas.width, canvas.height) * 0.32;
       const outerRadius = Math.hypot(canvas.width, canvas.height) * 0.56;
       vignette = ctx.createRadialGradient(
@@ -385,6 +615,16 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       solidAt(x - hw, y - hh) || solidAt(x + hw, y - hh) || solidAt(x - hw, y) || solidAt(x + hw, y);
 
     const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target;
+      if (
+        panelStatesRef.current.bulletin === 'open'
+        || (
+          target instanceof HTMLElement
+          && target.closest('button, input, select, textarea, a, [role="dialog"]')
+        )
+      ) {
+        return;
+      }
       const k = e.key.toLowerCase();
       keys.add(k);
       if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
@@ -401,8 +641,6 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       }
     }, 3000);
 
-    const mapW = map.width * TILE;
-    const mapH = map.height * TILE;
     const atmosphereCanvas = document.createElement('canvas');
     atmosphereCanvas.width = mapW;
     atmosphereCanvas.height = mapH;
@@ -567,7 +805,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         });
       });
 
-      [...ambient.values()].forEach((cat, catIndex) => {
+      [...ambient.entries()].forEach(([catId, cat], catIndex) => {
         const img = npcImgs.get(cat.catClass);
         if (!img) return;
         const meta = manifest.heroes[cat.catClass].idle;
@@ -579,6 +817,17 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
             const x = Math.round(cat.x * renderScale) / renderScale;
             const y = Math.round(cat.y * renderScale) / renderScale;
             drawContactShadow(x, y, 4);
+            const effect = gameFeelEffectRef.current;
+            if (effect?.catId === catId) {
+              drawWorldGameFeelAura(
+                ctx,
+                effect,
+                now - gameFeelStartedAtRef.current,
+                x,
+                y,
+                reducedMotion,
+              );
+            }
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(cat.facing, 1);
@@ -614,6 +863,23 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           const x = Math.round(player.x * renderScale) / renderScale;
           const y = Math.round(player.y * renderScale) / renderScale;
           drawContactShadow(x, y);
+          const effect = gameFeelEffectRef.current;
+          if (
+            effect
+            && (
+              effect.catId === gameStateRef.current.leaderId
+              || !ambient.has(effect.catId)
+            )
+          ) {
+            drawWorldGameFeelAura(
+              ctx,
+              effect,
+              now - gameFeelStartedAtRef.current,
+              x,
+              y,
+              reducedMotion,
+            );
+          }
           ctx.save();
           ctx.translate(x, y);
           ctx.scale(player.facing, 1);
@@ -791,6 +1057,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const hold = (key: string) => {
     const press = (e: ReactPointerEvent) => {
       e.preventDefault();
+      if (panelStatesRef.current.bulletin === 'open') return;
       keysRef.current.add(key);
     };
     const release = () => keysRef.current.delete(key);
@@ -821,14 +1088,23 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
             Ir para Expedição
           </button>
         </section>
-        <WorldColonyBulletin signals={idleSignals} goTo={goTo} />
+        <WorldPanelLayer
+          panelStates={panelStates}
+          onPanelStateChange={setPanelState}
+          signals={idleSignals}
+          goTo={goTo}
+        />
       </div>
     );
   }
 
   return (
     <div className="world-screen-layout">
-      <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
+      <div
+        className={`world-screen${dialog ? ' has-dialog' : ''}${
+          panelStates.bulletin === 'open' ? ' has-panel' : ''
+        }`}
+      >
         <canvas ref={canvasRef} className="world-canvas" />
       <div className="world-hud">
         <div className="world-cat-card">
@@ -860,13 +1136,6 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
           </span>
         </div>
       </div>
-      {activeActivity ? (
-        <div className="world-activity">
-          <GameIcon name={activeActivity.id} />
-          <span>{activeActivity.name}</span>
-          <strong>{formatDuration(remainingMs)}</strong>
-        </div>
-      ) : null}
       {prompt && !dialog ? <div className="world-prompt">⚔ {prompt}</div> : null}
       {dialog ? (
         <button type="button" className="world-dialog" onClick={() => advanceRef.current()}>
@@ -901,8 +1170,13 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
         E
       </button>
         <p className="world-hint">WASD / setas para andar · E para interagir</p>
+        <WorldPanelLayer
+          panelStates={panelStates}
+          onPanelStateChange={setPanelState}
+          signals={idleSignals}
+          goTo={goTo}
+        />
       </div>
-      <WorldColonyBulletin signals={idleSignals} goTo={goTo} />
     </div>
   );
 }

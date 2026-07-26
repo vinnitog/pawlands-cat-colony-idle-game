@@ -70,8 +70,18 @@ test('state cues detect expedition direction and avoid regen noise during level-
   };
 
   assert.deepEqual(detectGameFeelCues(previous, departed), [
-    { kind: 'teleport', direction: 'depart' },
-    { kind: 'levelUp' },
+    {
+      kind: 'teleport',
+      direction: 'depart',
+      catId: cat.id,
+      catName: cat.name,
+    },
+    {
+      kind: 'levelUp',
+      catId: cat.id,
+      catName: cat.name,
+      amount: 1,
+    },
   ]);
 
   const returned = {
@@ -79,11 +89,16 @@ test('state cues detect expedition direction and avoid regen noise during level-
     cats: departed.cats.map((current) => ({ ...current, expedition: null })),
   };
   assert.deepEqual(detectGameFeelCues(departed, returned), [
-    { kind: 'teleport', direction: 'return' },
+    {
+      kind: 'teleport',
+      direction: 'return',
+      catId: cat.id,
+      catName: cat.name,
+    },
   ]);
 });
 
-test('level gains from multiple known cats collapse into one cue', () => {
+test('level gains from multiple known cats preserve their responsible actors', () => {
   const initial = createInitialGameState(0);
   const leader = initial.cats[0];
   const companion = {
@@ -106,7 +121,20 @@ test('level gains from multiple known cats collapse into one cue', () => {
     })),
   };
 
-  assert.deepEqual(detectGameFeelCues(previous, current), [{ kind: 'levelUp' }]);
+  assert.deepEqual(detectGameFeelCues(previous, current), [
+    {
+      kind: 'levelUp',
+      catId: leader.id,
+      catName: leader.name,
+      amount: 1,
+    },
+    {
+      kind: 'levelUp',
+      catId: companion.id,
+      catName: companion.name,
+      amount: 2,
+    },
+  ]);
 });
 
 test('unchanged state and cats without a previous matching id do not emit cues', () => {
@@ -165,14 +193,24 @@ test('teleport cue is tied only to crossing the expedition null boundary', () =>
 
   assert.deepEqual(detectGameFeelCues(onExpedition, changedExpedition), []);
   assert.deepEqual(detectGameFeelCues(initial, onExpedition), [
-    { kind: 'teleport', direction: 'depart' },
+    {
+      kind: 'teleport',
+      direction: 'depart',
+      catId: leader.id,
+      catName: leader.name,
+    },
   ]);
   assert.deepEqual(detectGameFeelCues(onExpedition, initial), [
-    { kind: 'teleport', direction: 'return' },
+    {
+      kind: 'teleport',
+      direction: 'return',
+      catId: leader.id,
+      catName: leader.name,
+    },
   ]);
 });
 
-test('passive or item energy gain emits one aggregated regen cue', () => {
+test('passive or item energy gain emits a regen cue for the responsible cat', () => {
   const previous = {
     ...createInitialGameState(0),
     cats: createInitialGameState(0).cats.map((cat) => ({ ...cat, energy: 10 })),
@@ -182,14 +220,57 @@ test('passive or item energy gain emits one aggregated regen cue', () => {
     cats: previous.cats.map((cat) => ({ ...cat, energy: 17 })),
   };
 
-  assert.deepEqual(detectGameFeelCues(previous, current), [{ kind: 'energyRegen' }]);
+  const leader = previous.cats[0];
+  assert.deepEqual(detectGameFeelCues(previous, current), [{
+    kind: 'energyRegen',
+    catId: leader.id,
+    catName: leader.name,
+    amount: 7,
+  }]);
+});
+
+test('simultaneous energy gains keep one regen cue per known cat', () => {
+  const initial = createInitialGameState(0);
+  const leader = { ...initial.cats[0], energy: 10 };
+  const companion = {
+    ...leader,
+    id: 'cat-energy-companion',
+    name: 'Companion',
+    energy: 20,
+  };
+  const previous = {
+    ...initial,
+    cats: [leader, companion],
+  };
+  const current = {
+    ...previous,
+    cats: [
+      { ...leader, energy: 14 },
+      { ...companion, energy: 27 },
+    ],
+  };
+
+  assert.deepEqual(detectGameFeelCues(previous, current), [
+    {
+      kind: 'energyRegen',
+      catId: leader.id,
+      catName: leader.name,
+      amount: 4,
+    },
+    {
+      kind: 'energyRegen',
+      catId: companion.id,
+      catName: companion.name,
+      amount: 7,
+    },
+  ]);
 });
 
 test('App pauses game-feel playback while a reward modal is active', () => {
   const app = read('src/app/App.tsx');
 
   assert.match(app, /rewardNotice\s*\?\s*<OfflineRewardsModal/);
-  assert.match(app, /gameFeelEffect\s*&&\s*!rewardNotice\s*\?\s*\(/);
+  assert.match(app, /gameFeelEffect\s*&&\s*!rewardNotice\s*&&\s*screen\s*!==\s*'world'/);
   assert.match(app, /effect=\{gameFeelEffect\}/);
 });
 
@@ -217,12 +298,14 @@ test('effect layer has animation completion and timeout fallback cleanup', () =>
   assert.match(layer, /event\.target\s*===\s*event\.currentTarget/);
 });
 
-test('effect layer is decorative, non-blocking and mounted once by App', () => {
+test('effect layer announces its label, keeps SVG decorative and stays non-blocking', () => {
   const layer = read('src/ui/components/GameFeelEffectLayer.tsx');
   const app = read('src/app/App.tsx');
   const css = read('src/styles/global.css');
 
-  assert.match(layer, /aria-hidden="true"/);
+  assert.match(layer, /role="status"/);
+  assert.match(layer, /aria-label=\{label\}/);
+  assert.match(layer, /<svg[\s\S]*?aria-hidden="true"[\s\S]*?focusable="false"/);
   assert.equal((app.match(/<GameFeelEffectLayer/g) ?? []).length, 1);
   assert.match(app, /key=\{gameFeelEffect\.id\}/);
   assert.match(css, /\.game-feel-effect\s*\{[\s\S]*?pointer-events:\s*none/);

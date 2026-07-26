@@ -424,14 +424,21 @@ test('G3.3 selector is pure and does not import reward, storage or offline syste
   assert.doesNotMatch(source, /storage|localStorage|saveGame|Math\.random/);
 });
 
-test('G3.3 bulletin remains available with an away leader and has three direct routes', () => {
+test('G3.3b bulletin is a closable and minimizable world window with three direct routes', () => {
   const screen = read('src/ui/screens/WorldScreen.tsx');
   const css = read('src/styles/global.css');
   const awayStart = screen.indexOf('if (activeExpedition)');
   const normalStart = screen.indexOf('\n  return (', awayStart + 1);
 
-  assert.match(screen.slice(awayStart, normalStart), /<WorldColonyBulletin/);
-  assert.match(screen.slice(normalStart), /<WorldColonyBulletin/);
+  assert.match(screen.slice(awayStart, normalStart), /<WorldPanelLayer/);
+  assert.match(screen.slice(normalStart), /<WorldPanelLayer/);
+  assert.match(screen, /type WorldPanelState = 'closed' \| 'open' \| 'minimized'/);
+  assert.match(screen, /role="dialog"/);
+  assert.match(screen, /aria-modal="false"/);
+  assert.match(screen, /aria-label="Minimizar Boletim"/);
+  assert.match(screen, /aria-label="Fechar Boletim"/);
+  assert.match(screen, /className="world-panel-dock"/);
+  assert.match(screen, /event\.key !== 'Escape'/);
   assert.match(screen, /Boletim da colônia/);
   assert.match(screen, /goTo\('expedition'\)/);
   assert.match(screen, /goTo\('activities'\)/);
@@ -450,13 +457,10 @@ test('G3.3 bulletin remains available with an away leader and has three direct r
   assert.doesNotMatch(screen, /aria-label="Abrir (Expedição|Atividades|Melhorias)"/);
   assert.doesNotMatch(screen, /aria-live/);
   assert.match(css, /\.world-bulletin-card:focus-visible/);
-  assert.match(css, /@media \(max-width: 759px\)/);
-  assert.match(
-    css,
-    /\.world-screen-layout:not\(\.world-screen-layout--away\) \.world-bulletin\s*\{\s*order: -1;/,
-  );
-  assert.match(css, /@media \(min-width: 760px\) and \(max-width: 1099px\)/);
-  assert.match(css, /\.world-bulletin \.signal-upgrades\s*\{\s*grid-column: 1 \/ -1;/);
+  assert.match(css, /\.world-options-menu\s*\{/);
+  assert.match(css, /\.world-panel-window\s*\{/);
+  assert.match(css, /\.world-panel-dock\s*\{/);
+  assert.match(css, /grid-template-columns: repeat\(2, minmax\(132px, 180px\)\)/);
   assert.match(css, /\.world-upgrade-marks\s*\{\s*display: grid;/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 });

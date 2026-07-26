@@ -138,9 +138,10 @@ zero dependências e `saveSchemaVersion` intacta.
 
 **Entregue.**
 
-- Dez tiles do Tiny Dungeon compõem três recortes: dois relevos verticais no
-  núcleo real, uma chama mural com alvenaria discreta na fachada da forja e um
-  arco `2 × 2` sobre a abertura existente do Portão do Além.
+- O passe originalmente usou dez tiles do Tiny Dungeon em três recortes.
+  A revisão G3.3b removeu os oito overlays arquitetônicos do núcleo real e do
+  portão sul por conflito de linguagem com Tiny Town. Permanecem somente uma
+  chama mural e uma alvenaria discreta na fachada da forja.
 - Cada composição complementa um objeto-base deliberado; nenhum detalhe foi
   usado como piso, decal estrutural ou novo obstáculo.
 - O passe preserva integralmente `ground`, `objects`, `solid`, spawn, NPCs,
@@ -149,7 +150,7 @@ zero dependências e `saveSchemaVersion` intacta.
 
 Critérios atendidos: camadas continuam com 384 entradas; hashes de `ground`,
 `objects` e `solid` permanecem no baseline G1; cada interação e NPC mantém ao
-menos duas aproximações livres e alcançáveis; os dez índices estão no catálogo
+menos duas aproximações livres e alcançáveis; os dois índices estão no catálogo
 auditado, as coordenadas são únicas e cada sobreposição possui objeto-base
 verificado.
 
@@ -186,6 +187,30 @@ storage, offline, RNG nem ações mutáveis; o progresso offline permanece
 idêntico sem abrir o Mundo. Layout responsivo, foco visível, texto além de cor e
 o contrato global de movimento reduzido preservam a informação.
 
+### G3.3b — superfície principal e janelas idle
+
+**Entregue.**
+
+- Grimalkin passa a abrir como tela inicial e ocupa toda a área útil abaixo da
+  topbar. O mapa lógico continua `24 × 16`; zoom de cobertura e câmera fazem o
+  enquadramento responsivo sem alterar colisão, posição salva ou economia.
+- A tela Início foi removida. O resumo global de ocupações fica na topbar,
+  considera todo o roster e abre uma lista com atividade, expedição ou estado
+  livre de cada gato.
+- O Boletim deixou de consumir uma coluna permanente. A opção no topo do mapa
+  abre uma janela não modal, fechável e minimizável; janelas minimizadas usam um
+  dock em grid no canto inferior esquerdo. Estado de janela é efêmero.
+- Level up, energia e teleport preservam o gato responsável no evento. No
+  Mundo, a aura é desenhada junto ao sprite; fora dele, envolve o brasão e usa
+  os rótulos `LEVEL UP`, `ENERGY +N` e `BLINKING`.
+- O trilho ornamental vertical foi removido e os ícones do menu receberam
+  tamanho, contraste e foco mais legíveis.
+
+Critérios atendidos: nenhum schema, timer, recompensa, cap offline, mapa lógico
+ou regra idle mudou; janela responde a Escape e restaura foco; o Boletim mantém
+seus três atalhos; `ground`, `objects` e `solid` permanecem no baseline G1; os
+overlays arquitetônicos do atlas complementar não entram mais no runtime.
+
 ### G3.4 — distrito-diorama opcional
 
 **Adiado após gate idle-first.**
@@ -221,7 +246,7 @@ Mesmo autorizado, o piloto só pode ser aceito quando:
 - testes de regressão confirmam que todas as funções continuam acessíveis pela
   interface em no máximo duas ações.
 
-O marco G3 encerra em G3.3 sem lacuna mecânica. G3.4 permanece uma hipótese
+O marco G3 encerra em G3.3b sem lacuna mecânica. G3.4 permanece uma hipótese
 pós-playtest, não uma dívida obrigatória.
 
 Quatro direções, interiores navegáveis, novos mapas caminháveis e recompensas

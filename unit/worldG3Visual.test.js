@@ -6,20 +6,12 @@ import { TILE, createGrimalkin } from '../src/game/world/tinyTown.ts';
 import { sortByDepth } from '../src/game/world/worldVisuals.ts';
 
 const EXPECTED_DETAILS = [
-  { tx: 11, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
-  { tx: 11, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
-  { tx: 13, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
-  { tx: 13, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
   { tx: 18, ty: 3, tile: DUNGEON_TILES.wallFlame },
   { tx: 17, ty: 4, tile: DUNGEON_TILES.masonryRubble },
-  { tx: 11, ty: 14, tile: DUNGEON_TILES.gatewayTopLeft },
-  { tx: 12, ty: 14, tile: DUNGEON_TILES.gatewayTopRight },
-  { tx: 11, ty: 15, tile: DUNGEON_TILES.gatewaySideLeft },
-  { tx: 12, ty: 15, tile: DUNGEON_TILES.gatewaySideRight },
 ];
 
-const EXPECTED_BASE_TILES = [98, 112, 97, 114, 67, 84, 112, 113, 123, 124];
-const EXPECTED_SOLIDITY = [true, true, true, true, true, true, false, false, false, false];
+const EXPECTED_BASE_TILES = [67, 84];
+const EXPECTED_SOLIDITY = [true, true];
 
 // Frozen from the shipped G1 map (commit dec1198). Update only after an explicit
 // base-map contract revision; G3 detail-only passes must keep these exact values.
@@ -104,12 +96,12 @@ function findPath(map, start, target) {
   return null;
 }
 
-test('G3.2 uses ten audited detail tiles in the three approved districts', () => {
+test('G3.3b keeps Tiny Dungeon limited to two small forge props', () => {
   const map = createGrimalkin();
 
   assert.deepEqual(map.details, EXPECTED_DETAILS);
-  assert.equal(map.details.length, 10);
-  assert.equal(new Set(map.details.map(({ tx, ty }) => `${tx},${ty}`)).size, 10);
+  assert.equal(map.details.length, 2);
+  assert.equal(new Set(map.details.map(({ tx, ty }) => `${tx},${ty}`)).size, 2);
   assert.ok(
     map.details.every(({ tile }) => tile >= 0 && tile < TINY_DUNGEON_TILESET_TILE_COUNT),
   );
@@ -117,22 +109,18 @@ test('G3.2 uses ten audited detail tiles in the three approved districts', () =>
   const expectedTiles = new Set(Object.values(DUNGEON_TILES));
   assert.ok(map.details.every(({ tile }) => expectedTiles.has(tile)));
 
-  const zones = {
-    royalCore: map.details.filter(({ tx, ty }) => [11, 13].includes(tx) && [1, 2].includes(ty)),
-    forge: map.details.filter(
-      ({ tx, ty }) => (tx === 18 && ty === 3) || (tx === 17 && ty === 4),
-    ),
-    beyondGate: map.details.filter(
-      ({ tx, ty }) => [11, 12].includes(tx) && [14, 15].includes(ty),
-    ),
-  };
-  assert.deepEqual(Object.fromEntries(
-    Object.entries(zones).map(([zone, details]) => [zone, details.length]),
-  ), {
-    royalCore: 4,
-    forge: 2,
-    beyondGate: 4,
-  });
+  assert.ok(map.details.every(
+    ({ tx, ty }) => (tx === 18 && ty === 3) || (tx === 17 && ty === 4),
+  ));
+  const architecturalTiles = new Set([
+    DUNGEON_TILES.guardianReliefTop,
+    DUNGEON_TILES.guardianReliefMiddle,
+    DUNGEON_TILES.gatewayTopLeft,
+    DUNGEON_TILES.gatewayTopRight,
+    DUNGEON_TILES.gatewaySideLeft,
+    DUNGEON_TILES.gatewaySideRight,
+  ]);
+  assert.ok(map.details.every(({ tile }) => !architecturalTiles.has(tile)));
 
   for (const [detailIndex, detail] of map.details.entries()) {
     const index = detail.ty * map.width + detail.tx;

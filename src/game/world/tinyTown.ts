@@ -78,19 +78,10 @@ export type WorldMap = {
 export type WorldPosition = { x: number; y: number };
 
 const GRIMALKIN_DETAILS: readonly WorldDetail[] = [
-  // Royal reliefs ornament the existing solid keep without widening its footprint.
-  { tx: 11, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
-  { tx: 11, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
-  { tx: 13, ty: 1, tile: DUNGEON_TILES.guardianReliefTop },
-  { tx: 13, ty: 2, tile: DUNGEON_TILES.guardianReliefMiddle },
-  // A wall flame and repaired masonry identify the forge without hiding its door.
+  // Tiny Dungeon remains limited to small props. Architectural silhouettes use
+  // Tiny Town only, avoiding the broken double-arch language of mixed atlases.
   { tx: 18, ty: 3, tile: DUNGEON_TILES.wallFlame },
   { tx: 17, ty: 4, tile: DUNGEON_TILES.masonryRubble },
-  // The complementary arch follows the existing passable south gate opening.
-  { tx: 11, ty: 14, tile: DUNGEON_TILES.gatewayTopLeft },
-  { tx: 12, ty: 14, tile: DUNGEON_TILES.gatewayTopRight },
-  { tx: 11, ty: 15, tile: DUNGEON_TILES.gatewaySideLeft },
-  { tx: 12, ty: 15, tile: DUNGEON_TILES.gatewaySideRight },
 ];
 
 function isFreeTile(map: WorldMap, tx: number, ty: number): boolean {
