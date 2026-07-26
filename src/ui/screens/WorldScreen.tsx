@@ -38,6 +38,10 @@ import {
   VIGNETTE_ALPHA,
   WATER_SHIMMER_ALPHA,
 } from '../../game/world/worldVisuals.ts';
+import {
+  getWorldIdleSignals,
+  type WorldIdleSignals,
+} from '../../game/world/worldIdleSignals.ts';
 import manifest from '../sprites/manifest.json';
 
 const ZOOM = 3;
@@ -46,6 +50,125 @@ const SPEED = 72; // world px per second
 type WorldScreenProps = {
   goTo(kind: Exclude<InteractionKind, 'fish'>): void;
 };
+
+const expeditionSignalLabels = {
+  quiet: 'Portão silencioso',
+  active: 'Caçando',
+  ready: 'Coleta disponível',
+  full: 'Saco cheio',
+} as const;
+
+const activitySignalLabels = {
+  quiet: 'livre',
+  active: 'em andamento',
+  ready: 'concluindo',
+} as const;
+
+const upgradePhaseLabels = {
+  base: 'base',
+  improved: 'melhorada',
+  complete: 'completa',
+} as const;
+
+function WorldColonyBulletin({
+  signals,
+  goTo,
+}: {
+  signals: WorldIdleSignals;
+  goTo: WorldScreenProps['goTo'];
+}) {
+  const activePosts = signals.activities.posts.filter((post) => post.status !== 'quiet');
+  const completedUpgrades = signals.upgrades.filter((upgrade) => upgrade.phase === 'complete');
+
+  return (
+    <aside className="world-bulletin" aria-labelledby="world-bulletin-title">
+      <header>
+        <p className="eyebrow">Cidade viva</p>
+        <h2 id="world-bulletin-title">Boletim da colônia</h2>
+        <p>O trabalho continua sem exigir caminhada.</p>
+      </header>
+
+      <button
+        type="button"
+        className={`world-bulletin-card signal-${signals.expedition.status}`}
+        onClick={() => goTo('expedition')}
+      >
+        <span className="world-bulletin-card-title">
+          <GameIcon name="expedition" />
+          <strong>Portão do Além</strong>
+          <em>{expeditionSignalLabels[signals.expedition.status]}</em>
+        </span>
+        <span className="world-bulletin-lines">
+          {signals.expedition.status === 'quiet'
+            ? <span>Nenhum gato em expedição.</span>
+            : signals.expedition.cats
+                .map((cat) => (
+                  <span key={cat.catId}>
+                    {cat.catName} em {cat.zoneName}: {expeditionSignalLabels[cat.status]}
+                  </span>
+                ))}
+        </span>
+        <span className="world-bulletin-action">Ver Expedição <span aria-hidden="true">→</span></span>
+      </button>
+
+      <button
+        type="button"
+        className={`world-bulletin-card signal-${signals.activities.status}`}
+        onClick={() => goTo('activities')}
+      >
+        <span className="world-bulletin-card-title">
+          <GameIcon name="exploreYard" />
+          <strong>Postos de trabalho</strong>
+          <em>
+            {signals.activities.status === 'ready'
+              ? 'Concluindo'
+              : signals.activities.status === 'active'
+                ? 'Em andamento'
+                : 'Em repouso'}
+          </em>
+        </span>
+        <span className="world-bulletin-lines">
+          {activePosts.length === 0
+            ? <span>Todos os postos estão livres.</span>
+            : activePosts
+                .map((post) => (
+                  <span key={post.activityId}>
+                    {post.stationName} — {post.activityName}:{' '}
+                    {post.assignments.map((assignment, index) => (
+                      <span key={assignment.catId}>
+                        {index > 0 ? ', ' : ''}
+                        {assignment.catName} ({activitySignalLabels[assignment.status]})
+                      </span>
+                    ))}
+                  </span>
+                ))}
+        </span>
+        <span className="world-bulletin-action">Ver Atividades <span aria-hidden="true">→</span></span>
+      </button>
+
+      <button
+        type="button"
+        className="world-bulletin-card signal-upgrades"
+        onClick={() => goTo('upgrades')}
+      >
+        <span className="world-bulletin-card-title">
+          <GameIcon name="upgrades" />
+          <strong>Marcos de Grimalkin</strong>
+          <em>{completedUpgrades.length}/{signals.upgrades.length} completos</em>
+        </span>
+        <span className="world-upgrade-marks">
+          {signals.upgrades.map((upgrade) => (
+            <span key={upgrade.upgradeId} className={`upgrade-${upgrade.phase}`}>
+              {upgrade.name}: nível {upgrade.level}/{upgrade.maxLevel},{' '}
+              {upgradePhaseLabels[upgrade.phase]}
+            </span>
+          ))}
+        </span>
+        <span className="world-bulletin-action">Ver Melhorias <span aria-hidden="true">→</span></span>
+      </button>
+    </aside>
+  );
+}
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -66,6 +189,7 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
   const activeExpedition = leader.expedition
     ? expeditionZoneById[leader.expedition.zoneId]
     : null;
+  const idleSignals = getWorldIdleSignals(state, now);
   const leaderIsAway = activeExpedition !== null;
   const remainingMs = getRemainingActivityMs(state, now);
   const nextXp = xpForNextLevel(leader.level);
@@ -680,24 +804,32 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
 
   if (activeExpedition) {
     return (
-      <section className="world-away-state" aria-labelledby="world-away-title">
-        <GameIcon name="expedition" />
-        <p className="eyebrow">Grimalkin aguarda</p>
-        <h2 id="world-away-title">{leader.name} está no Além</h2>
-        <p>
-          O líder da colônia está caçando em {activeExpedition.name}. Traga-o de volta
-          antes de explorar ou interagir no mundo.
-        </p>
-        <button className="primary-action" type="button" onClick={() => goTo('expedition')}>
-          Ir para Expedição
-        </button>
-      </section>
+      <div className="world-screen-layout world-screen-layout--away">
+        <section
+          className="world-away-state"
+          aria-labelledby="world-away-title"
+          aria-describedby="world-away-description"
+        >
+          <GameIcon name="expedition" />
+          <p className="eyebrow">Grimalkin aguarda</p>
+          <h2 id="world-away-title">{leader.name} está no Além</h2>
+          <p id="world-away-description">
+            O líder da colônia está caçando em {activeExpedition.name}. Traga-o de volta
+            antes de explorar ou interagir no mundo.
+          </p>
+          <button className="primary-action" type="button" onClick={() => goTo('expedition')}>
+            Ir para Expedição
+          </button>
+        </section>
+        <WorldColonyBulletin signals={idleSignals} goTo={goTo} />
+      </div>
     );
   }
 
   return (
-    <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
-      <canvas ref={canvasRef} className="world-canvas" />
+    <div className="world-screen-layout">
+      <div className={`world-screen${dialog ? ' has-dialog' : ''}`}>
+        <canvas ref={canvasRef} className="world-canvas" />
       <div className="world-hud">
         <div className="world-cat-card">
           <div className="wcc-portrait">
@@ -768,7 +900,9 @@ export function WorldScreen({ goTo }: WorldScreenProps) {
       <button type="button" className="world-action" aria-label="Interagir" {...hold('e')}>
         E
       </button>
-      <p className="world-hint">WASD / setas para andar · E para interagir</p>
+        <p className="world-hint">WASD / setas para andar · E para interagir</p>
+      </div>
+      <WorldColonyBulletin signals={idleSignals} goTo={goTo} />
     </div>
   );
 }

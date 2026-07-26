@@ -2,18 +2,13 @@ import { gearById, isGearId } from '../data/gear.ts';
 import type { Cat } from '../models/cat.ts';
 import { isGearSlot, type GearId, type GearSlot } from '../models/gear.ts';
 import type { GameState } from '../models/save.ts';
+import { getCatAttributePower, getEquipmentPower } from '../rules/powerRules.ts';
 import { updateCat } from './colonySystem.ts';
 
-export function getCatAttributePower(cat: Cat): number {
-  return cat.stats.attack * 2 + cat.stats.defense + cat.level * 1.5;
-}
-
-export function getEquipmentPower(cat: Cat): number {
-  return Object.values(cat.equipment).reduce(
-    (total, gearId) => total + (gearId ? gearById[gearId].power : 0),
-    0,
-  );
-}
+export {
+  getCatAttributePower,
+  getEquipmentPower,
+} from '../rules/powerRules.ts';
 
 export type ChangeEquipmentResult =
   | { ok: true; state: GameState }

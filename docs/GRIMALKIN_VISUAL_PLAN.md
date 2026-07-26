@@ -155,22 +155,36 @@ verificado.
 
 ### G3.3 — cidade viva idle
 
-**Pendente.**
+**Entregue.**
 
-- Expedição ativa aparece no portão e identifica o gato responsável.
-- Atividades em andamento geram sinais ambientais discretos nos locais
-  compatíveis.
-- Saco cheio ou coleta disponível recebe destaque informativo, sem interromper
-  o loop.
-- Melhorias concluídas alteram detalhes do cenário a partir do nível já salvo.
-- Hotspots podem abrir as mesmas telas existentes, mantendo o menu como rota
-  principal.
+- O seletor puro `getWorldIdleSignals(state, now)` lê todo o roster e deriva,
+  sem persistir, os estados `quiet`, `active`, `ready` e `full` da expedição.
+  O preview usa tempo carregado, eficiência por poder, pulso oficial/runtime e
+  o teto de 96 pulsos com os mesmos limites do motor.
+- Os cinco postos de atividade identificam tipo, local compatível e o estado de
+  cada gato designado, inclusive quando gatos no mesmo posto estão em fases
+  diferentes. A transição para `ready` ocorre exatamente no `effectiveEndsAt`,
+  inclusive para saves iniciados com duração oficial durante o modo local de
+  10 segundos. Explorar o Quintal ocupa a praça e o eixo cívico, preservando o
+  portão sul para a leitura visual das expedições.
+- As cinco melhorias refletem o nível já salvo como `base`, `improved` ou
+  `complete`; nenhum estado visual entra no save.
+- O Boletim da colônia é uma camada DOM acessível com três blocos e atalhos de
+  uma ação para Expedição, Atividades e Melhorias. Ele permanece disponível
+  quando o líder está no Além, não usa `aria-live` e não anuncia contagens
+  regressivas a cada segundo.
+- O mapa continua opcional e cosmético. Marcadores Canvas foram deliberadamente
+  deixados fora: o boletim entrega a informação com melhor legibilidade,
+  teclado, toque e movimento reduzido, sem acoplar sinais ao renderer.
 
-Critérios: expedição cobre estados ausente, ativo e coleta disponível;
-atividades cobrem ausente e ativa; melhorias refletem os níveis já salvos. Todo
-sinal atualiza no próximo render do estado, não chama funções econômicas nem
-RNG; progresso offline é idêntico sem abrir o Mundo; movimento reduzido preserva
-a informação.
+Critérios atendidos: expedição cobre ausente, ativo, coleta disponível e saco
+cheio nos limites exatos; as regras puras de poder, eficiência e duração são
+compartilhadas com os motores autoritativos, sem fórmulas duplicadas; atividades
+cobrem ausência, paralelismo, conclusão e estados mistos no mesmo posto;
+melhorias refletem os cinco níveis salvos. O seletor não importa economia,
+storage, offline, RNG nem ações mutáveis; o progresso offline permanece
+idêntico sem abrir o Mundo. Layout responsivo, foco visível, texto além de cor e
+o contrato global de movimento reduzido preservam a informação.
 
 ### G3.4 — distrito-diorama opcional
 

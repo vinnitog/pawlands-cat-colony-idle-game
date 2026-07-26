@@ -1,9 +1,10 @@
 import { activityById } from '../data/activities.ts';
-import type { ActiveActivity, ActivityId, RewardRange } from '../models/activity.ts';
+import type { ActivityId, RewardRange } from '../models/activity.ts';
 import type { Cat } from '../models/cat.ts';
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
 import { createEmptyRewardBundle, resourceKeys } from '../models/resources.ts';
+import { getEffectiveActivityEndsAt } from '../rules/activityRules.ts';
 import { getLeader, updateCat } from './colonySystem.ts';
 import { addInventoryToState, addResourcesToState, mergeRewardBundles } from './economySystem.ts';
 import {
@@ -49,10 +50,7 @@ export type ActivityCompletionDetail = {
   levelCoins: number;
 };
 
-export function getEffectiveActivityEndsAt(activity: ActiveActivity): number {
-  const runtimeDurationMs = activityById[activity.activityId].durationMs;
-  return Math.min(activity.endsAt, activity.startedAt + runtimeDurationMs);
-}
+export { getEffectiveActivityEndsAt } from '../rules/activityRules.ts';
 
 function rollRange(range: RewardRange, random: () => number): number {
   const [min, max] = range;
