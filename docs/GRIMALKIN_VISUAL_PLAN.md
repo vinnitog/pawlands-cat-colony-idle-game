@@ -215,10 +215,12 @@ overlays arquitetônicos do atlas complementar não entram mais no runtime.
 
 **Entregue.**
 
-- A área do Mundo recebe uma moldura responsiva de `12–30 px`, reduzindo o
+- A área do Mundo recebe uma moldura responsiva de `16–100 px`, limitada
+  proporcionalmente pela largura e altura disponíveis, reduzindo o
   cenário sem alterar o mapa lógico, a câmera, a colisão ou a posição salva.
 - A opção Boletim usa somente o ícone na barra expansível, preservando alvo de
-  `44 × 44 px`, nome acessível, tooltip, foco e abertura em uma ação.
+  `44 × 44 px`, nome acessível, tooltip visível em hover/foco e abertura em uma
+  ação.
 - A escala de renderização é quantizada para que cada tile ocupe uma quantidade
   inteira de pixels físicos; a câmera continua alinhada a pixels físicos e as
   frestas visuais entre tiles não reaparecem em escalas fracionárias.

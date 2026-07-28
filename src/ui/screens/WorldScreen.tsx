@@ -239,7 +239,7 @@ function WorldPanelLayer({
             key={panel.id}
             type="button"
             aria-label={`Abrir ${panel.label}`}
-            title={panel.label}
+            data-tooltip={panel.label}
             onClick={() => onPanelStateChange(panel.id, 'open')}
           >
             <GameIcon name={panel.icon} />

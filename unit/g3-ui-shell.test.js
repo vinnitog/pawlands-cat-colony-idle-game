@@ -21,7 +21,7 @@ test('G3.3c makes Grimalkin the framed landing surface without resizing the logi
   assert.match(worldShell, /box-sizing: border-box;/);
   assert.match(worldShell, /width: 100%;/);
   assert.match(worldShell, /height: calc\(100dvh - var\(--header-h\)\);/);
-  assert.match(worldShell, /padding: clamp\(12px, 2vw, 30px\);/);
+  assert.match(worldShell, /padding: clamp\(16px, min\(6vw, 12vh\), 100px\);/);
   assert.doesNotMatch(worldShell, /padding:\s*0;/);
   assert.match(css, /\.app-shell--world \.app-main\s*\{[^}]*height: 100%;/);
   assert.match(css, /\.world-screen-layout\s*\{[^}]*height: 100%;/);
@@ -59,7 +59,8 @@ test('G3.3b world panel supports open, minimize, restore, close and keyboard dis
   assert.match(css, /\.world-options-menu\s*\{[\s\S]*?flex-wrap: wrap;[\s\S]*?gap: 8px;/);
   assert.match(css, /\.world-panel-actions button\s*\{[\s\S]*?width: 44px;[\s\S]*?min-height: 44px;/);
   assert.match(optionsMenu, /aria-label=\{`Abrir \$\{panel\.label\}`\}/);
-  assert.match(optionsMenu, /title=\{panel\.label\}/);
+  assert.doesNotMatch(optionsMenu, /\btitle=/);
+  assert.match(optionsMenu, /data-tooltip=\{panel\.label\}/);
   assert.match(optionsMenu, /onClick=\{\(\) => onPanelStateChange\(panel\.id, 'open'\)\}/);
   assert.match(optionsMenu, /<GameIcon name=\{panel\.icon\} \/>/);
   assert.doesNotMatch(optionsMenu, /<span>\{panel\.label\}<\/span>/);
@@ -68,6 +69,26 @@ test('G3.3b world panel supports open, minimize, restore, close and keyboard dis
     /\.world-options-menu button\s*\{[^}]*width: 44px;[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*padding: 0;/,
   );
   assert.match(css, /\.world-options-menu button:focus-visible,/);
+  assert.match(
+    css,
+    /\.world-options-menu button::after\s*\{[^}]*top: calc\(100% \+ 8px\);[^}]*content: attr\(data-tooltip\);/,
+  );
+  assert.match(
+    css,
+    /\.world-options-menu button:hover::after,[\s\S]*?\.world-options-menu button:focus-visible::after\s*\{[^}]*opacity: 1;[^}]*visibility: visible;/,
+  );
+  assert.match(
+    css,
+    /@media \(max-height: 520px\)\s*\{[\s\S]*?\.world-options-menu\s*\{[^}]*top: 48px;[^}]*\}[\s\S]*?\.world-options-menu button::after\s*\{[^}]*top: auto;[^}]*bottom: calc\(100% \+ 8px\);/,
+  );
+  assert.match(
+    css,
+    /@media \(max-height: 520px\)[\s\S]*@media \(max-width: 760px\)\s*\{[\s\S]*?\.world-options-menu\s*\{[^}]*top: 126px;/,
+  );
+  assert.match(
+    css,
+    /@media \(max-height: 520px\) and \(min-width: 761px\)\s*\{[\s\S]*?\.world-options-menu\s*\{[^}]*right: 14px;[^}]*left: auto;[^}]*width: auto;[^}]*transform: none;/,
+  );
 });
 
 test('G3.3c suppresses fractional tile seams without changing the logical world', () => {
