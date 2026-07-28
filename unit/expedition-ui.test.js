@@ -87,6 +87,11 @@ test('activity assignment and ambient wandering treat expeditions as occupied', 
   assert.match(world, /if \(leaderIsAway\) return undefined/);
   assert.match(world, /if \(activeExpedition\) \{/);
   assert.match(world, /className="world-away-state"/);
+  const awayState = world.slice(
+    world.indexOf('if (activeExpedition)'),
+    world.indexOf('\n  return (', world.indexOf('if (activeExpedition)') + 1),
+  );
+  assert.doesNotMatch(awayState, /WorldPanelLayer|world-options-menu|Boletim/);
   assert.match(world, /Traga-o de volta/);
   assert.match(world, /goTo\('expedition'\)/);
 });

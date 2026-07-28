@@ -430,7 +430,7 @@ test('G3.3b bulletin is a closable and minimizable world window with three direc
   const awayStart = screen.indexOf('if (activeExpedition)');
   const normalStart = screen.indexOf('\n  return (', awayStart + 1);
 
-  assert.match(screen.slice(awayStart, normalStart), /<WorldPanelLayer/);
+  assert.doesNotMatch(screen.slice(awayStart, normalStart), /<WorldPanelLayer/);
   assert.match(screen.slice(normalStart), /<WorldPanelLayer/);
   assert.match(screen, /type WorldPanelState = 'closed' \| 'open' \| 'minimized'/);
   assert.match(screen, /role="dialog"/);

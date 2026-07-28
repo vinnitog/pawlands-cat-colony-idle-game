@@ -1090,12 +1090,6 @@ export function WorldScreen({
             Ir para Expedição
           </button>
         </section>
-        <WorldPanelLayer
-          panelStates={panelStates}
-          onPanelStateChange={setPanelState}
-          signals={idleSignals}
-          goTo={goTo}
-        />
       </div>
     );
   }
