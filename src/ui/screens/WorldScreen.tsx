@@ -238,10 +238,11 @@ function WorldPanelLayer({
             ref={panel.id === 'bulletin' ? openerRef : undefined}
             key={panel.id}
             type="button"
+            aria-label={`Abrir ${panel.label}`}
+            title={panel.label}
             onClick={() => onPanelStateChange(panel.id, 'open')}
           >
             <GameIcon name={panel.icon} />
-            <span>{panel.label}</span>
           </button>
         ))}
       </nav>
@@ -496,7 +497,8 @@ export function WorldScreen({
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
       const coverScale = Math.max(ZOOM, rect.width / mapW, rect.height / mapH);
-      renderScale = coverScale * dpr;
+      // A whole device-pixel tile size prevents fractional gaps between atlas cells.
+      renderScale = Math.ceil(coverScale * dpr * TILE) / TILE;
       const innerRadius = Math.min(canvas.width, canvas.height) * 0.32;
       const outerRadius = Math.hypot(canvas.width, canvas.height) * 0.56;
       vignette = ctx.createRadialGradient(

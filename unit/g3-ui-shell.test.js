@@ -6,18 +6,26 @@ import { join } from 'node:path';
 const root = process.cwd();
 const read = (file) => readFileSync(join(root, file), 'utf8');
 
-test('G3.3b makes Grimalkin the full-bleed landing surface without resizing the logical map', () => {
+test('G3.3c makes Grimalkin the framed landing surface without resizing the logical map', () => {
   const app = read('src/app/App.tsx');
   const world = read('src/ui/screens/WorldScreen.tsx');
   const map = read('src/game/world/tinyTown.ts');
   const css = read('src/styles/global.css');
+  const worldShell = css.match(/\.app-shell\.app-shell--world\s*\{([^}]*)\}/)?.[1];
 
+  assert.ok(worldShell);
   assert.match(app, /useState<ScreenId>\('world'\)/);
   assert.match(app, /app-shell--world/);
   assert.doesNotMatch(app, /dashboard|DashboardScreen|label: 'Início'/);
   assert.equal(existsSync(join(root, 'src/ui/screens/DashboardScreen.tsx')), false);
-  assert.match(css, /\.app-shell\.app-shell--world\s*\{[\s\S]*?width: 100%;[\s\S]*?padding: 0;/);
-  assert.match(css, /\.world-screen\s*\{[\s\S]*?height: 100%;[\s\S]*?border: 0;/);
+  assert.match(worldShell, /box-sizing: border-box;/);
+  assert.match(worldShell, /width: 100%;/);
+  assert.match(worldShell, /height: calc\(100dvh - var\(--header-h\)\);/);
+  assert.match(worldShell, /padding: clamp\(12px, 2vw, 30px\);/);
+  assert.doesNotMatch(worldShell, /padding:\s*0;/);
+  assert.match(css, /\.app-shell--world \.app-main\s*\{[^}]*height: 100%;/);
+  assert.match(css, /\.world-screen-layout\s*\{[^}]*height: 100%;/);
+  assert.match(css, /\.world-screen\s*\{[\s\S]*?height: 100%;[\s\S]*?border: 1px solid/);
   assert.match(world, /Math\.max\(ZOOM, rect\.width \/ mapW, rect\.height \/ mapH\)/);
   assert.match(map, /const width = 24/);
   assert.match(map, /const height = 16/);
@@ -26,7 +34,9 @@ test('G3.3b makes Grimalkin the full-bleed landing surface without resizing the 
 test('G3.3b world panel supports open, minimize, restore, close and keyboard dismissal', () => {
   const world = read('src/ui/screens/WorldScreen.tsx');
   const css = read('src/styles/global.css');
+  const optionsMenu = world.match(/<nav className="world-options-menu"[\s\S]*?<\/nav>/)?.[0];
 
+  assert.ok(optionsMenu);
   assert.match(world, /type WorldPanelState = 'closed' \| 'open' \| 'minimized'/);
   assert.match(world, /type WorldPanelStates = Record<WorldPanelId, WorldPanelState>/);
   assert.match(world, /WORLD_PANEL_OPTIONS/);
@@ -48,6 +58,43 @@ test('G3.3b world panel supports open, minimize, restore, close and keyboard dis
   assert.match(css, /\.world-panel-dock\s*\{[\s\S]*?grid-template-columns: repeat\(2/);
   assert.match(css, /\.world-options-menu\s*\{[\s\S]*?flex-wrap: wrap;[\s\S]*?gap: 8px;/);
   assert.match(css, /\.world-panel-actions button\s*\{[\s\S]*?width: 44px;[\s\S]*?min-height: 44px;/);
+  assert.match(optionsMenu, /aria-label=\{`Abrir \$\{panel\.label\}`\}/);
+  assert.match(optionsMenu, /title=\{panel\.label\}/);
+  assert.match(optionsMenu, /onClick=\{\(\) => onPanelStateChange\(panel\.id, 'open'\)\}/);
+  assert.match(optionsMenu, /<GameIcon name=\{panel\.icon\} \/>/);
+  assert.doesNotMatch(optionsMenu, /<span>\{panel\.label\}<\/span>/);
+  assert.match(
+    css,
+    /\.world-options-menu button\s*\{[^}]*width: 44px;[^}]*min-width: 44px;[^}]*min-height: 44px;[^}]*padding: 0;/,
+  );
+  assert.match(css, /\.world-options-menu button:focus-visible,/);
+});
+
+test('G3.3c suppresses fractional tile seams without changing the logical world', () => {
+  const world = read('src/ui/screens/WorldScreen.tsx');
+  const map = read('src/game/world/tinyTown.ts');
+
+  assert.match(world, /canvas\.width = Math\.max\(1, Math\.round\(rect\.width \* dpr\)\)/);
+  assert.match(world, /canvas\.height = Math\.max\(1, Math\.round\(rect\.height \* dpr\)\)/);
+  assert.match(world, /renderScale = Math\.ceil\(coverScale \* dpr \* TILE\) \/ TILE/);
+  assert.match(world, /Math\.round\(-camX \* renderScale\)/);
+  assert.match(world, /Math\.round\(-camY \* renderScale\)/);
+  assert.match(
+    world,
+    /ctx\.drawImage\(tileImg as HTMLImageElement, sx, sy, TILE, TILE, dx, dy, TILE, TILE\)/,
+  );
+  assert.match(world, /ctx\.drawImage\(detailImg, sx, sy, TILE, TILE, dx, dy, TILE, TILE\)/);
+  assert.doesNotMatch(world, /TILE_SEAM_OVERLAP|dx - overlap|TILE \+ overlap/);
+  assert.match(map, /const width = 24/);
+  assert.match(map, /const height = 16/);
+
+  const tile = 16;
+  const coverScale = 2.37;
+  for (const dpr of [1, 1.25, 1.5, 2]) {
+    const scale = Math.ceil(coverScale * dpr * tile) / tile;
+    assert.equal(Number.isInteger(scale * tile), true);
+    assert.ok(scale * tile >= coverScale * dpr * tile);
+  }
 });
 
 test('G3.3b topbar lists every cat and keeps idle destinations within two actions', () => {

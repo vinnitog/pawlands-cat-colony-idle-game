@@ -162,10 +162,12 @@ dd {
 }
 
 .app-shell.app-shell--world {
+  box-sizing: border-box;
   width: 100%;
   height: calc(100dvh - var(--header-h));
   margin: 0;
-  padding: 0;
+  padding: clamp(12px, 2vw, 30px);
+  background: #171410;
 }
 
 .app-shell--world .app-main {
@@ -2396,10 +2398,10 @@ dd {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid rgba(201, 152, 47, 0.42);
+  border-radius: 8px;
   background: #171410;
-  box-shadow: none;
+  box-shadow: 0 8px 24px rgba(8, 5, 2, 0.32);
 }
 
 @media (min-width: 1100px) {
@@ -2439,7 +2441,21 @@ dd {
   transform: translateX(-50%);
 }
 
-.world-options-menu button,
+.world-options-menu button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(70, 54, 30, 0.96), rgba(29, 23, 16, 0.96));
+  color: #ffe6a6;
+  box-shadow: var(--soft-shadow);
+}
+
 .world-panel-dock button {
   display: inline-flex;
   align-items: center;
@@ -2454,7 +2470,11 @@ dd {
   box-shadow: var(--soft-shadow);
 }
 
-.world-options-menu .game-icon,
+.world-options-menu .game-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .world-panel-dock .game-icon {
   width: 20px;
   height: 20px;
