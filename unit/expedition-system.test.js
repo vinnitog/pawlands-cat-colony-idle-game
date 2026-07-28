@@ -793,7 +793,7 @@ test('minimal realistic v2 save defaults every E1 expedition field', () => {
     lastSavedAt: 9_000,
   });
 
-  assert.equal(migrated.schemaVersion, 5);
+  assert.equal(migrated.schemaVersion, 6);
   assert.equal(getLeader(migrated).name, 'Bruma');
   assert.equal(getLeader(migrated).xp, 37);
   assert.equal(getLeader(migrated).expedition, null);

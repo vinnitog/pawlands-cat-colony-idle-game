@@ -32,6 +32,25 @@ test('colony exposes power breakdown and accessible compatible gear controls', (
   assert.match(provider, /unequipGearInState/);
 });
 
+test('E5.2 shows the four equipped slots on colony and expedition portraits', () => {
+  const loadout = read('src/ui/components/EquipmentLoadout.tsx');
+  const colony = read('src/ui/screens/ColonyScreen.tsx');
+  const expedition = read('src/ui/screens/ExpeditionScreen.tsx');
+  const css = read('src/styles/global.css');
+
+  assert.match(loadout, /gearSlotOrder: readonly GearSlot\[\] = \['weapon', 'armor', 'head', 'feet'\]/);
+  assert.match(loadout, /aria-label=\{`Equipamentos visíveis de \$\{cat\.name\}`\}/);
+  assert.match(loadout, /role="list"/);
+  assert.match(loadout, /role="listitem"/);
+  assert.match(loadout, /<GearArt gearId=\{gearId\}/);
+  assert.match(loadout, /espaço vazio/);
+  assert.match(loadout, /<small>\{gearSlotLabels\[slot\]\}<\/small>/);
+  assert.match(colony, /<EquipmentLoadout cat=\{cat\} \/>/);
+  assert.match(expedition, /<EquipmentLoadout cat=\{cat\} compact \/>/);
+  assert.match(css, /\.equipment-loadout-slots[\s\S]*?repeat\(4/);
+  assert.match(css, /\.equipment-loadout--compact/);
+});
+
 test('blacksmith shows both currencies and gear with local audited art', () => {
   const shop = read('src/ui/components/Shop.tsx');
   const gearArt = read('src/ui/components/GearArt.tsx');
@@ -59,14 +78,26 @@ test('blacksmith shows both currencies and gear with local audited art', () => {
 });
 
 test('reward notice and expedition preview recognize all gear ids', () => {
-  const icons = read('src/ui/components/GameIcon.tsx');
+  const gearData = read('src/game/data/gear.ts');
+  const gearArt = read('src/ui/components/GearArt.tsx');
   const expedition = read('src/ui/screens/ExpeditionScreen.tsx');
   const inventory = read('src/ui/screens/InventoryScreen.tsx');
   const rewards = read('src/ui/components/OfflineRewardsModal.tsx');
 
-  for (const gearId of ['ironClaw', 'guardArmor', 'mistFang', 'grimaldeAegis']) {
-    assert.match(icons, new RegExp(`case '${gearId}'`));
+  for (const gearId of [
+    'ironClaw',
+    'guardArmor',
+    'ironHelm',
+    'scoutBoots',
+    'mistFang',
+    'grimaldeAegis',
+    'soulwalkerBoots',
+    'eclipseCrown',
+  ]) {
+    assert.match(gearData, new RegExp(`id: '${gearId}'`));
   }
+  assert.match(gearArt, /item\.visual\.kind === 'image'/);
+  assert.match(gearArt, /<GameIcon name=\{item\.visual\.name\}/);
   assert.match(expedition, /zone\.gearTable\.map/);
   assert.match(expedition, /Raro ·/);
   assert.match(inventory, /As quantidades abaixo não incluem peças equipadas/);
@@ -74,6 +105,7 @@ test('reward notice and expedition preview recognize all gear ids', () => {
   assert.match(inventory, /gearTierLabels\[item\.tier\]/);
   assert.match(inventory, /equippedCats\.map\(\(cat\) => `\$\{cat\.name\} ×1`\)/);
   assert.match(rewards, /gearTierLabels\[gearItem\.tier\]/);
+  assert.match(rewards, /gearItem \? \([\s\S]*?<GearArt gearId=\{gearItem\.id\}/);
 });
 
 test('shop modal supports keyboard containment, dismissal, and focus restoration', () => {

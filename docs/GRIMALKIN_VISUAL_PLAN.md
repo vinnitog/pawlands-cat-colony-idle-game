@@ -211,6 +211,24 @@ ou regra idle mudou; janela responde a Escape e restaura foco; o Boletim mantém
 seus três atalhos; `ground`, `objects` e `solid` permanecem no baseline G1; os
 overlays arquitetônicos do atlas complementar não entram mais no runtime.
 
+### G3.3c — moldura e precisão de exibição
+
+**Entregue.**
+
+- A área do Mundo recebe uma moldura responsiva de `16–100 px`, limitada
+  proporcionalmente pela largura e altura disponíveis, reduzindo o
+  cenário sem alterar o mapa lógico, a câmera, a colisão ou a posição salva.
+- A opção Boletim usa somente o ícone na barra expansível, preservando alvo de
+  `44 × 44 px`, nome acessível, tooltip visível em hover/foco e abertura em uma
+  ação.
+- A escala de renderização é quantizada para que cada tile ocupe uma quantidade
+  inteira de pixels físicos; a câmera continua alinhada a pixels físicos e as
+  frestas visuais entre tiles não reaparecem em escalas fracionárias.
+
+Critérios atendidos: nenhum asset, dependência, schema, timer, recompensa,
+coordenada, camada do mapa ou regra idle mudou; o zoom de cobertura permanece e
+os controles continuam responsivos em desktop e mobile.
+
 ### G3.4 — distrito-diorama opcional
 
 **Adiado após gate idle-first.**
@@ -246,7 +264,7 @@ Mesmo autorizado, o piloto só pode ser aceito quando:
 - testes de regressão confirmam que todas as funções continuam acessíveis pela
   interface em no máximo duas ações.
 
-O marco G3 encerra em G3.3b sem lacuna mecânica. G3.4 permanece uma hipótese
+O marco G3 encerra em G3.3c sem lacuna mecânica. G3.4 permanece uma hipótese
 pós-playtest, não uma dívida obrigatória.
 
 Quatro direções, interiores navegáveis, novos mapas caminháveis e recompensas

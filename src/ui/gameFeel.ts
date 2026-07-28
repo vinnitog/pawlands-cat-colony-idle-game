@@ -16,9 +16,9 @@ export type GameFeelEffect = GameFeelCue & {
 };
 
 export const GAME_FEEL_DURATION_MS: Record<GameFeelEffectKind, number> = {
-  levelUp: 900,
-  energyRegen: 600,
-  teleport: 800,
+  levelUp: 1_100,
+  energyRegen: 800,
+  teleport: 1_000,
 };
 
 const GAME_FEEL_PRIORITY: Record<GameFeelEffectKind, number> = {

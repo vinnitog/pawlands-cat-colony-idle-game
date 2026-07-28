@@ -29,11 +29,11 @@ function numericCssProperty(block, property) {
   return Number(match[1]);
 }
 
-test('game-feel durations match the short feedback contract', () => {
+test('game-feel durations match the measured feedback contract', () => {
   assert.deepEqual(GAME_FEEL_DURATION_MS, {
-    levelUp: 900,
-    energyRegen: 600,
-    teleport: 800,
+    levelUp: 1_100,
+    energyRegen: 800,
+    teleport: 1_000,
   });
 });
 
@@ -289,13 +289,23 @@ test('reset clears queued effects and suppresses the reset state transition', ()
   );
 });
 
-test('effect layer has animation completion and timeout fallback cleanup', () => {
+test('DOM, Canvas and timeout fallbacks share the game-feel duration constant', () => {
   const layer = read('src/ui/components/GameFeelEffectLayer.tsx');
+  const world = read('src/ui/screens/WorldScreen.tsx');
 
+  assert.match(layer, /'--game-feel-duration': `\$\{GAME_FEEL_DURATION_MS\[effect\.kind\]\}ms`/);
   assert.match(layer, /window\.setTimeout\([\s\S]*?onComplete[\s\S]*?GAME_FEEL_DURATION_MS\[effect\.kind\]/);
   assert.match(layer, /return\s*\(\)\s*=>\s*window\.clearTimeout\(timeoutId\)/);
   assert.match(layer, /onAnimationEnd=/);
   assert.match(layer, /event\.target\s*===\s*event\.currentTarget/);
+  assert.match(
+    world,
+    /drawWorldGameFeelAura\([\s\S]*?const duration = GAME_FEEL_DURATION_MS\[effect\.kind\][\s\S]*?elapsedMs \/ duration/,
+  );
+  assert.match(
+    world,
+    /window\.setTimeout\([\s\S]*?gameFeelCompleteRef\.current\(\)[\s\S]*?GAME_FEEL_DURATION_MS\[gameFeelEffect\.kind\] \+ 100/,
+  );
 });
 
 test('effect layer announces its label, keeps SVG decorative and stays non-blocking', () => {
@@ -320,8 +330,16 @@ test('game-feel respects reduced motion, viewport fit and UI layering', () => {
   const css = read('src/styles/global.css');
   const effectBlock = cssBlock(css, '.game-feel-effect {');
   const svgBlock = cssBlock(css, '.game-feel-svg {');
+  const crestBlock = cssBlock(css, '.game-feel-effect--crest {');
+  const labelBlock = cssBlock(css, '.game-feel-label {');
+  const viewportDepartBlock = cssBlock(css, '.game-feel-effect--depart {');
+  const viewportReturnBlock = cssBlock(css, '.game-feel-effect--return {');
   const toastBlock = cssBlock(css, '.toast {');
   const modalBlock = cssBlock(css, '.modal-backdrop {');
+  const crestOverlayKeyframes = css.slice(
+    css.indexOf('@keyframes gameFeelCrestOverlay'),
+    css.indexOf('@keyframes gameFeelTeleportSpin'),
+  );
   const reducedMotionStart = css.indexOf('@media (prefers-reduced-motion: reduce)');
   const reducedMotionEnd = css.indexOf('}', css.indexOf('}', reducedMotionStart) + 1);
   const reducedMotionBlock = css.slice(reducedMotionStart, reducedMotionEnd + 1);
@@ -331,6 +349,31 @@ test('game-feel respects reduced motion, viewport fit and UI layering', () => {
   assert.match(effectBlock, /padding-inline-start:\s*var\(--nav-w\)/);
   assert.match(svgBlock, /calc\(100vw\s*-\s*var\(--nav-w\)\s*-\s*24px\)/);
   assert.match(svgBlock, /62vh/);
+  assert.match(crestBlock, /inset:\s*50%\s+auto\s+auto\s+50%/);
+  assert.match(labelBlock, /top:\s*calc\(50%\s*\+\s*24px\)/);
+  assert.match(labelBlock, /translate:\s*0(?:;|\s)/);
+  assert.doesNotMatch(labelBlock, /translate:\s*0\s+-/);
+  assert.match(viewportDepartBlock, /animation:\s*gameFeelTeleportDepart/);
+  assert.match(viewportReturnBlock, /animation:\s*gameFeelTeleportReturn/);
+  assert.match(
+    css,
+    /\.game-feel-effect--crest\.game-feel-effect--depart,[\s\S]*?\.game-feel-effect--crest\.game-feel-effect--return\s*\{[^}]*animation:\s*gameFeelCrestOverlay/,
+  );
+  assert.match(
+    css,
+    /\.game-feel-effect--crest\.game-feel-effect--depart \.game-feel-svg\s*\{[^}]*animation:\s*gameFeelTeleportDepart/,
+  );
+  assert.match(
+    css,
+    /\.game-feel-effect--crest\.game-feel-effect--return \.game-feel-svg\s*\{[^}]*animation:\s*gameFeelTeleportReturn/,
+  );
+  assert.match(crestOverlayKeyframes, /opacity:\s*0/);
+  assert.match(crestOverlayKeyframes, /opacity:\s*1/);
+  assert.doesNotMatch(crestOverlayKeyframes, /transform:/);
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.game-feel-effect,\s*\.game-feel-effect \*\s*\{[^}]*animation:\s*none !important;/,
+  );
   const effectLayer = numericCssProperty(effectBlock, 'z-index');
   assert.ok(effectLayer < numericCssProperty(toastBlock, 'z-index'));
   assert.ok(effectLayer < numericCssProperty(modalBlock, 'z-index'));

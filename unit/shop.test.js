@@ -25,6 +25,8 @@ test('every shop item has exactly one positive currency cost', () => {
       );
       assert.equal(costs.length, 1, item.id);
       assert.equal(costs[0] > 0, true, item.id);
+      assert.ok(item.icon, `${item.id} has an icon`);
+      assert.ok(item.category, `${item.id} has a category`);
     }
   }
 });
@@ -91,4 +93,20 @@ test('coin gear purchase fails immutably when the player cannot pay', () => {
   assert.equal(result.state, state);
   assert.equal(state.resources.coins, 139);
   assert.equal(state.inventory.guardArmor, 0);
+});
+
+test('blacksmith sells the new head and feet gear as unequipped inventory', () => {
+  const state = withCoins(170);
+  const helmet = buyShopItem(state, 'ironHelm');
+  assert.equal(helmet.ok, true);
+  if (!helmet.ok) return;
+  const boots = buyShopItem(helmet.state, 'scoutBoots');
+  assert.equal(boots.ok, true);
+  if (!boots.ok) return;
+
+  assert.equal(boots.state.resources.coins, 0);
+  assert.equal(boots.state.inventory.ironHelm, 1);
+  assert.equal(boots.state.inventory.scoutBoots, 1);
+  assert.equal(getLeader(boots.state).equipment.head, null);
+  assert.equal(getLeader(boots.state).equipment.feet, null);
 });

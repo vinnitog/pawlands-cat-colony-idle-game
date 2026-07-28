@@ -44,6 +44,7 @@ export function migrateGameSave(value: unknown): GameState {
       candidate.schemaVersion === 2
       || candidate.schemaVersion === 3
       || candidate.schemaVersion === 4
+      || candidate.schemaVersion === 5
       || candidate.schemaVersion === saveSchemaVersion
     ) {
       const cats = mergeCats(candidate.cats, fallback.cats);
@@ -179,6 +180,8 @@ function mergeEquipment(value: unknown): CatEquipment {
   return {
     weapon: readSlot('weapon'),
     armor: readSlot('armor'),
+    head: readSlot('head'),
+    feet: readSlot('feet'),
   };
 }
 

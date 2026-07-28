@@ -162,10 +162,12 @@ dd {
 }
 
 .app-shell.app-shell--world {
+  box-sizing: border-box;
   width: 100%;
   height: calc(100dvh - var(--header-h));
   margin: 0;
-  padding: 0;
+  padding: clamp(16px, min(6vw, 12vh), 100px);
+  background: #171410;
 }
 
 .app-shell--world .app-main {
@@ -1197,7 +1199,13 @@ dd {
 }
 
 .colony-card-head {
+  display: grid;
+  gap: 12px;
+}
+
+.colony-identity {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 12px;
 }
@@ -1227,6 +1235,92 @@ dd {
 .colony-activity .game-icon {
   width: 18px;
   height: 18px;
+}
+
+.equipment-loadout {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.equipment-loadout-title {
+  color: var(--primary-dark);
+  font-family: var(--heading-font);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+}
+
+.equipment-loadout-slots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.equipment-loadout-slot {
+  display: grid;
+  min-width: 0;
+  min-height: 64px;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 5px 2px;
+  border: 1px solid var(--ink-border);
+  border-radius: 7px;
+  background: rgba(255, 252, 240, 0.55);
+}
+
+.equipment-loadout-slot.is-empty {
+  border-style: dashed;
+  background: rgba(255, 252, 240, 0.3);
+}
+
+.equipment-loadout-slot .gear-art {
+  width: 38px;
+  height: 38px;
+}
+
+.equipment-loadout-slot small {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.equipment-loadout-empty {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.equipment-loadout--compact {
+  padding: 8px;
+  border: 1px solid rgba(228, 210, 151, 0.22);
+  border-radius: 8px;
+  background: rgba(10, 13, 24, 0.38);
+}
+
+.equipment-loadout--compact .equipment-loadout-title,
+.equipment-loadout--compact .equipment-loadout-slot small {
+  color: #eadcae;
+}
+
+.equipment-loadout--compact .equipment-loadout-slot {
+  min-height: 58px;
+  border-color: rgba(228, 210, 151, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.equipment-loadout--compact .equipment-loadout-slot .gear-art,
+.equipment-loadout--compact .equipment-loadout-empty {
+  width: 34px;
+  height: 34px;
 }
 
 .colony-heading-side {
@@ -1402,12 +1496,14 @@ dd {
   border: 2px solid #9b8355;
   border-radius: 8px;
   background: linear-gradient(145deg, #ede2c7, #b9a77d);
+  color: #5b431f;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.34);
 }
 
 .gear-art--rare {
   border-color: #9b71c7;
   background: linear-gradient(145deg, #4d315f, #211b36);
+  color: #ead8ff;
   box-shadow:
     inset 0 0 0 2px rgba(230, 206, 255, 0.22),
     0 0 10px rgba(154, 103, 207, 0.42);
@@ -1418,6 +1514,12 @@ dd {
   height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.gear-art .game-icon {
+  width: 78%;
+  height: 78%;
+  color: currentColor;
 }
 
 .gear-art-mark {
@@ -1918,9 +2020,28 @@ dd {
 
 .shop-list {
   display: grid;
+  gap: 14px;
+  margin: 0 0 16px;
+}
+
+.shop-category {
+  display: grid;
+  gap: 8px;
+}
+
+.shop-category h3 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shop-category ul {
+  display: grid;
   gap: 10px;
   padding: 0;
-  margin: 0 0 16px;
+  margin: 0;
   list-style: none;
 }
 
@@ -1938,6 +2059,28 @@ dd {
 .shop-item-copy {
   min-width: 0;
   flex: 1;
+}
+
+.shop-item-art {
+  display: grid;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid var(--ink-border);
+  border-radius: 8px;
+  background: rgba(209, 182, 116, 0.2);
+  color: var(--primary);
+}
+
+.shop-item-art .game-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.shop-item-art .gear-art {
+  width: 42px;
+  height: 42px;
 }
 
 .shop-gear-meta {
@@ -2396,10 +2539,10 @@ dd {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid rgba(201, 152, 47, 0.42);
+  border-radius: 8px;
   background: #171410;
-  box-shadow: none;
+  box-shadow: 0 8px 24px rgba(8, 5, 2, 0.32);
 }
 
 @media (min-width: 1100px) {
@@ -2439,7 +2582,80 @@ dd {
   transform: translateX(-50%);
 }
 
-.world-options-menu button,
+.world-options-menu button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(70, 54, 30, 0.96), rgba(29, 23, 16, 0.96));
+  color: #ffe6a6;
+  box-shadow: var(--soft-shadow);
+}
+
+.world-options-menu button::after {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  padding: 5px 9px;
+  transform: translate(-50%, -3px);
+  border: 1px solid rgba(228, 184, 83, 0.78);
+  border-radius: 6px;
+  background: rgba(25, 19, 13, 0.96);
+  color: #ffe6a6;
+  font-family: var(--heading-font);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  content: attr(data-tooltip);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    visibility 150ms ease;
+}
+
+.world-options-menu button:hover::after,
+.world-options-menu button:focus-visible::after {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-height: 520px) {
+  .world-options-menu {
+    top: 48px;
+  }
+
+  .world-options-menu button::after {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform: translate(-50%, 3px);
+  }
+
+  .world-options-menu button:hover::after,
+  .world-options-menu button:focus-visible::after {
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-height: 520px) and (min-width: 761px) {
+  .world-options-menu {
+    right: 14px;
+    left: auto;
+    width: auto;
+    transform: none;
+  }
+}
+
 .world-panel-dock button {
   display: inline-flex;
   align-items: center;
@@ -2454,7 +2670,11 @@ dd {
   box-shadow: var(--soft-shadow);
 }
 
-.world-options-menu .game-icon,
+.world-options-menu .game-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .world-panel-dock .game-icon {
   width: 20px;
   height: 20px;
@@ -3794,11 +4014,13 @@ dd {
 
 .game-feel-label {
   position: absolute;
-  top: 50%;
+  /* [UI] Keep crest feedback below the top edge instead of centering its text
+     with a negative vertical translation. */
+  top: calc(50% + 24px);
   left: calc(50% + 42px);
   min-width: max-content;
   padding: 3px 7px;
-  translate: 0 -50%;
+  translate: 0;
   border: 1px solid currentColor;
   border-radius: 999px;
   background: rgba(17, 14, 10, 0.94);
@@ -3886,6 +4108,21 @@ dd {
 }
 
 .game-feel-effect--return {
+  animation: gameFeelTeleportReturn var(--game-feel-duration) cubic-bezier(0.18, 0.75, 0.3, 1) both;
+}
+
+/* [UI] On the navigation crest, scale only the artwork so its label remains
+   readable and clear of the first navigation item. */
+.game-feel-effect--crest.game-feel-effect--depart,
+.game-feel-effect--crest.game-feel-effect--return {
+  animation: gameFeelCrestOverlay var(--game-feel-duration) ease-out both;
+}
+
+.game-feel-effect--crest.game-feel-effect--depart .game-feel-svg {
+  animation: gameFeelTeleportDepart var(--game-feel-duration) cubic-bezier(0.55, 0, 0.8, 0.35) both;
+}
+
+.game-feel-effect--crest.game-feel-effect--return .game-feel-svg {
   animation: gameFeelTeleportReturn var(--game-feel-duration) cubic-bezier(0.18, 0.75, 0.3, 1) both;
 }
 
@@ -4062,6 +4299,18 @@ dd {
   100% {
     opacity: 0;
     transform: scale(1.5);
+  }
+}
+
+@keyframes gameFeelCrestOverlay {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  18%,
+  76% {
+    opacity: 1;
   }
 }
 

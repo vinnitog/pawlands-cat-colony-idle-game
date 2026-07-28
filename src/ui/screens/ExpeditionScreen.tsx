@@ -17,6 +17,7 @@ import {
   isExpeditionZoneUnlocked,
 } from '../../game/systems/expeditionSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
+import { EquipmentLoadout } from '../components/EquipmentLoadout.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { GearArt } from '../components/GearArt.tsx';
 import { TrophyArt } from '../components/TrophyArt.tsx';
@@ -144,6 +145,7 @@ export function ExpeditionScreen() {
                       </div>
                       <span className="expedition-efficiency">{efficiency.toFixed(2)}×</span>
                     </div>
+                    <EquipmentLoadout cat={cat} compact />
 
                     <div className="expedition-bag-line">
                       <span>Saco de caça</span>
@@ -158,22 +160,22 @@ export function ExpeditionScreen() {
                       aria-valuemin={0}
                       aria-valuemax={EXPEDITION_PULSE_CAP}
                       aria-valuenow={Math.min(EXPEDITION_PULSE_CAP, accumulated)}
-                      aria-valuetext={`${formatPulses(accumulated)} de ${EXPEDITION_PULSE_CAP} pulsos no saco; ${resolvedPulses} prontos para coleta`}
+                      aria-valuetext={`${formatPulses(accumulated)} de ${EXPEDITION_PULSE_CAP} ciclos no saco; ${resolvedPulses} concluídos e prontos para coleta`}
                     >
                       <span style={{ width: `${percentage}%` }} />
                     </div>
 
                     <div className="expedition-hunt-facts">
                       <span>
-                        <strong>{resolvedPulses}</strong> pulsos prontos
+                        <strong>{resolvedPulses}</strong> ciclos concluídos
                       </span>
                       <span>
                         <strong>{resolvedPulses * zone.xpPerPulse}</strong> XP garantido
                       </span>
                       <span>
                         {percentage >= 100
-                          ? 'Nenhum novo pulso enquanto o saco estiver cheio'
-                          : `Próximo pulso resolvido em ≈ ${formatDuration(timeToNextReward)}`}
+                          ? 'Nenhum novo ciclo enquanto o saco estiver cheio'
+                          : `Próximo ciclo de caça em ≈ ${formatDuration(timeToNextReward)}`}
                       </span>
                       <span>
                         {percentage >= 100
@@ -301,7 +303,7 @@ export function ExpeditionScreen() {
                           <TrophyArt trophyId={loot.item} />
                           <span>
                             <strong>{inventoryItemLabels[loot.item]}</strong>
-                            <small>{(loot.chancePerPulse * 100).toLocaleString('pt-BR')}% por pulso</small>
+                            <small>{(loot.chancePerPulse * 100).toLocaleString('pt-BR')}% por ciclo de caça</small>
                           </span>
                         </li>
                       ))}
@@ -311,7 +313,7 @@ export function ExpeditionScreen() {
                           <span>
                             <strong>{gearById[drop.item].name}</strong>
                             <small>
-                              Raro · {(drop.chancePerPulse * 100).toLocaleString('pt-BR')}% por pulso
+                              Raro · {(drop.chancePerPulse * 100).toLocaleString('pt-BR')}% por ciclo de caça
                             </small>
                           </span>
                         </li>
@@ -320,7 +322,7 @@ export function ExpeditionScreen() {
                         <GameIcon name="gems" />
                         <span>
                           <strong>Gema rara</strong>
-                          <small>{(zone.gemChance * 100).toLocaleString('pt-BR')}% por pulso</small>
+                          <small>{(zone.gemChance * 100).toLocaleString('pt-BR')}% por ciclo de caça</small>
                         </span>
                       </li>
                     </ul>
@@ -340,7 +342,7 @@ export function ExpeditionScreen() {
                       <dd>{selectedCat ? getEfficiencyLabel(efficiency) : 'Sem gato'}</dd>
                     </div>
                     <div>
-                      <dt>XP por pulso</dt>
+                      <dt>XP por ciclo</dt>
                       <dd>{zone.xpPerPulse}</dd>
                     </div>
                   </dl>

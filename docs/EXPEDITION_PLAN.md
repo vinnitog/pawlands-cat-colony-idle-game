@@ -167,8 +167,9 @@ ampliar a renda total mesmo com o teto individual.
 - **Escopo:** épico grande. Mitigado pelo fatiamento E0→E4, cada fase num commit.
 - **Balanceamento:** renda contínua + paralela (N gatos em N zonas) escala rápido.
   A E4 manteve pulso/cap, enriqueceu o loot e registrou a régua para playtest.
-- **Save:** o estado atual usa schema **v5**, com migrações testadas de
-  v1/v2/v3/v4, coleções/carries das cinco zonas e sanitização de IDs/slots.
+- **Save:** E4 foi entregue no schema **v5**. O estado atual usa schema **v6**
+  após E5.1, com migrações testadas de v1 a v5, coleções/carries das cinco
+  zonas e sanitização de IDs/slots.
 
 ## Fora de escopo (segue Fase 3)
 Bosses, prestígio/rebirth, multiplayer. Combate detalhado (turnos/animação) fica

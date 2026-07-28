@@ -16,6 +16,11 @@ import {
 import { getCatPower } from '../../game/systems/expeditionSystem.ts';
 import { useGame } from '../../app/gameProvider.tsx';
 import { CatSprite } from '../components/CatSprite.tsx';
+import {
+  EquipmentLoadout,
+  gearSlotLabels,
+  gearSlotOrder,
+} from '../components/EquipmentLoadout.tsx';
 import { GearArt } from '../components/GearArt.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { formatDuration } from '../formatters.ts';
@@ -25,11 +30,6 @@ type AssignModalProps = {
   cat: Cat;
   onPick(activityId: (typeof activities)[number]['id']): void;
   onClose(): void;
-};
-
-const gearSlotLabels: Record<GearSlot, string> = {
-  weapon: 'Arma',
-  armor: 'Armadura',
 };
 
 type EquipmentSlotControlProps = {
@@ -176,7 +176,7 @@ function EquipmentPanel({
         </p>
       ) : null}
       <div className="equipment-slots">
-        {(['weapon', 'armor'] as GearSlot[]).map((slot) => (
+        {gearSlotOrder.map((slot) => (
           <EquipmentSlotControl
             key={slot}
             cat={cat}
@@ -298,15 +298,18 @@ export function ColonyScreen() {
             <article className={`item-card colony-card${isLeader ? ' colony-card--leader' : ''}`} key={cat.id}>
               {isLeader ? <span className="leader-chip">★ Líder</span> : null}
               <div className="colony-card-head">
-                <div className="colony-portrait">
-                  <CatSprite hero={cat.catClass} scale={3} label={`${cat.name}, ${classDef.role}`} />
+                <div className="colony-identity">
+                  <div className="colony-portrait">
+                    <CatSprite hero={cat.catClass} scale={3} label={`${cat.name}, ${classDef.role}`} />
+                  </div>
+                  <div>
+                    <h3>{cat.name}</h3>
+                    <p className="muted-text">
+                      {classDef.name} · Nv {cat.level}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3>{cat.name}</h3>
-                  <p className="muted-text">
-                    {classDef.name} · Nv {cat.level}
-                  </p>
-                </div>
+                <EquipmentLoadout cat={cat} />
               </div>
 
               <div className="meter-group">

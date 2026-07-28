@@ -74,8 +74,12 @@ test('expedition zones expose a valid catalog and lookup for the five planned ti
   assert.deepEqual(expeditionZoneById.grimalkinRuins.gearTable, [
     { item: 'grimaldeAegis', chancePerPulse: 0.001 },
   ]);
-  assert.deepEqual(expeditionZoneById.soulMarsh.gearTable, []);
-  assert.deepEqual(expeditionZoneById.eclipseTower.gearTable, []);
+  assert.deepEqual(expeditionZoneById.soulMarsh.gearTable, [
+    { item: 'soulwalkerBoots', chancePerPulse: 0.0008 },
+  ]);
+  assert.deepEqual(expeditionZoneById.eclipseTower.gearTable, [
+    { item: 'eclipseCrown', chancePerPulse: 0.0006 },
+  ]);
   assert.equal(isExpeditionZoneId('unknownZone'), false);
 });
 
@@ -129,7 +133,7 @@ test('cat power uses attack twice, defense, level, and zero gear power in E0', (
 test('fresh cats start home with an empty expedition trophy inventory', () => {
   const state = createInitialGameState(1_000);
 
-  assert.equal(state.schemaVersion, 5);
+  assert.equal(state.schemaVersion, 6);
   assert.equal(getLeader(state).expedition, null);
   assert.equal(state.inventory.spectralSardine, 0);
   assert.equal(state.inventory.phantomFur, 0);

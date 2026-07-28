@@ -18,6 +18,13 @@ import { GearArt } from '../components/GearArt.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { TrophyArt } from '../components/TrophyArt.tsx';
 
+const gearSlotLabels = {
+  weapon: 'Arma',
+  armor: 'Armadura',
+  head: 'Elmo',
+  feet: 'Botas',
+} as const;
+
 export function InventoryScreen() {
   const { state, sellTrophy } = useGame();
   const [pendingSaleId, setPendingSaleId] = useState<ExpeditionTrophyKey | null>(null);
@@ -234,7 +241,7 @@ export function InventoryScreen() {
                   <span>
                     {item.name}
                     <small>
-                      {gearTierLabels[item.tier]} · {item.slot === 'weapon' ? 'Arma' : 'Armadura'} · +{item.power} poder
+                      {gearTierLabels[item.tier]} · {gearSlotLabels[item.slot]} · +{item.power} poder
                     </small>
                   </span>
                 </dt>

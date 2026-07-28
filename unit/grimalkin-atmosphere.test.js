@@ -96,7 +96,7 @@ test('G2 renderer wires depth, atmosphere and reactive reduced motion', () => {
   assert.match(source, /atmosphereCanvas/);
   assert.match(source, /fogStamps/);
   assert.match(source, /const coverScale = Math\.max\(ZOOM, rect\.width \/ mapW, rect\.height \/ mapH\)/);
-  assert.match(source, /renderScale = coverScale \* dpr/);
+  assert.match(source, /renderScale = Math\.ceil\(coverScale \* dpr \* TILE\) \/ TILE/);
   assert.match(source, /ctx\.setTransform\(1, 0, 0, 1, 0, 0\)/);
   assert.match(source, /matchMedia\('\(prefers-reduced-motion: reduce\)'\)/);
   assert.match(source, /addEventListener\('change', onReducedMotionChange\)/);
