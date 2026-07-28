@@ -3873,11 +3873,13 @@ dd {
 
 .game-feel-label {
   position: absolute;
-  top: 50%;
+  /* [UI] Keep crest feedback below the top edge instead of centering its text
+     with a negative vertical translation. */
+  top: calc(50% + 24px);
   left: calc(50% + 42px);
   min-width: max-content;
   padding: 3px 7px;
-  translate: 0 -50%;
+  translate: 0;
   border: 1px solid currentColor;
   border-radius: 999px;
   background: rgba(17, 14, 10, 0.94);
@@ -3965,6 +3967,21 @@ dd {
 }
 
 .game-feel-effect--return {
+  animation: gameFeelTeleportReturn var(--game-feel-duration) cubic-bezier(0.18, 0.75, 0.3, 1) both;
+}
+
+/* [UI] On the navigation crest, scale only the artwork so its label remains
+   readable and clear of the first navigation item. */
+.game-feel-effect--crest.game-feel-effect--depart,
+.game-feel-effect--crest.game-feel-effect--return {
+  animation: gameFeelCrestOverlay var(--game-feel-duration) ease-out both;
+}
+
+.game-feel-effect--crest.game-feel-effect--depart .game-feel-svg {
+  animation: gameFeelTeleportDepart var(--game-feel-duration) cubic-bezier(0.55, 0, 0.8, 0.35) both;
+}
+
+.game-feel-effect--crest.game-feel-effect--return .game-feel-svg {
   animation: gameFeelTeleportReturn var(--game-feel-duration) cubic-bezier(0.18, 0.75, 0.3, 1) both;
 }
 
@@ -4141,6 +4158,18 @@ dd {
   100% {
     opacity: 0;
     transform: scale(1.5);
+  }
+}
+
+@keyframes gameFeelCrestOverlay {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  18%,
+  76% {
+    opacity: 1;
   }
 }
 
