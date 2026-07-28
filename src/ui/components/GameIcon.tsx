@@ -1,11 +1,13 @@
 import type { ActivityId } from '../../game/models/activity.ts';
 import type { InventoryItemKey, ResourceKey } from '../../game/models/resources.ts';
 import type { ShopItemIcon } from '../../game/models/shop.ts';
+import type { GearIcon } from '../../game/models/gear.ts';
 
 export type GameIconName =
   | ResourceKey
   | InventoryItemKey
   | ShopItemIcon
+  | GearIcon
   | ActivityId
   | 'home'
   | 'world'
@@ -228,6 +230,21 @@ function renderIcon(name: GameIconName) {
           <path d="M32 55V27" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
           <path d="M31 29C14 29 8 17 15 9c10-2 18 5 16 20ZM33 29c17 0 23-12 16-20-10-2-18 5-16 20Z" fill="currentColor" />
           <path d="M32 39c-13 0-18 9-12 16 8 1 13-5 12-16Zm1 0c13 0 18 9 12 16-8 1-13-5-12-16Z" fill="currentColor" opacity="0.72" />
+        </>
+      );
+    case 'helmet':
+      return (
+        <>
+          <path d="M12 48V30C12 16 21 7 32 7s20 9 20 23v18H12Z" fill="currentColor" />
+          <path d="M8 48h48v9H8Z" fill="currentColor" opacity="0.78" />
+          <path d="M32 9v32M20 43V29M44 43V29" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'boots':
+      return (
+        <>
+          <path d="M12 10h17v27c0 5 4 8 10 9l7 1c6 1 9 4 9 10H12V10Z" fill="currentColor" />
+          <path d="M29 25H13M17 48h34" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
         </>
       );
     case 'xp':

@@ -19,8 +19,10 @@
 ## E5.1 — cabeça e patas
 
 - Novos slots `head` e `feet`.
-- Forja: Elmo de Ferro e Botas de Batedor, ambos básicos e com +1 poder.
-- Além: Coroa do Eclipse e Passos da Bruma, ambos raros e com +2 poder.
+- Forja: Elmo de Ferro (90 moedas) e Botas de Batedor (80 moedas), ambos
+  básicos e com +1 poder.
+- Além: Passos das Almas no Pântano (0,08% por ciclo) e Coroa do Eclipse no
+  Limiar (0,06% por ciclo), ambos raros e com +2 poder.
 - O conjunto básico passa de +4 para +6 poder; o máximo raro passa de +9 para
   +13. A eficiência continua limitada a 1,5×.
 - Botas não alteram movimento ou criam salto: Grimalkin continua top-down e o

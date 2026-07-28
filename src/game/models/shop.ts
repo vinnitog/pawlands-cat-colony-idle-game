@@ -29,7 +29,9 @@ export type ShopItemId =
   | 'warFang'
   | 'greatHelm'
   | 'ironClaw'
-  | 'guardArmor';
+  | 'guardArmor'
+  | 'ironHelm'
+  | 'scoutBoots';
 
 /** What a purchase grants, reusing the existing economy/cat systems. */
 export type ShopEffect =

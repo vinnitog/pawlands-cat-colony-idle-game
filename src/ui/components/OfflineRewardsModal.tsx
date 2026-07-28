@@ -10,6 +10,7 @@ import {
 import { formatLongDuration } from '../formatters.ts';
 import { getFocusTrapTarget } from '../focusTrap.ts';
 import { GameIcon, type GameIconName } from './GameIcon.tsx';
+import { GearArt } from './GearArt.tsx';
 
 type OfflineRewardsModalProps = {
   notice: RewardNotice;
@@ -138,7 +139,11 @@ export function OfflineRewardsModal({ notice, onClose }: OfflineRewardsModalProp
             return (
               <li key={key} data-rarity={trophyItem?.rarity}>
                 <span>
-                  <GameIcon name={key as GameIconName} />
+                  {gearItem ? (
+                    <GearArt gearId={gearItem.id} />
+                  ) : (
+                    <GameIcon name={key as GameIconName} />
+                  )}
                   <span className="reward-item-copy">
                     {inventoryItemLabels[key as keyof typeof inventoryItemLabels]}
                     {gearItem ? <small>{gearTierLabels[gearItem.tier]}</small> : null}

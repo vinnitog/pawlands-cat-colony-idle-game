@@ -1404,12 +1404,14 @@ dd {
   border: 2px solid #9b8355;
   border-radius: 8px;
   background: linear-gradient(145deg, #ede2c7, #b9a77d);
+  color: #5b431f;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.34);
 }
 
 .gear-art--rare {
   border-color: #9b71c7;
   background: linear-gradient(145deg, #4d315f, #211b36);
+  color: #ead8ff;
   box-shadow:
     inset 0 0 0 2px rgba(230, 206, 255, 0.22),
     0 0 10px rgba(154, 103, 207, 0.42);
@@ -1420,6 +1422,12 @@ dd {
   height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.gear-art .game-icon {
+  width: 78%;
+  height: 78%;
+  color: currentColor;
 }
 
 .gear-art-mark {

@@ -111,7 +111,12 @@ export const expeditionZones = [
         quantity: [1, 1],
       },
     ],
-    gearTable: [],
+    gearTable: [
+      {
+        item: 'soulwalkerBoots',
+        chancePerPulse: 0.0008,
+      },
+    ],
     xpPerPulse: 10,
     gemChance: 0.01,
   },
@@ -142,7 +147,12 @@ export const expeditionZones = [
         quantity: [1, 1],
       },
     ],
-    gearTable: [],
+    gearTable: [
+      {
+        item: 'eclipseCrown',
+        chancePerPulse: 0.0006,
+      },
+    ],
     xpPerPulse: 14,
     gemChance: 0.012,
   },

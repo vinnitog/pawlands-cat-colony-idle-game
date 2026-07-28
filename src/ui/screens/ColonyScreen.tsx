@@ -30,6 +30,8 @@ type AssignModalProps = {
 const gearSlotLabels: Record<GearSlot, string> = {
   weapon: 'Arma',
   armor: 'Armadura',
+  head: 'Elmo',
+  feet: 'Botas',
 };
 
 type EquipmentSlotControlProps = {
@@ -176,7 +178,7 @@ function EquipmentPanel({
         </p>
       ) : null}
       <div className="equipment-slots">
-        {(['weapon', 'armor'] as GearSlot[]).map((slot) => (
+        {(['weapon', 'armor', 'head', 'feet'] as GearSlot[]).map((slot) => (
           <EquipmentSlotControl
             key={slot}
             cat={cat}

@@ -58,8 +58,12 @@ export const trophyKeys: ExpeditionTrophyKey[] = [
 export const gearItemKeys: GearId[] = [
   'ironClaw',
   'guardArmor',
+  'ironHelm',
+  'scoutBoots',
   'mistFang',
   'grimaldeAegis',
+  'soulwalkerBoots',
+  'eclipseCrown',
 ];
 
 export const inventoryItemKeys: InventoryItemKey[] = [
@@ -96,8 +100,12 @@ export const trophyLabels: Record<ExpeditionTrophyKey, string> = {
 export const gearItemLabels: Record<GearId, string> = {
   ironClaw: 'Garra de Ferro',
   guardArmor: 'Armadura do Guarda',
+  ironHelm: 'Elmo de Ferro',
+  scoutBoots: 'Botas de Batedor',
   mistFang: 'Presa da Bruma',
   grimaldeAegis: 'Égide de Grimalde',
+  soulwalkerBoots: 'Passos das Almas',
+  eclipseCrown: 'Coroa do Eclipse',
 };
 
 export const inventoryItemLabels: Record<InventoryItemKey, string> = {
@@ -131,8 +139,12 @@ export function createEmptyInventory(): Inventory {
     eclipseShard: 0,
     ironClaw: 0,
     guardArmor: 0,
+    ironHelm: 0,
+    scoutBoots: 0,
     mistFang: 0,
     grimaldeAegis: 0,
+    soulwalkerBoots: 0,
+    eclipseCrown: 0,
   };
 }
 

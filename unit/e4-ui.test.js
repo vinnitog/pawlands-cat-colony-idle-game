@@ -127,7 +127,7 @@ test('E4 balance assumptions and delivery status are documented', () => {
   assert.match(plan, /cap nominal permanece em 8 horas/);
   assert.match(plan, /hipótese inicial de[\r\n ]+playtest/);
   assert.match(plan, /escala multi-gato e o endgame/);
-  assert.match(plan, /schema \*\*v5\*\*/);
+  assert.match(plan, /E4 foi entregue no schema \*\*v5\*\*[\s\S]*estado atual usa schema \*\*v6\*\*/);
   for (const zoneRow of [
     /Campos Sussurrantes[^\r\n]*\| 0,2% \|/,
     /Bosque das Brumas[^\r\n]*\| 0,4% \|/,

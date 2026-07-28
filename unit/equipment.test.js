@@ -21,8 +21,12 @@ test('gear catalog has stable ids, compatible slots, power, origin, price, and a
     [
       ['ironClaw', 'weapon', 2],
       ['guardArmor', 'armor', 2],
+      ['ironHelm', 'head', 1],
+      ['scoutBoots', 'feet', 1],
       ['mistFang', 'weapon', 5],
       ['grimaldeAegis', 'armor', 4],
+      ['soulwalkerBoots', 'feet', 2],
+      ['eclipseCrown', 'head', 2],
     ],
   );
   assert.equal(new Set(gear.map((item) => item.id)).size, gear.length);
@@ -30,7 +34,7 @@ test('gear catalog has stable ids, compatible slots, power, origin, price, and a
   assert.deepEqual(gearById.guardArmor.price, { coins: 140 });
   assert.deepEqual(gearById.mistFang.origin, { kind: 'expedition', zoneId: 'mistwood' });
   assert.equal(gearById.grimaldeAegis.tier, 'rare');
-  assert.equal(gear.every((item) => item.art.endsWith('.png')), true);
+  assert.equal(gear.every((item) => item.visual.kind === 'image' || item.visual.kind === 'icon'), true);
   assert.equal(isGearId('ironClaw'), true);
   assert.equal(isGearId('steelClaw'), false);
 });
@@ -47,6 +51,53 @@ test('cat power derives equipped gear without persisting a power field', () => {
   assert.equal(getEquipmentPower(equipped), 9);
   assert.equal(getCatPower(equipped), 16.5);
   assert.equal(Object.hasOwn(equipped, 'power'), false);
+});
+
+test('basic and rare four-slot sets add only their documented power', () => {
+  const cat = getLeader(createInitialGameState(1_000));
+  const basicSet = {
+    ...cat,
+    equipment: {
+      weapon: 'ironClaw',
+      armor: 'guardArmor',
+      head: 'ironHelm',
+      feet: 'scoutBoots',
+    },
+  };
+  const rareSet = {
+    ...cat,
+    equipment: {
+      weapon: 'mistFang',
+      armor: 'grimaldeAegis',
+      head: 'eclipseCrown',
+      feet: 'soulwalkerBoots',
+    },
+  };
+
+  assert.equal(getEquipmentPower(cat), 0);
+  assert.equal(getEquipmentPower(basicSet), 6);
+  assert.equal(getEquipmentPower(rareSet), 13);
+  assert.equal(getCatPower(basicSet), getCatPower(cat) + 6);
+  assert.equal(getCatPower(rareSet), getCatPower(cat) + 13);
+});
+
+test('head and feet use the same inventory-safe equip flow', () => {
+  const state = createInitialGameState(1_000);
+  state.inventory.ironHelm = 1;
+  state.inventory.scoutBoots = 1;
+  const catId = state.leaderId;
+
+  const helmet = equipGear(state, catId, 'head', 'ironHelm');
+  assert.equal(helmet.ok, true);
+  if (!helmet.ok) return;
+  const boots = equipGear(helmet.state, catId, 'feet', 'scoutBoots');
+  assert.equal(boots.ok, true);
+  if (!boots.ok) return;
+
+  assert.equal(getLeader(boots.state).equipment.head, 'ironHelm');
+  assert.equal(getLeader(boots.state).equipment.feet, 'scoutBoots');
+  assert.equal(boots.state.inventory.ironHelm, 0);
+  assert.equal(boots.state.inventory.scoutBoots, 0);
 });
 
 test('equip, swap, and unequip move only unequipped pieces through inventory', () => {
@@ -282,8 +333,13 @@ test('save v1-v5 defaults and sanitizes equipment ids and slots', () => {
           leaderId: 'legacy',
         };
     const migrated = migrateGameSave(legacy);
-    assert.equal(migrated.schemaVersion, 5);
-    assert.deepEqual(getLeader(migrated).equipment, { weapon: null, armor: null });
+    assert.equal(migrated.schemaVersion, 6);
+    assert.deepEqual(getLeader(migrated).equipment, {
+      weapon: null,
+      armor: null,
+      head: null,
+      feet: null,
+    });
     assert.equal(migrated.inventory.ironClaw, 0);
     assert.equal(migrated.inventory.grimaldeAegis, 0);
   }
@@ -299,12 +355,19 @@ test('save v1-v5 defaults and sanitizes equipment ids and slots', () => {
   assert.deepEqual(getLeader(sanitized).equipment, {
     weapon: 'mistFang',
     armor: null,
+    head: null,
+    feet: null,
   });
   assert.equal(sanitized.inventory.ironClaw, 2);
   assert.equal(sanitized.inventory.mistFang, 1);
 
   const corrupt = migrateGameSave({ schemaVersion: 4, cats: 'broken' });
-  assert.deepEqual(getLeader(corrupt).equipment, { weapon: null, armor: null });
+  assert.deepEqual(getLeader(corrupt).equipment, {
+    weapon: null,
+    armor: null,
+    head: null,
+    feet: null,
+  });
 
   const inherited = Object.create({ weapon: 'mistFang', armor: 'grimaldeAegis' });
   const inheritedSave = createInitialGameState(1_000);
@@ -312,10 +375,40 @@ test('save v1-v5 defaults and sanitizes equipment ids and slots', () => {
   assert.deepEqual(getLeader(migrateGameSave(inheritedSave)).equipment, {
     weapon: null,
     armor: null,
+    head: null,
+    feet: null,
   });
 });
 
-test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
+test('v5 save preserves existing gear and defaults the new slots and inventory', () => {
+  const legacy = createInitialGameState(1_000);
+  legacy.schemaVersion = 5;
+  legacy.inventory.ironClaw = 2;
+  legacy.cats[0].equipment = {
+    weapon: 'ironClaw',
+    armor: 'guardArmor',
+  };
+  for (const gearId of ['ironHelm', 'scoutBoots', 'soulwalkerBoots', 'eclipseCrown']) {
+    delete legacy.inventory[gearId];
+  }
+
+  const migrated = migrateGameSave(JSON.parse(JSON.stringify(legacy)));
+
+  assert.equal(migrated.schemaVersion, 6);
+  assert.deepEqual(getLeader(migrated).equipment, {
+    weapon: 'ironClaw',
+    armor: 'guardArmor',
+    head: null,
+    feet: null,
+  });
+  assert.equal(migrated.inventory.ironClaw, 2);
+  assert.equal(migrated.inventory.ironHelm, 0);
+  assert.equal(migrated.inventory.scoutBoots, 0);
+  assert.equal(migrated.inventory.soulwalkerBoots, 0);
+  assert.equal(migrated.inventory.eclipseCrown, 0);
+});
+
+test('v6 round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
   const initial = createInitialGameState(1_000);
   initial.resources.gems = 10;
   const recruited = recruitCat(initial, () => 0, 2_000);
@@ -336,7 +429,12 @@ test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expe
       if (cat.id === leaderId) {
         return {
           ...cat,
-          equipment: { weapon: 'ironClaw', armor: 'guardArmor' },
+          equipment: {
+            weapon: 'ironClaw',
+            armor: 'guardArmor',
+            head: 'ironHelm',
+            feet: 'scoutBoots',
+          },
           activity: {
             activityId: 'huntMice',
             startedAt: 2_000,
@@ -346,7 +444,12 @@ test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expe
       }
       return {
         ...cat,
-        equipment: { weapon: 'mistFang', armor: null },
+        equipment: {
+          weapon: 'mistFang',
+          armor: null,
+          head: 'eclipseCrown',
+          feet: 'soulwalkerBoots',
+        },
         expedition: {
           zoneId: 'mistwood',
           startedAt: 3_000,
@@ -358,7 +461,7 @@ test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expe
   };
 
   const loaded = migrateGameSave(JSON.parse(JSON.stringify(saved)));
-  assert.equal(loaded.schemaVersion, 5);
+  assert.equal(loaded.schemaVersion, 6);
   assert.deepEqual(
     {
       ironClaw: loaded.inventory.ironClaw,
@@ -369,7 +472,12 @@ test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expe
   );
   assert.deepEqual(
     loaded.cats.find((cat) => cat.id === leaderId)?.equipment,
-    { weapon: 'ironClaw', armor: 'guardArmor' },
+    {
+      weapon: 'ironClaw',
+      armor: 'guardArmor',
+      head: 'ironHelm',
+      feet: 'scoutBoots',
+    },
   );
   assert.deepEqual(
     loaded.cats.find((cat) => cat.id === leaderId)?.activity,
@@ -385,7 +493,12 @@ test('v5 round-trip preserves multi-cat inventory, equipment, activity, and expe
   );
   assert.deepEqual(
     loaded.cats.find((cat) => cat.id === recruitId)?.equipment,
-    { weapon: 'mistFang', armor: null },
+    {
+      weapon: 'mistFang',
+      armor: null,
+      head: 'eclipseCrown',
+      feet: 'soulwalkerBoots',
+    },
   );
   assert.equal(
     loaded.cats.find((cat) => cat.id === recruitId)?.activity,
