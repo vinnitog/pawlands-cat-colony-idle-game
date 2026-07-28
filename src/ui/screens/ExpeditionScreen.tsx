@@ -17,6 +17,7 @@ import {
   isExpeditionZoneUnlocked,
 } from '../../game/systems/expeditionSystem.ts';
 import { CatSprite } from '../components/CatSprite.tsx';
+import { EquipmentLoadout } from '../components/EquipmentLoadout.tsx';
 import { GameIcon } from '../components/GameIcon.tsx';
 import { GearArt } from '../components/GearArt.tsx';
 import { TrophyArt } from '../components/TrophyArt.tsx';
@@ -144,6 +145,7 @@ export function ExpeditionScreen() {
                       </div>
                       <span className="expedition-efficiency">{efficiency.toFixed(2)}×</span>
                     </div>
+                    <EquipmentLoadout cat={cat} compact />
 
                     <div className="expedition-bag-line">
                       <span>Saco de caça</span>

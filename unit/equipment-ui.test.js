@@ -32,6 +32,25 @@ test('colony exposes power breakdown and accessible compatible gear controls', (
   assert.match(provider, /unequipGearInState/);
 });
 
+test('E5.2 shows the four equipped slots on colony and expedition portraits', () => {
+  const loadout = read('src/ui/components/EquipmentLoadout.tsx');
+  const colony = read('src/ui/screens/ColonyScreen.tsx');
+  const expedition = read('src/ui/screens/ExpeditionScreen.tsx');
+  const css = read('src/styles/global.css');
+
+  assert.match(loadout, /gearSlotOrder: readonly GearSlot\[\] = \['weapon', 'armor', 'head', 'feet'\]/);
+  assert.match(loadout, /aria-label=\{`Equipamentos visíveis de \$\{cat\.name\}`\}/);
+  assert.match(loadout, /role="list"/);
+  assert.match(loadout, /role="listitem"/);
+  assert.match(loadout, /<GearArt gearId=\{gearId\}/);
+  assert.match(loadout, /espaço vazio/);
+  assert.match(loadout, /<small>\{gearSlotLabels\[slot\]\}<\/small>/);
+  assert.match(colony, /<EquipmentLoadout cat=\{cat\} \/>/);
+  assert.match(expedition, /<EquipmentLoadout cat=\{cat\} compact \/>/);
+  assert.match(css, /\.equipment-loadout-slots[\s\S]*?repeat\(4/);
+  assert.match(css, /\.equipment-loadout--compact/);
+});
+
 test('blacksmith shows both currencies and gear with local audited art', () => {
   const shop = read('src/ui/components/Shop.tsx');
   const gearArt = read('src/ui/components/GearArt.tsx');
