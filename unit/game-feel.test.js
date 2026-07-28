@@ -29,11 +29,11 @@ function numericCssProperty(block, property) {
   return Number(match[1]);
 }
 
-test('game-feel durations match the short feedback contract', () => {
+test('game-feel durations match the measured feedback contract', () => {
   assert.deepEqual(GAME_FEEL_DURATION_MS, {
-    levelUp: 900,
-    energyRegen: 600,
-    teleport: 800,
+    levelUp: 1_100,
+    energyRegen: 800,
+    teleport: 1_000,
   });
 });
 
@@ -289,13 +289,23 @@ test('reset clears queued effects and suppresses the reset state transition', ()
   );
 });
 
-test('effect layer has animation completion and timeout fallback cleanup', () => {
+test('DOM, Canvas and timeout fallbacks share the game-feel duration constant', () => {
   const layer = read('src/ui/components/GameFeelEffectLayer.tsx');
+  const world = read('src/ui/screens/WorldScreen.tsx');
 
+  assert.match(layer, /'--game-feel-duration': `\$\{GAME_FEEL_DURATION_MS\[effect\.kind\]\}ms`/);
   assert.match(layer, /window\.setTimeout\([\s\S]*?onComplete[\s\S]*?GAME_FEEL_DURATION_MS\[effect\.kind\]/);
   assert.match(layer, /return\s*\(\)\s*=>\s*window\.clearTimeout\(timeoutId\)/);
   assert.match(layer, /onAnimationEnd=/);
   assert.match(layer, /event\.target\s*===\s*event\.currentTarget/);
+  assert.match(
+    world,
+    /drawWorldGameFeelAura\([\s\S]*?const duration = GAME_FEEL_DURATION_MS\[effect\.kind\][\s\S]*?elapsedMs \/ duration/,
+  );
+  assert.match(
+    world,
+    /window\.setTimeout\([\s\S]*?gameFeelCompleteRef\.current\(\)[\s\S]*?GAME_FEEL_DURATION_MS\[gameFeelEffect\.kind\] \+ 100/,
+  );
 });
 
 test('effect layer announces its label, keeps SVG decorative and stays non-blocking', () => {
