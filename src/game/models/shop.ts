@@ -3,6 +3,17 @@ import type { InventoryItemKey, ResourceKey } from './resources.ts';
 
 export type ShopId = 'jeweler' | 'blacksmith';
 
+export type ShopItemCategory = 'equipment' | 'improvement' | 'supplies';
+
+export type ShopItemIcon =
+  | InventoryItemKey
+  | ResourceKey
+  | 'energy'
+  | 'attack'
+  | 'defense'
+  | 'hunting'
+  | 'luck';
+
 export type ShopItemId =
   // jeweler (Vittorio)
   | 'goldenSardine'
@@ -41,6 +52,8 @@ export type ShopItemDefinition = {
   id: ShopItemId;
   name: string;
   description: string;
+  category: ShopItemCategory;
+  icon: ShopItemIcon;
   effect: ShopEffect;
 } & (GemPrice | CoinPrice);
 

@@ -25,6 +25,8 @@ test('every shop item has exactly one positive currency cost', () => {
       );
       assert.equal(costs.length, 1, item.id);
       assert.equal(costs[0] > 0, true, item.id);
+      assert.ok(item.icon, `${item.id} has an icon`);
+      assert.ok(item.category, `${item.id} has a category`);
     }
   }
 });

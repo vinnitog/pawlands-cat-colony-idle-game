@@ -32,9 +32,10 @@ test('expedition screen previews progress without mutating state every second', 
   assert.match(screen, /EXPEDITION_PULSE_CAP/);
   assert.match(screen, /role="progressbar"/);
   assert.match(screen, /aria-valuetext=/);
-  assert.match(screen, /pulsos prontos/);
+  assert.match(screen, /ciclos concluídos/);
   assert.match(screen, /Cheio em aproximadamente/);
-  assert.match(screen, /Próximo pulso resolvido em/);
+  assert.match(screen, /Próximo ciclo de caça em/);
+  assert.doesNotMatch(screen, />[^<{]*pulsos?[^<{]*</i);
   assert.match(screen, /Voltar sem coleta/);
   assert.match(screen, /zone\.lootTable\.map/);
   assert.match(screen, /zone\.gemChance/);

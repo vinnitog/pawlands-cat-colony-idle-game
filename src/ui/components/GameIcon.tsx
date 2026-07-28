@@ -1,9 +1,11 @@
 import type { ActivityId } from '../../game/models/activity.ts';
 import type { InventoryItemKey, ResourceKey } from '../../game/models/resources.ts';
+import type { ShopItemIcon } from '../../game/models/shop.ts';
 
 export type GameIconName =
   | ResourceKey
   | InventoryItemKey
+  | ShopItemIcon
   | ActivityId
   | 'home'
   | 'world'
@@ -196,6 +198,38 @@ function renderIcon(name: GameIconName) {
       );
     case 'energy':
       return <path d="M37 5 14 36h16l-4 23 24-34H34Z" fill="currentColor" />;
+    case 'attack':
+      return (
+        <>
+          <path d="m13 49 30-30 6 6-30 30H13v-6Z" fill="currentColor" />
+          <path d="m39 15 7-7 10 10-7 7Z" fill="currentColor" opacity="0.72" />
+          <path d="M9 20h19M18 11v19" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'defense':
+      return (
+        <>
+          <path d="M32 5 53 13v18c0 14-8 23-21 28C19 54 11 45 11 31V13Z" fill="currentColor" />
+          <path d="M32 14v35M21 28h22" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'hunting':
+      return (
+        <>
+          <circle cx="32" cy="32" r="23" fill="currentColor" />
+          <circle cx="32" cy="32" r="14" fill="none" stroke="#ffffff" strokeWidth="4" />
+          <circle cx="32" cy="32" r="4" fill="#ffffff" />
+          <path d="M32 5v10M32 49v10M5 32h10M49 32h10" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+        </>
+      );
+    case 'luck':
+      return (
+        <>
+          <path d="M32 55V27" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+          <path d="M31 29C14 29 8 17 15 9c10-2 18 5 16 20ZM33 29c17 0 23-12 16-20-10-2-18 5-16 20Z" fill="currentColor" />
+          <path d="M32 39c-13 0-18 9-12 16 8 1 13-5 12-16Zm1 0c13 0 18 9 12 16-8 1-13-5-12-16Z" fill="currentColor" opacity="0.72" />
+        </>
+      );
     case 'xp':
     case 'level':
       return (

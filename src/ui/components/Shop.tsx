@@ -3,6 +3,7 @@ import { useGame } from '../../app/gameProvider.tsx';
 import { shopsById } from '../../game/data/shop.ts';
 import { gearById, gearTierLabels, isGearId } from '../../game/data/gear.ts';
 import type { ShopId } from '../../game/models/shop.ts';
+import type { ShopItemCategory } from '../../game/models/shop.ts';
 import type { MissionId } from '../../game/models/missions.ts';
 import { describeQuestStatus } from '../../game/systems/missionSystem.ts';
 import { getFocusTrapTarget } from '../focusTrap.ts';
@@ -14,6 +15,12 @@ type ShopProps = {
   shopId: ShopId;
   questId?: MissionId;
   onClose(): void;
+};
+
+const shopCategoryLabels: Record<ShopItemCategory, string> = {
+  equipment: 'Equipamentos',
+  improvement: 'Melhorias permanentes',
+  supplies: 'Suprimentos',
 };
 
 export function Shop({ sellerName, shopId, questId, onClose }: ShopProps) {
@@ -89,8 +96,15 @@ export function Shop({ sellerName, shopId, questId, onClose }: ShopProps) {
           </div>
         </div>
 
-        <ul className="shop-list">
-          {shop.items.map((item) => {
+        <div className="shop-list">
+          {Object.entries(shopCategoryLabels).map(([category, label]) => {
+            const categoryItems = shop.items.filter((item) => item.category === category);
+            if (categoryItems.length === 0) return null;
+            return (
+              <section className="shop-category" key={category} aria-labelledby={`shop-category-${shop.id}-${category}`}>
+                <h3 id={`shop-category-${shop.id}-${category}`}>{label}</h3>
+                <ul>
+                  {categoryItems.map((item) => {
             const usesCoins = item.coinCost !== undefined;
             const price = usesCoins ? item.coinCost : item.gemCost;
             const affordable = usesCoins
@@ -106,7 +120,9 @@ export function Shop({ sellerName, shopId, questId, onClose }: ShopProps) {
               : 0;
             return (
               <li className="shop-item" key={item.id}>
-                {gearId ? <GearArt gearId={gearId} /> : null}
+                <span className="shop-item-art">
+                  {gearId ? <GearArt gearId={gearId} /> : <GameIcon name={item.icon} />}
+                </span>
                 <div className="shop-item-copy">
                   <strong>{item.name}</strong>
                   <p className="muted-text">{item.description}</p>
@@ -129,8 +145,12 @@ export function Shop({ sellerName, shopId, questId, onClose }: ShopProps) {
                 </button>
               </li>
             );
+                  })}
+                </ul>
+              </section>
+            );
           })}
-        </ul>
+        </div>
 
         <button type="button" className="shop-close" onClick={onClose}>
           Fechar
