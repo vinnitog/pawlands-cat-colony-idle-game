@@ -171,9 +171,11 @@ verificado.
 - As cinco melhorias refletem o nível já salvo como `base`, `improved` ou
   `complete`; nenhum estado visual entra no save.
 - O Boletim da colônia é uma camada DOM acessível com três blocos e atalhos de
-  uma ação para Expedição, Atividades e Melhorias. Ele permanece disponível
-  quando o líder está no Além, não usa `aria-live` e não anuncia contagens
-  regressivas a cada segundo.
+  uma ação para Expedição, Atividades e Melhorias. Ele fica disponível enquanto
+  há personagem em Grimalkin; quando nenhum personagem pode ocupar o mundo
+  porque o líder está no Além, a camada é ocultada e o estado vazio mantém a
+  ação direta para Expedição. O Boletim não usa `aria-live` nem anuncia
+  contagens regressivas a cada segundo.
 - O mapa continua opcional e cosmético. Marcadores Canvas foram deliberadamente
   deixados fora: o boletim entrega a informação com melhor legibilidade,
   teclado, toque e movimento reduzido, sem acoplar sinais ao renderer.
