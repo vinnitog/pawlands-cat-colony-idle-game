@@ -1,19 +1,31 @@
 {
-  "name": "Pawlands: Cat Colony Idle",
-  "short_name": "Pawlands",
-  "description": "Um jogo idle leve sobre uma colonia de gatos que cresce com o tempo.",
+  "name": "Catvolution: Infinite Idle",
+  "short_name": "Catvolution",
+  "description": "Comece com uma colonia de gatos e evolua por tecnologias, ciencias e universos.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#17140f",
-  "theme_color": "#2b2822",
+  "background_color": "#090b16",
+  "theme_color": "#17152d",
   "icons": [
     {
-      "src": "icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "icons/catvolution-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/catvolution-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/catvolution-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

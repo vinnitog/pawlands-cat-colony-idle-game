@@ -17,6 +17,8 @@ export type GameIconName =
   | 'upgrades'
   | 'missions'
   | 'inventory'
+  | 'evolution'
+  | 'timeline'
   | 'settings'
   | 'energy'
   | 'xp'
@@ -186,6 +188,23 @@ function renderIcon(name: GameIconName) {
           <path d="M13 24h38l-4 30H17Z" fill="currentColor" />
           <path d="M23 24c0-9 18-9 18 0" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
           <path d="M22 36h20" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+        </>
+      );
+    case 'evolution':
+      return (
+        <>
+          <path d="M19 9h26v8l-8 12v10l13 14H14l13-14V29l-8-12V9Z" fill="currentColor" />
+          <path d="M24 17h16M23 45c6-6 12 6 18 0M28 35h8" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="24" cy="49" r="2" fill="#ffffff" />
+          <circle cx="41" cy="48" r="2" fill="#ffffff" />
+        </>
+      );
+    case 'timeline':
+      return (
+        <>
+          <circle cx="32" cy="32" r="23" fill="currentColor" />
+          <path d="M32 9a31 31 0 0 0 0 46M32 9a31 31 0 0 1 0 46M10 32h44" fill="none" stroke="#ffffff" strokeWidth="3" />
+          <path d="m39 20 7 1-2-7" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </>
       );
     case 'settings':

@@ -3309,6 +3309,762 @@ dd {
   }
 }
 
+/* ============================================
+   UI/UX Expert — Catvolution vertical slice
+   Modo: full | Identidade arcano-tecnológica sobre a Era I medieval
+   ============================================ */
+
+/* [UI] Universo expansível: o salão medieval passa a existir dentro de uma
+   atmosfera cósmica, sem invalidar os mapas e cards já construídos. */
+:root {
+  --catvolution-violet: #8b6cff;
+  --catvolution-cyan: #4de3ec;
+  --catvolution-science: #78e19b;
+  --catvolution-space: #090b16;
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% 12%, rgba(77, 227, 236, 0.12), transparent 24rem),
+    radial-gradient(circle at 22% 4%, rgba(139, 108, 255, 0.18), transparent 28rem),
+    var(--keep-pattern) repeat,
+    linear-gradient(180deg, #111329 0%, #171426 46%, #14110d 100%);
+}
+
+.side-nav {
+  background:
+    radial-gradient(circle at 50% 0, rgba(139, 108, 255, 0.28), transparent 180px),
+    linear-gradient(180deg, #18172d, #0b0d17 72%);
+  border-inline-end: 1px solid rgba(77, 227, 236, 0.22);
+}
+
+.nav-crest {
+  min-height: 100px;
+  align-content: center;
+  gap: 4px;
+}
+
+.nav-crest::after {
+  content: "CATVOLUTION";
+  color: #e5ddff;
+  font-family: var(--heading-font);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+}
+
+.nav-crest img {
+  filter: hue-rotate(184deg) saturate(1.35) drop-shadow(0 0 8px rgba(77, 227, 236, 0.55));
+}
+
+.side-nav button.active {
+  background: linear-gradient(135deg, rgba(139, 108, 255, 0.42), rgba(23, 108, 129, 0.54));
+  box-shadow:
+    inset 0 0 0 1px rgba(77, 227, 236, 0.5),
+    0 5px 16px rgba(0, 0, 0, 0.28);
+}
+
+.side-nav button.active::before {
+  border-left-color: var(--catvolution-cyan);
+}
+
+.app-header {
+  border-bottom-color: rgba(77, 227, 236, 0.58);
+  background:
+    linear-gradient(90deg, rgba(139, 108, 255, 0.08), rgba(77, 227, 236, 0.08)),
+    var(--surface);
+}
+
+.level-pill {
+  border-color: #b9a6ff;
+  background: linear-gradient(135deg, #4f397e, #19596b);
+  color: #f4f0ff;
+}
+
+.level-pill .game-icon {
+  color: var(--catvolution-cyan);
+}
+
+/* [UI] Home explica o loop e oferece ações frequentes sem exigir que o jogador
+   compreenda a navegação inteira no primeiro retorno. */
+.overview-screen {
+  gap: 20px;
+}
+
+.evolution-hero {
+  position: relative;
+  display: grid;
+  min-height: 310px;
+  overflow: hidden;
+  border: 1px solid rgba(139, 108, 255, 0.62);
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 23, 0.98) 0 48%, rgba(7, 9, 23, 0.35) 76%, rgba(7, 9, 23, 0.72)),
+    radial-gradient(circle at 78% 46%, rgba(77, 227, 236, 0.25), transparent 28%),
+    linear-gradient(135deg, #1c1738, #0a2230 58%, #15101d);
+  color: #f4f2ff;
+  box-shadow: 0 18px 50px rgba(4, 5, 14, 0.56);
+}
+
+.evolution-hero__art {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.evolution-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(5, 7, 18, 0.98) 0 34%, rgba(5, 7, 18, 0.78) 52%, rgba(5, 7, 18, 0.12) 78%);
+}
+
+.evolution-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 15% 24%, #fff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 62% 18%, #75f4ff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 88% 70%, #d5c6ff 0 1px, transparent 1.5px);
+  background-size: 88px 88px, 124px 124px, 104px 104px;
+  opacity: 0.46;
+}
+
+.evolution-hero__copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 14px;
+  max-width: 620px;
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.evolution-hero .eyebrow {
+  color: var(--catvolution-cyan);
+}
+
+.evolution-hero h2 {
+  max-width: 18ch;
+  color: #fff;
+  font-size: clamp(1.8rem, 5vw, 3.35rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.evolution-hero p:not(.eyebrow) {
+  max-width: 56ch;
+  color: #c7c9df;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.evolution-hero .primary-action {
+  width: auto;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #7c58e8, #167e91);
+  box-shadow: 0 4px 0 #25205a;
+}
+
+
+.command-status,
+.timeline-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.command-status article,
+.timeline-stats article {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(139, 108, 255, 0.32);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(239, 228, 198, 0.98), rgba(222, 228, 217, 0.96));
+  box-shadow: var(--soft-shadow);
+}
+
+.command-status span,
+.timeline-stats span {
+  color: #5d477c;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.command-status strong,
+.timeline-stats strong {
+  overflow-wrap: anywhere;
+  font-family: var(--heading-font);
+  font-size: 1.05rem;
+}
+
+.command-status small,
+.timeline-stats small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.overview-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.overview-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.overview-action-grid button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid #9a7b42;
+  background: linear-gradient(145deg, #f6e9c9, #ded4b7);
+  text-align: left;
+  box-shadow: var(--soft-shadow);
+}
+
+.overview-action-grid button:hover {
+  border-color: #7860c9;
+  background: #f6f0df;
+}
+
+.overview-action-grid .game-icon {
+  width: 32px;
+  height: 32px;
+  color: #5c44a2;
+}
+
+.overview-action-grid span {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.overview-action-grid small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.overview-action-grid b {
+  color: #6d529e;
+  font-size: 1.5rem;
+}
+
+/* [UI] Árvores são apresentadas como trilhas legíveis, não como um diagrama
+   minúsculo; isso preserva decisão e comparação em telas estreitas. */
+.research-console {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 18px;
+  border: 1px solid rgba(77, 227, 236, 0.66);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(20, 24, 51, 0.98), rgba(11, 50, 59, 0.98));
+  color: #effcff;
+  box-shadow: 0 0 28px rgba(77, 227, 236, 0.14);
+}
+
+.research-console .eyebrow {
+  color: var(--catvolution-cyan);
+}
+
+.research-console > strong {
+  font-family: var(--heading-font);
+  font-size: 1.1rem;
+}
+
+.research-progress {
+  grid-column: 1 / -1;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.research-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--catvolution-violet), var(--catvolution-cyan));
+  transition: width 300ms linear;
+}
+
+.evolution-bonus-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.evolution-bonus-strip span {
+  padding: 10px 12px;
+  border: 1px solid rgba(139, 108, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(13, 15, 31, 0.78);
+  color: #c9c6df;
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.evolution-bonus-strip b {
+  color: #fff;
+}
+
+.evolution-branch {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(139, 108, 255, 0.32);
+  border-radius: 16px;
+  background: rgba(10, 12, 24, 0.64);
+  box-shadow: 0 14px 34px rgba(3, 4, 12, 0.28);
+}
+
+.evolution-branch > header h3 {
+  color: #f5f1ff;
+  font-size: 1.25rem;
+}
+
+.evolution-branch--cyber > header .eyebrow {
+  color: var(--catvolution-cyan);
+}
+
+.evolution-branch--science {
+  border-color: rgba(120, 225, 155, 0.36);
+}
+
+.evolution-branch--science > header .eyebrow {
+  color: var(--catvolution-science);
+}
+
+.evolution-branch--hybrid {
+  border-color: rgba(196, 132, 255, 0.48);
+  background: linear-gradient(135deg, rgba(40, 20, 62, 0.74), rgba(8, 38, 48, 0.72));
+}
+
+.evolution-node-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.evolution-branch--hybrid .evolution-node-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.evolution-node {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 10px 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #80693f;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f1e5c7, #d9ceb1);
+  color: var(--text);
+}
+
+.evolution-node.is-unlocked {
+  border-color: #4a956e;
+  box-shadow: inset 0 0 0 2px rgba(82, 166, 119, 0.2);
+}
+
+.evolution-node.is-researching {
+  border-color: #5bbec9;
+  box-shadow: inset 0 0 0 2px rgba(77, 227, 236, 0.22);
+}
+
+.evolution-node__icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #54418c, #256676);
+  color: #eaffff;
+}
+
+.evolution-branch--science .evolution-node__icon {
+  background: linear-gradient(135deg, #35664b, #477d65);
+}
+
+.evolution-node__title span {
+  color: #72599a;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.evolution-node > p,
+.evolution-node > .effect-line,
+.evolution-node > small,
+.evolution-node > em,
+.evolution-node > button,
+.evolution-node__meta {
+  grid-column: 1 / -1;
+}
+
+.evolution-node > p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.evolution-node > small,
+.evolution-node > em {
+  color: #654e31;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.evolution-node > em {
+  text-align: center;
+}
+
+.evolution-node__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(79, 56, 27, 0.2);
+  color: #4d3d2a;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.evolution-node .primary-action:disabled {
+  border: 1px dashed #776c59;
+  background: #cfc7b6;
+  color: #554c3e;
+  opacity: 1;
+  box-shadow: none;
+}
+
+/* [UI] Prestige comunica consequência antes do CTA destrutivo e exige uma
+   segunda ação explícita, sem usar diálogo nativo bloqueante. */
+.timeline-vista {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  padding: clamp(22px, 4vw, 40px);
+  border: 1px solid rgba(139, 108, 255, 0.5);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(139, 108, 255, 0.22), transparent 24%),
+    linear-gradient(135deg, #111329, #0b2330);
+  color: #f2efff;
+}
+
+.timeline-vista p:not(.eyebrow) {
+  max-width: 66ch;
+  margin-top: 10px;
+  color: #c7c9db;
+  line-height: 1.6;
+}
+
+.timeline-vista .eyebrow {
+  color: var(--catvolution-cyan);
+}
+
+.timeline-core {
+  display: grid;
+  width: 126px;
+  height: 126px;
+  place-items: center;
+  border: 2px solid #8f76e8;
+  border-radius: 50%;
+  background: radial-gradient(circle, #31286a, #0a0d21 66%);
+  box-shadow:
+    0 0 0 12px rgba(77, 227, 236, 0.06),
+    0 0 40px rgba(139, 108, 255, 0.34);
+}
+
+.timeline-core span {
+  color: #fff;
+  font-family: var(--heading-font);
+  font-size: 2.4rem;
+}
+
+.timeline-gates {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid rgba(139, 108, 255, 0.34);
+  border-radius: 14px;
+  background: rgba(10, 12, 24, 0.66);
+  color: #f3edff;
+}
+
+.timeline-gates > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.timeline-gates > div.is-complete {
+  border-color: rgba(120, 225, 155, 0.45);
+}
+
+.timeline-gates span {
+  display: grid;
+  gap: 4px;
+}
+
+.timeline-gates small {
+  color: #b9b8cb;
+}
+
+.timeline-gates b {
+  color: #d4c6ff;
+  font-size: 0.74rem;
+}
+
+.timeline-gates .is-complete b {
+  color: var(--catvolution-science);
+}
+
+.timeline-action {
+  justify-self: center;
+  width: min(100%, 460px);
+}
+
+.timeline-confirm {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 2px solid #9b72dc;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.timeline-confirm > .game-icon {
+  width: 42px;
+  height: 42px;
+  color: #6546ad;
+}
+
+.timeline-confirm p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.secondary-action {
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+@media (max-width: 820px) {
+  .evolution-hero {
+    min-height: 360px;
+  }
+
+  .evolution-hero__copy {
+    padding-right: 28%;
+  }
+
+
+  .overview-action-grid,
+  .evolution-node-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* [UI] Play Store/mobile: cinco destinos verdadeiros no polegar, safe areas e
+   conteúdo sem a antiga perda fixa de 60px na lateral. */
+@media (max-width: 760px) {
+  :root {
+    --nav-w: 0px;
+  }
+
+  .app-frame {
+    display: block;
+  }
+
+  .side-nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 60;
+    display: block;
+    width: 100%;
+    height: calc(72px + env(safe-area-inset-bottom));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(77, 227, 236, 0.28);
+    border-inline-end: 0;
+    box-shadow: 0 -8px 28px rgba(4, 5, 12, 0.64);
+  }
+
+  .nav-crest,
+  .side-nav .mobile-secondary {
+    display: none;
+  }
+
+  .nav-items {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
+  }
+
+  .side-nav button {
+    display: grid;
+    min-width: 0;
+    min-height: 58px;
+    justify-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+  }
+
+  .side-nav button span {
+    position: static;
+    overflow: visible;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    color: inherit;
+    font-size: 0.62rem;
+    line-height: 1;
+    white-space: normal;
+  }
+
+  .side-nav .game-icon {
+    width: 27px;
+    height: 27px;
+  }
+
+  .side-nav button.active::before {
+    inset: -6px 18% auto;
+    width: auto;
+    height: 2px;
+    border: 0;
+    background: var(--catvolution-cyan);
+    translate: 0;
+  }
+
+  .app-shell {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .app-shell.app-shell--world {
+    height: calc(100dvh - var(--header-h) - 72px - env(safe-area-inset-bottom));
+    padding: 10px;
+  }
+
+  .toast {
+    right: 10px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 10px;
+    width: auto;
+    transform: none;
+  }
+
+  .app-frame > [class~="game-feel-effect"] {
+    padding-inline-start: 0;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .evolution-hero {
+    min-height: 440px;
+  }
+
+  .evolution-hero__copy {
+    align-content: start;
+    padding: 24px 20px 190px;
+  }
+
+
+  .command-status,
+  .timeline-stats,
+  .evolution-bonus-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .evolution-bonus-strip {
+    gap: 6px;
+  }
+
+  .evolution-branch {
+    padding: 12px;
+  }
+
+  .timeline-vista {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .timeline-confirm {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .timeline-confirm > button {
+    width: 100%;
+  }
+
+  .timeline-confirm > button:first-of-type {
+    grid-column: 1 / 2;
+  }
+
+  .timeline-gates > div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .timeline-gates b {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 420px) {
+  .evolution-hero h2 {
+    font-size: 1.9rem;
+  }
+
+  .overview-action-grid button {
+    min-height: 68px;
+  }
+
+  .evolution-node__meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-progress span {
+    transition: none;
+  }
+}
+
 @media (min-width: 720px) {
   .app-shell {
     padding: 24px 22px 56px;
@@ -4339,5 +5095,74 @@ dd {
   .game-feel-teleport-vortex {
     opacity: 0.86;
     transform: none;
+  }
+}
+
+/* [UI] Final mobile shell override after every legacy screen rule. */
+@media (max-width: 760px) {
+  :root { --nav-w: 0px; }
+  .app-frame { display: block; }
+  .side-nav {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 60;
+    display: block;
+    width: 100%;
+    height: calc(72px + env(safe-area-inset-bottom));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(77, 227, 236, 0.28);
+    border-inline-end: 0;
+    box-shadow: 0 -8px 28px rgba(4, 5, 12, 0.64);
+  }
+  .nav-crest,
+  .side-nav .mobile-secondary { display: none; }
+  .nav-items {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
+  }
+  .side-nav button {
+    display: grid;
+    min-width: 0;
+    min-height: 58px;
+    justify-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+  }
+  .side-nav button span {
+    position: static;
+    overflow: visible;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    font-size: 0.62rem;
+    line-height: 1;
+    white-space: normal;
+  }
+  .side-nav button.active::before {
+    inset: -6px 18% auto;
+    width: auto;
+    height: 2px;
+    border: 0;
+    background: var(--catvolution-cyan);
+    translate: 0;
+  }
+  .app-shell { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .app-shell.app-shell--world {
+    height: calc(100dvh - var(--header-h) - 72px - env(safe-area-inset-bottom));
+    padding: 10px;
+  }
+  .toast {
+    right: 10px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 10px;
+    width: auto;
+    transform: none;
+  }
+  .app-frame > [class~="game-feel-effect"] {
+    padding-inline-start: 0;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }

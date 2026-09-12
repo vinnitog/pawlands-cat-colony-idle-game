@@ -96,7 +96,7 @@ test('activity assignment and ambient wandering treat expeditions as occupied', 
   assert.match(world, /goTo\('expedition'\)/);
 });
 
-test('global activity status covers the full roster after the dashboard removal', () => {
+test('global activity status covers the full roster beside the evolution overview', () => {
   const status = read('src/ui/components/GlobalActivityStatus.tsx');
   const app = read('src/app/App.tsx');
 
@@ -108,8 +108,9 @@ test('global activity status covers the full roster after the dashboard removal'
   assert.match(status, /state\.cats\.map\(\(cat\)/);
   assert.match(status, /Ver Atividades/);
   assert.match(status, /Ver Além/);
-  assert.doesNotMatch(app, /DashboardScreen|dashboard|label: 'Início'/);
-  assert.match(app, /useState<ScreenId>\('world'\)/);
+  assert.doesNotMatch(app, /DashboardScreen|dashboard/);
+  assert.match(app, /label: 'Início'/);
+  assert.match(app, /useState<ScreenId>\('overview'\)/);
 });
 
 test('activity cards use the selected cat and prioritize expedition status over energy', () => {

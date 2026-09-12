@@ -8,6 +8,9 @@ import { UpgradesScreen } from '../ui/screens/UpgradesScreen.tsx';
 import { MissionsScreen } from '../ui/screens/MissionsScreen.tsx';
 import { InventoryScreen } from '../ui/screens/InventoryScreen.tsx';
 import { SettingsScreen } from '../ui/screens/SettingsScreen.tsx';
+import { OverviewScreen } from '../ui/screens/OverviewScreen.tsx';
+import { EvolutionScreen } from '../ui/screens/EvolutionScreen.tsx';
+import { TimelineScreen } from '../ui/screens/TimelineScreen.tsx';
 import { OfflineRewardsModal } from '../ui/components/OfflineRewardsModal.tsx';
 import { StarterScreen } from '../ui/screens/StarterScreen.tsx';
 import { GameIcon, type GameIconName } from '../ui/components/GameIcon.tsx';
@@ -20,7 +23,8 @@ import shieldCrest from '../ui/art/ui_shield.png';
 
 const TOAST_AUTO_DISMISS_MS = 5_000;
 
-type ScreenId =
+export type ScreenId =
+  | 'overview'
   | 'world'
   | 'colony'
   | 'activities'
@@ -28,21 +32,26 @@ type ScreenId =
   | 'upgrades'
   | 'missions'
   | 'inventory'
+  | 'evolution'
+  | 'timeline'
   | 'settings';
 
-const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName }> = [
-  { id: 'world', label: 'Grimalkin', icon: 'world' },
-  { id: 'colony', label: 'Colônia', icon: 'colony' },
+const tabs: Array<{ id: ScreenId; label: string; icon: GameIconName; mobilePrimary?: boolean }> = [
+  { id: 'overview', label: 'Início', icon: 'home', mobilePrimary: true },
+  { id: 'colony', label: 'Colônia', icon: 'colony', mobilePrimary: true },
+  { id: 'evolution', label: 'Evolução', icon: 'evolution', mobilePrimary: true },
+  { id: 'expedition', label: 'Além', icon: 'expedition', mobilePrimary: true },
+  { id: 'world', label: 'Grimalkin', icon: 'world', mobilePrimary: true },
   { id: 'activities', label: 'Atividades', icon: 'exploreYard' },
-  { id: 'expedition', label: 'Além', icon: 'expedition' },
-  { id: 'upgrades', label: 'Melhorias', icon: 'upgrades' },
-  { id: 'missions', label: 'Missões', icon: 'missions' },
+  { id: 'upgrades', label: 'Estruturas', icon: 'upgrades' },
+  { id: 'missions', label: 'Crônicas', icon: 'missions' },
   { id: 'inventory', label: 'Inventário', icon: 'inventory' },
+  { id: 'timeline', label: 'Timelines', icon: 'timeline' },
   { id: 'settings', label: 'Ajustes', icon: 'settings' },
 ];
 
 export function App() {
-  const [screen, setScreen] = useState<ScreenId>('world');
+  const [screen, setScreen] = useState<ScreenId>('overview');
   const now = useNow();
   const {
     state,
@@ -94,7 +103,7 @@ export function App() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={screen === tab.id ? 'active' : ''}
+              className={`${screen === tab.id ? 'active' : ''}${tab.mobilePrimary ? '' : ' mobile-secondary'}`}
               type="button"
               aria-current={screen === tab.id ? 'page' : undefined}
               onClick={() => setScreen(tab.id)}
@@ -113,19 +122,20 @@ export function App() {
         <header className="app-header">
           <div className="app-bar">
             <div className="app-title">
-              <p className="eyebrow">Reino de Pawlands</p>
-              <h1>Cat Colony Idle</h1>
+              <p className="eyebrow">Pawlands · Universo Felino</p>
+              <h1>Catvolution</h1>
             </div>
             <GlobalActivityStatus state={state} now={now} onNavigate={setScreen} />
             <div className="level-pill">
-              <GameIcon name="level" />
-              <span>Nv. {getLeader(state).level}</span>
+              <GameIcon name="timeline" />
+              <span>T{state.timeline.number} · Nv. {getLeader(state).level}</span>
             </div>
           </div>
         </header>
 
         <div className={`app-shell${screen === 'world' ? ' app-shell--world' : ''}`}>
           <main className="app-main">
+            {screen === 'overview' && <OverviewScreen goTo={setScreen} />}
             {screen === 'world' && (
               <WorldScreen
                 goTo={setScreen}
@@ -139,6 +149,8 @@ export function App() {
             {screen === 'upgrades' && <UpgradesScreen />}
             {screen === 'missions' && <MissionsScreen />}
             {screen === 'inventory' && <InventoryScreen />}
+            {screen === 'evolution' && <EvolutionScreen />}
+            {screen === 'timeline' && <TimelineScreen />}
             {screen === 'settings' && <SettingsScreen />}
           </main>
         </div>

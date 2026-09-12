@@ -4,6 +4,10 @@ import type { Cat } from '../models/cat.ts';
 import { createEmptyEquipment } from '../models/gear.ts';
 import { createEmptyInventory, createEmptyResources } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
+import {
+  createEmptyEvolutionState,
+  createInitialTimelineState,
+} from '../models/evolution.ts';
 
 export function createInitialGameState(now = Date.now()): GameState {
   const resources = createEmptyResources();
@@ -61,6 +65,8 @@ export function createInitialGameState(now = Date.now()): GameState {
         },
       ]),
     ) as GameState['missions'],
+    evolution: createEmptyEvolutionState(),
+    timeline: createInitialTimelineState(),
     totals: {
       activitiesCompleted: 0,
       resourcesEarned: createEmptyResources(),

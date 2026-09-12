@@ -133,7 +133,7 @@ test('cat power uses attack twice, defense, level, and zero gear power in E0', (
 test('fresh cats start home with an empty expedition trophy inventory', () => {
   const state = createInitialGameState(1_000);
 
-  assert.equal(state.schemaVersion, 6);
+  assert.equal(state.schemaVersion, 7);
   assert.equal(getLeader(state).expedition, null);
   assert.equal(state.inventory.spectralSardine, 0);
   assert.equal(state.inventory.phantomFur, 0);

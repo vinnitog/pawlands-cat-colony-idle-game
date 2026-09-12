@@ -1,11 +1,13 @@
 import type { GameState } from '../models/save.ts';
 import type { RewardBundle } from '../models/resources.ts';
+import type { EvolutionNodeId } from '../models/evolution.ts';
 import {
   completeFinishedActivities,
   type ActivityCompletionDetail,
 } from './activitySystem.ts';
 import { applyEnergyRegen } from './energySystem.ts';
 import { advanceExpeditions } from './expeditionSystem.ts';
+import { advanceResearch } from './evolutionSystem.ts';
 
 export type OfflineProgressResult = {
   state: GameState;
@@ -16,6 +18,7 @@ export type OfflineProgressResult = {
   levelsGained: number;
   levelCoins: number;
   completions: ActivityCompletionDetail[];
+  completedResearchNodeId: EvolutionNodeId | null;
 };
 
 export function processOfflineProgress(
@@ -26,7 +29,8 @@ export function processOfflineProgress(
   const offlineDurationMs = Math.max(0, now - state.lastSavedAt);
 
   const completion = completeFinishedActivities(state, now, random);
-  const progressed = advanceExpeditions(completion.state, now);
+  const research = advanceResearch(completion.state, now);
+  const progressed = advanceExpeditions(research.state, now);
 
   return {
     state: {
@@ -40,5 +44,6 @@ export function processOfflineProgress(
     levelsGained: completion.levelsGained,
     levelCoins: completion.levelCoins,
     completions: completion.completions,
+    completedResearchNodeId: research.completedNodeId,
   };
 }
