@@ -1,15 +1,20 @@
 # PROJECT_CONTEXT.md - pawlands-cat-colony-idle
 
 Gerado em: 2026-07-06 19:53:45
-Atualizado em: 2026-07-25
+Atualizado em: 2026-09-12
 
 ## Descricao
 
-Jogo de navegador/PWA inspirado em progresso idle simples, com tematica de gatos e identidade propria.
+`Catvolution: Infinite Idle` é a evolução do Pawlands/Cat Colony Idle: um jogo
+incremental em que todo o universo é formado por gatos e a colônia progride por
+tecnologia, ciência, mutações, eras e combinações entre caminhos.
 
 ## Objetivo
 
-Criar um MVP jogavel de Pawlands: Cat Colony Idle para navegador de PC e celular, com save local, progresso offline e estrutura preparada para virar PWA instalavel no futuro.
+Criar um MVP jogável de Catvolution para navegador, PWA e futura publicação na
+Google Play. O MVP preserva a colônia medieval, exploração e loot existentes e
+adiciona árvores Cyber/Ciência, híbridos e o primeiro prestige, com save local e
+progresso offline.
 
 ## Publico Alvo
 
@@ -87,3 +92,7 @@ git diff --check
 - Priorizar cenario de colonia felina, cartas tematicas, icones SVG internos e feedback visual claro.
 - Manter arte simples e substituivel por assets finais no futuro.
 - Toda tela nova deve respeitar a linguagem visual de acampamento/quintal, recursos ilustrados e botoes com game feel.
+- Grimalkin representa a Era I dentro de uma identidade arcano-tecnológica maior.
+- Cyber usa violeta/ciano; Ciência usa verdes bioluminescentes; híbridos combinam
+  as duas linguagens sem transformar a interface em dashboard.
+- A estratégia e o balanceamento desta transição estão em `docs/CATVOLUTION_PLAN.md`.

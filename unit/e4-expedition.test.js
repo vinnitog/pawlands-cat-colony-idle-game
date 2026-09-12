@@ -270,7 +270,7 @@ test('v1-v4 saves default E4 fields and v5 preserves new zones and carries', () 
           leaderId: 'legacy',
         };
     const migrated = migrateGameSave(legacy);
-    assert.equal(migrated.schemaVersion, 6);
+    assert.equal(migrated.schemaVersion, 7);
     assert.equal(migrated.inventory.ancientBoneCharm, 0);
     assert.equal(migrated.inventory.soulAmulet, 0);
     assert.equal(migrated.inventory.eclipseShard, 0);
@@ -340,7 +340,7 @@ test('v3 and v4 preserve old expedition progress while defaulting every E4 field
     };
 
     const migrated = migrateGameSave(JSON.parse(JSON.stringify(legacy)));
-    assert.equal(migrated.schemaVersion, 6);
+    assert.equal(migrated.schemaVersion, 7);
     assert.deepEqual(
       {
         spectralSardine: migrated.inventory.spectralSardine,

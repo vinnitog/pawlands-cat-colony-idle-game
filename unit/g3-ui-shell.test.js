@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const root = process.cwd();
 const read = (file) => readFileSync(join(root, file), 'utf8');
 
-test('G3.3c makes Grimalkin the framed landing surface without resizing the logical map', () => {
+test('G3.3c keeps Grimalkin as a framed destination without resizing the logical map', () => {
   const app = read('src/app/App.tsx');
   const world = read('src/ui/screens/WorldScreen.tsx');
   const map = read('src/game/world/tinyTown.ts');
@@ -14,9 +14,10 @@ test('G3.3c makes Grimalkin the framed landing surface without resizing the logi
   const worldShell = css.match(/\.app-shell\.app-shell--world\s*\{([^}]*)\}/)?.[1];
 
   assert.ok(worldShell);
-  assert.match(app, /useState<ScreenId>\('world'\)/);
+  assert.match(app, /useState<ScreenId>\('overview'\)/);
   assert.match(app, /app-shell--world/);
-  assert.doesNotMatch(app, /dashboard|DashboardScreen|label: 'Início'/);
+  assert.doesNotMatch(app, /dashboard|DashboardScreen/);
+  assert.match(app, /label: 'Início'/);
   assert.equal(existsSync(join(root, 'src/ui/screens/DashboardScreen.tsx')), false);
   assert.match(worldShell, /box-sizing: border-box;/);
   assert.match(worldShell, /width: 100%;/);

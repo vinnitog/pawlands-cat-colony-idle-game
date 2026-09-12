@@ -15,6 +15,7 @@ import {
 import { addXpToCat } from './levelSystem.ts';
 import { refreshMissionProgress } from './missionSystem.ts';
 import { getUpgradeBonuses } from './upgradeSystem.ts';
+import { getEvolutionBonuses } from './evolutionSystem.ts';
 
 /** Extra fish caught when fishing at the Grimalkin lake instead of the menu. */
 export const LAKE_FISH_MULTIPLIER = 1.5;
@@ -67,6 +68,7 @@ function createActivityReward(
 ): RewardBundle {
   const activity = activityById[activityId];
   const bonuses = getUpgradeBonuses(state);
+  const evolutionBonuses = getEvolutionBonuses(state);
   // Honor the day the activity was started, so the bonus the card promised holds
   // even if it finishes after the UTC day rolls over (e.g. offline overnight).
   const featured = isDailyBonusActivity(activityId, startedAt);
@@ -91,7 +93,9 @@ function createActivityReward(
   }
 
   if (activity.rewards.xp) {
-    let xp = rollRange(activity.rewards.xp, random) * bonuses.xpMultiplier;
+    let xp = rollRange(activity.rewards.xp, random)
+      * bonuses.xpMultiplier
+      * evolutionBonuses.activityXpMultiplier;
     if (featured) xp *= DAILY_BONUS_XP_MULTIPLIER;
     if (atLake) xp *= LAKE_XP_MULTIPLIER;
     reward.xp = Math.floor(xp);
@@ -103,7 +107,13 @@ function createActivityReward(
 
   for (const rareReward of activity.rewards.rareItems ?? []) {
     const luckBonus = actor.stats.luck * 0.005;
-    if (random() <= rareReward.chance + bonuses.rareChanceBonus + luckBonus) {
+    if (
+      random()
+      <= rareReward.chance
+        + bonuses.rareChanceBonus
+        + evolutionBonuses.rareChanceBonus
+        + luckBonus
+    ) {
       reward.inventory[rareReward.item] = (reward.inventory[rareReward.item] ?? 0) + 1;
     }
   }
@@ -133,6 +143,7 @@ export function startActivity(
   options: StartActivityOptions = {},
 ): ActivityStartResult {
   const activity = activityById[activityId];
+  const evolutionBonuses = getEvolutionBonuses(state);
   const catId = options.catId ?? getLeader(state).id;
   const actor = state.cats.find((cat) => cat.id === catId);
 
@@ -156,7 +167,10 @@ export function startActivity(
       activity: {
         activityId,
         startedAt: now,
-        endsAt: now + activity.durationMs,
+        endsAt: now + Math.max(
+          1,
+          Math.floor(activity.durationMs * evolutionBonuses.activityDurationMultiplier),
+        ),
         ...(options.atLake ? { atLake: true } : {}),
       },
     })),

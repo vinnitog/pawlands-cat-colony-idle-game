@@ -3,8 +3,9 @@ import type { ExpeditionZoneId } from './expedition.ts';
 import type { MissionId, MissionState } from './missions.ts';
 import type { Inventory, Resources } from './resources.ts';
 import type { UpgradeId, UpgradeState } from './upgrades.ts';
+import type { EvolutionState, TimelineState } from './evolution.ts';
 
-export const saveSchemaVersion = 6;
+export const saveSchemaVersion = 7;
 
 export type GameTotals = {
   activitiesCompleted: number;
@@ -26,6 +27,10 @@ export type GameState = {
   inventory: Inventory;
   upgrades: Record<UpgradeId, UpgradeState>;
   missions: Record<MissionId, MissionState>;
+  /** Modular research trees. Only ids and the running timer are authoritative. */
+  evolution: EvolutionState;
+  /** Permanent prestige progress preserved between colony resets. */
+  timeline: TimelineState;
   totals: GameTotals;
   /** Last position of the player in the Grimalkin world, in world pixels. */
   world: { x: number; y: number };

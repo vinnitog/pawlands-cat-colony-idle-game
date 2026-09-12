@@ -21,6 +21,12 @@ import { inventoryItemKeys, resourceKeys } from '../models/resources.ts';
 import { saveSchemaVersion, type GameState } from '../models/save.ts';
 import type { UpgradeState } from '../models/upgrades.ts';
 import { refreshMissionProgress } from '../systems/missionSystem.ts';
+import { evolutionNodeById, evolutionNodes, isEvolutionNodeId } from '../data/evolution.ts';
+import type {
+  ActiveResearch,
+  EvolutionState,
+  TimelineState,
+} from '../models/evolution.ts';
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -45,6 +51,7 @@ export function migrateGameSave(value: unknown): GameState {
       || candidate.schemaVersion === 3
       || candidate.schemaVersion === 4
       || candidate.schemaVersion === 5
+      || candidate.schemaVersion === 6
       || candidate.schemaVersion === saveSchemaVersion
     ) {
       const cats = mergeCats(candidate.cats, fallback.cats);
@@ -75,6 +82,8 @@ function buildState(
     inventory: mergeInventory(candidate.inventory, fallback.inventory),
     upgrades: mergeUpgrades(candidate.upgrades, fallback.upgrades),
     missions: mergeMissions(candidate.missions, fallback.missions),
+    evolution: mergeEvolution(candidate.evolution),
+    timeline: mergeTimeline(candidate.timeline),
     totals: {
       activitiesCompleted: toSafeNumber(totals.activitiesCompleted, 0),
       upgradesPurchased: toSafeNumber(totals.upgradesPurchased, 0),
@@ -87,6 +96,63 @@ function buildState(
     ),
     lastSavedAt: toSafeNumber(candidate.lastSavedAt, fallback.lastSavedAt),
   });
+}
+
+function mergeEvolution(value: unknown): EvolutionState {
+  if (!isObject(value)) return { unlocked: [], activeResearch: null };
+
+  const requested = new Set(Array.isArray(value.unlocked) ? value.unlocked.filter(isEvolutionNodeId) : []);
+  const unlocked = evolutionNodes.reduce<EvolutionState['unlocked']>((valid, node) => {
+    if (requested.has(node.id) && node.prerequisites.every((id) => valid.includes(id))) {
+      valid.push(node.id);
+    }
+    return valid;
+  }, []);
+
+  return {
+    unlocked,
+    activeResearch: mergeActiveResearch(value.activeResearch, unlocked),
+  };
+}
+
+function mergeActiveResearch(
+  value: unknown,
+  unlocked: EvolutionState['unlocked'],
+): ActiveResearch | null {
+  if (
+    !isObject(value)
+    || !isEvolutionNodeId(value.nodeId)
+    || unlocked.includes(value.nodeId)
+    || typeof value.startedAt !== 'number'
+    || !Number.isFinite(value.startedAt)
+    || typeof value.endsAt !== 'number'
+    || !Number.isFinite(value.endsAt)
+    || !evolutionNodeById[value.nodeId].prerequisites.every((id) => unlocked.includes(id))
+  ) {
+    return null;
+  }
+
+  const startedAt = toSafeNumber(value.startedAt, 0);
+  const endsAt = toSafeNumber(value.endsAt, 0);
+  if (endsAt < startedAt) return null;
+  return { nodeId: value.nodeId, startedAt, endsAt };
+}
+
+function mergeTimeline(value: unknown): TimelineState {
+  if (!isObject(value)) {
+    return { number: 1, shards: 0, totalShards: 0, lastShiftAt: null };
+  }
+
+  const shards = toSafeNumber(value.shards, 0);
+  return {
+    number: Math.max(1, toSafeNumber(value.number, 1)),
+    shards,
+    totalShards: Math.max(shards, toSafeNumber(value.totalShards, shards)),
+    lastShiftAt:
+      typeof value.lastShiftAt === 'number' && Number.isFinite(value.lastShiftAt)
+        ? Math.max(0, Math.floor(value.lastShiftAt))
+        : null,
+  };
 }
 
 function mergeCats(value: unknown, fallback: Cat[]): Cat[] {

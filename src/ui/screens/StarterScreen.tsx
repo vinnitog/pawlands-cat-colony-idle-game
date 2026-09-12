@@ -28,10 +28,10 @@ export function StarterScreen({ onConfirm }: StarterScreenProps) {
 
       <div className="starter-content">
         <header className="starter-head">
-          <p className="eyebrow">Reino de Pawlands</p>
-          <h1>Escolha seu Guardião</h1>
+          <p className="eyebrow">Pawlands · Timeline I</p>
+          <h1>Escolha o Primeiro Gato</h1>
           <p className="starter-sub">
-            Ele lidera a colônia — o gato que caça e defende. Os outros virão com o tempo.
+            Toda evolução começa com um nome. Este guardião fundará a colônia e atravessará eras.
           </p>
         </header>
 
@@ -83,7 +83,7 @@ export function StarterScreen({ onConfirm }: StarterScreenProps) {
           disabled={!nameOk}
           onClick={submit}
         >
-          ⚔ Começar a Jornada
+          ✦ Iniciar Catvolution
         </button>
       </div>
     </div>

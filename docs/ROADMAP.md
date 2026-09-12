@@ -1,9 +1,15 @@
 # Pawlands — Roadmap
 
+> Direção atual: **Catvolution: Infinite Idle**. Os sistemas abaixo formam a
+> Era I e continuam válidos. Ver `docs/CATVOLUTION_PLAN.md`.
+
 > Documento vivo. Regra de trabalho: **sempre atacar o item mais simples e
 > rápido de entregar primeiro**, em commits pequenos por etapa.
 
 ## ✅ Feito
+- **Catvolution vertical slice:** Home de comando, ramos Cyber/Ciência, primeiro
+  híbrido, pesquisa offline, save v7, Nova Timeline e navegação mobile preparada
+  para futuro shell Android.
 - **Identidade:** redesign medieval, lore Cat-Sìth (`docs/LORE.md`), 5 classes
   (cavaleiro/arqueiro/mago/ninja/rei), tela de seleção de starter.
 - **Mundo (Fase 2):** Grimalkin caminhável — tilemap, colisão, câmera, gato
@@ -76,8 +82,9 @@ Missões e Melhorias, sem resetar o save, conceder recompensa adicional ou
 interromper atividades e expedições.
 
 Um capstone narrativo jogável deve chegar junto de uma expansão de conteúdo.
-Prestígio/rebirth permanece adiado até existirem combate, curva de endgame e
-recompensa permanente suficientes para justificar um reset voluntário.
+O pedido de reestruturação Catvolution substituiu a decisão anterior de adiar o
+prestígio. A primeira Nova Timeline agora é liberada somente após a crônica e o
+Protocolo Bio-Ciborgue, com Fragmentos permanentes e confirmação explícita.
 
 ## Grimalkin visual
 

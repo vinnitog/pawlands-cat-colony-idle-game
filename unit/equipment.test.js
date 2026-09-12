@@ -333,7 +333,7 @@ test('save v1-v5 defaults and sanitizes equipment ids and slots', () => {
           leaderId: 'legacy',
         };
     const migrated = migrateGameSave(legacy);
-    assert.equal(migrated.schemaVersion, 6);
+    assert.equal(migrated.schemaVersion, 7);
     assert.deepEqual(getLeader(migrated).equipment, {
       weapon: null,
       armor: null,
@@ -394,7 +394,7 @@ test('v5 save preserves existing gear and defaults the new slots and inventory',
 
   const migrated = migrateGameSave(JSON.parse(JSON.stringify(legacy)));
 
-  assert.equal(migrated.schemaVersion, 6);
+  assert.equal(migrated.schemaVersion, 7);
   assert.deepEqual(getLeader(migrated).equipment, {
     weapon: 'ironClaw',
     armor: 'guardArmor',
@@ -408,7 +408,7 @@ test('v5 save preserves existing gear and defaults the new slots and inventory',
   assert.equal(migrated.inventory.eclipseCrown, 0);
 });
 
-test('v6 round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
+test('current round-trip preserves multi-cat inventory, equipment, activity, and expedition', () => {
   const initial = createInitialGameState(1_000);
   initial.resources.gems = 10;
   const recruited = recruitCat(initial, () => 0, 2_000);
@@ -461,7 +461,7 @@ test('v6 round-trip preserves multi-cat inventory, equipment, activity, and expe
   };
 
   const loaded = migrateGameSave(JSON.parse(JSON.stringify(saved)));
-  assert.equal(loaded.schemaVersion, 6);
+  assert.equal(loaded.schemaVersion, 7);
   assert.deepEqual(
     {
       ironClaw: loaded.inventory.ironClaw,

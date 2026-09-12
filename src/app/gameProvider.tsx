@@ -17,6 +17,7 @@ import type { ExpeditionTrophyKey, RewardBundle } from '../game/models/resources
 import type { GameState } from '../game/models/save.ts';
 import type { UpgradeId } from '../game/models/upgrades.ts';
 import type { ShopItemId } from '../game/models/shop.ts';
+import type { EvolutionNodeId } from '../game/models/evolution.ts';
 import { createInitialGameState } from '../game/data/initialGameState.ts';
 import { gearById } from '../game/data/gear.ts';
 import { shopItemById } from '../game/data/shop.ts';
@@ -51,6 +52,12 @@ import {
 } from '../game/systems/trophySystem.ts';
 import { clearGame, loadGame, saveGame } from '../game/storage/saveManager.ts';
 import {
+  advanceResearch,
+  enterNewTimeline as enterNewTimelineInState,
+  startResearch as startResearchInState,
+} from '../game/systems/evolutionSystem.ts';
+import { evolutionNodeById } from '../game/data/evolution.ts';
+import {
   detectGameFeelCues,
   enqueueGameFeelEffects,
   type GameFeelCue,
@@ -83,6 +90,8 @@ type GameContextValue = {
   claimMission(missionId: MissionId): void;
   buyShopItem(itemId: ShopItemId): void;
   sellTrophy(trophyId: ExpeditionTrophyKey, mode: TrophySaleMode): void;
+  startResearch(nodeId: EvolutionNodeId): void;
+  enterNewTimeline(): void;
   setWorldPosition(x: number, y: number): void;
   completeOnboarding(choice: { name: string; catClass: CatClass }): void;
   resetGame(): void;
@@ -102,7 +111,7 @@ function createBootState() {
     id: index + 1,
   }));
 
-  if (offline.activityCompleted) {
+  if (offline.activityCompleted || offline.completedResearchNodeId) {
     saveGame(offline.state, undefined, now);
   }
 
@@ -121,6 +130,9 @@ function createBootState() {
         : null,
     gameFeelEffects,
     nextGameFeelEffectId: gameFeelEffects.length + 1,
+    bootToast: offline.completedResearchNodeId
+      ? `${evolutionNodeById[offline.completedResearchNodeId].name} foi concluída enquanto você estava fora.`
+      : null,
   };
 }
 
@@ -134,7 +146,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [gameFeelEffects, setGameFeelEffects] = useState<GameFeelEffect[]>(
     boot.gameFeelEffects,
   );
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(boot.bootToast);
   const [toastRevision, setToastRevision] = useState(0);
   const previousStateRef = useRef(state);
   const nextGameFeelEffectIdRef = useRef(boot.nextGameFeelEffectId);
@@ -244,6 +256,24 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     return () => window.clearInterval(intervalId);
   }, [enqueueRewardNotice, hasBusyCat, updateState]);
+
+  const activeResearchNodeId = state.evolution.activeResearch?.nodeId ?? null;
+
+  useEffect(() => {
+    if (!activeResearchNodeId) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      updateState((current) => {
+        const result = advanceResearch(current, Date.now());
+        if (!result.completedNodeId) return current;
+        saveGame(result.state);
+        showToast(`${evolutionNodeById[result.completedNodeId].name} concluída!`);
+        return result.state;
+      });
+    }, 1_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [activeResearchNodeId, showToast, updateState]);
 
   const startActivity = useCallback((activityId: ActivityId, options?: StartActivityOptions) => {
     updateState((current) => {
@@ -436,6 +466,37 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, [showToast, updateState]);
 
+  const startResearch = useCallback((nodeId: EvolutionNodeId) => {
+    updateState((current) => {
+      const result = startResearchInState(current, nodeId, Date.now());
+      if (!result.ok) {
+        showToast(result.reason);
+        return current;
+      }
+
+      saveGame(result.state);
+      showToast(`${evolutionNodeById[nodeId].name} iniciada.`);
+      return result.state;
+    });
+  }, [showToast, updateState]);
+
+  const enterNewTimeline = useCallback(() => {
+    updateState((current) => {
+      const result = enterNewTimelineInState(current, Date.now());
+      if (!result.ok) {
+        showToast(result.reason);
+        return current;
+      }
+
+      suppressNextGameFeelRef.current = true;
+      setGameFeelEffects([]);
+      setRewardNotices([]);
+      saveGame(result.state);
+      showToast(`Timeline ${result.state.timeline.number} iniciada com +${result.shardsAwarded} Fragmentos.`);
+      return result.state;
+    });
+  }, [showToast, updateState]);
+
   const setWorldPosition = useCallback((x: number, y: number) => {
     updateState((current) => {
       if (current.world.x === x && current.world.y === y) return current;
@@ -483,6 +544,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       claimMission,
       buyShopItem,
       sellTrophy,
+      startResearch,
+      enterNewTimeline,
       setWorldPosition,
       completeOnboarding,
       resetGame,
@@ -499,6 +562,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       dismissToast,
       enqueueRewardNotice,
       equipGear,
+      enterNewTimeline,
       gameFeelEffects,
       recruitCat,
       rewardNotice,
@@ -509,6 +573,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setWorldPosition,
       startActivity,
       startExpedition,
+      startResearch,
       state,
       toast,
       toastRevision,

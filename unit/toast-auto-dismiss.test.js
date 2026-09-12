@@ -113,7 +113,9 @@ test('toast remains readable and tappable beside the mobile nav and below reward
     '@media (max-width: 420px)',
   );
 
-  assert.match(mobileBlock, /--nav-w:\s*60px/);
+  assert.match(mobileBlock, /--nav-w:\s*0px/);
+  assert.match(mobileBlock, /env\(safe-area-inset-bottom\)/);
+  assert.match(mobileBlock, /bottom:\s*calc\(82px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(toastBlock, /left:\s*calc\(var\(--nav-w\) \+ 12px\)/);
   assert.match(
     toastBlock,
